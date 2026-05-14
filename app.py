@@ -553,18 +553,25 @@ def get_cached_result(query: str) -> tuple[str, list[dict]] | None:
 
 
 def delete_document(filename: str) -> int:
-    from qdrant_client.models import Filter, FieldCondition, MatchValue
+    from qdrant_client.models import (
+        Filter, FieldCondition, MatchValue, FilterSelector, PointIdsList
+    )
     client = get_qdrant()
     result = client.delete(
         collection_name=COLLECTION,
-        points_selector=Filter(
-            must=[FieldCondition(key="filename", match=MatchValue(value=filename))]
+        points_selector=FilterSelector(
+            filter=Filter(
+                must=[FieldCondition(key="filename", match=MatchValue(value=filename))]
+            )
         ),
     )
     try:
         _ensure_pdf_collection(client)
         point_id = str(uuid.uuid5(uuid.NAMESPACE_DNS, filename))
-        client.delete(collection_name=PDF_COLLECTION, points_selector=[point_id])
+        client.delete(
+            collection_name=PDF_COLLECTION,
+            points_selector=PointIdsList(points=[point_id]),
+        )
         get_pdf_b64.clear()
     except Exception:
         pass
