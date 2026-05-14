@@ -65,7 +65,7 @@ html, body, [class*="css"], .stApp, p, div, span, label, input, textarea, button
     font-size: 17px !important;
 }
 
-p, li, span, label {
+p, li, label {
     font-size: 1rem !important;
     color: #202124 !important;
     line-height: 1.8 !important;
@@ -193,9 +193,13 @@ div[data-testid="stTextInput"] input:focus {
 }
 
 /* ボタン */
-.stButton > button {
+.stButton > button,
+.stButton > button p,
+.stButton > button span,
+div[data-testid="stButton"] > button,
+div[data-testid="stFormSubmitButton"] > button {
     background: #1a73e8 !important;
-    color: white !important;
+    color: #ffffff !important;
     border: none !important;
     border-radius: 6px !important;
     font-size: 0.95rem !important;
@@ -203,9 +207,15 @@ div[data-testid="stTextInput"] input:focus {
     font-family: 'Noto Sans JP', Arial, sans-serif !important;
     padding: 0.5rem 1.4rem !important;
 }
-.stButton > button:hover {
+.stButton > button:hover,
+div[data-testid="stButton"] > button:hover {
     background: #1765cc !important;
+    color: #ffffff !important;
     box-shadow: 0 1px 3px rgba(60,64,67,0.2) !important;
+}
+.stButton > button *,
+div[data-testid="stButton"] > button * {
+    color: #ffffff !important;
 }
 
 /* チャットメッセージ */
