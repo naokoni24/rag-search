@@ -84,15 +84,16 @@ html, body, [class*="css"], .stApp, p, div, label, textarea, button {
     display: none !important;
 }
 
-/* アップロードボタン：2つ目以降を非表示にして1つ目だけ「＋」ボタンとして表示 */
-[data-testid="stFileUploaderDropzone"] button {
+/* アップローダー内のボタンをすべて非表示（重複対策） */
+[data-testid="stFileUploader"] button {
     display: none !important;
 }
+/* ドロップゾーン内の最初のボタンだけグレーの丸「＋」として表示 */
 [data-testid="stFileUploaderDropzone"] button:first-of-type {
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    background: #1a73e8 !important;
+    background: #5f6368 !important;
     color: transparent !important;
     border: none !important;
     border-radius: 50% !important;
