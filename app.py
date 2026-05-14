@@ -192,12 +192,8 @@ div[data-testid="stTextInput"] input:focus {
     outline: none !important;
 }
 
-/* ボタン */
-.stButton > button,
-.stButton > button p,
-.stButton > button span,
-div[data-testid="stButton"] > button,
-div[data-testid="stFormSubmitButton"] > button {
+/* ボタン（ファイルアップローダー内は除外） */
+.stButton > button {
     background: #1a73e8 !important;
     color: #ffffff !important;
     border: none !important;
@@ -206,16 +202,29 @@ div[data-testid="stFormSubmitButton"] > button {
     font-weight: 500 !important;
     font-family: 'Noto Sans JP', Arial, sans-serif !important;
     padding: 0.5rem 1.4rem !important;
+    width: auto !important;
 }
-.stButton > button:hover,
-div[data-testid="stButton"] > button:hover {
+.stButton > button:hover {
     background: #1765cc !important;
     color: #ffffff !important;
     box-shadow: 0 1px 3px rgba(60,64,67,0.2) !important;
 }
-.stButton > button *,
-div[data-testid="stButton"] > button * {
+.stButton > button p {
     color: #ffffff !important;
+}
+
+/* ファイルアップローダー内ボタンはデフォルトに戻す */
+[data-testid="stFileUploader"] button {
+    background: transparent !important;
+    color: #1a73e8 !important;
+    border: 1px solid #dadce0 !important;
+    border-radius: 4px !important;
+    font-size: 0.9rem !important;
+    padding: 0.3rem 0.8rem !important;
+    width: auto !important;
+}
+[data-testid="stFileUploader"] button * {
+    color: #1a73e8 !important;
 }
 
 /* チャットメッセージ */
