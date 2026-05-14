@@ -832,8 +832,9 @@ st.markdown(f"""
 docs = get_registered_docs()
 ADMIN_PASSWORD = get_secret("ADMIN_PASSWORD")
 
-# ---- スマホ用ログアウト（タブの上・モバイルのみ表示） ----
-if st.session_state.get("admin_authenticated", False):
+# ---- スマホ用ログアウト（タブの上・「文書を管理」タブのときのみ表示） ----
+if (st.session_state.get("admin_authenticated", False)
+        and st.session_state.get("active_tab") == "manage"):
     st.markdown('<div class="mobile-logout-marker"></div>', unsafe_allow_html=True)
     _, _mlc = st.columns([4, 1])
     with _mlc:
@@ -847,6 +848,10 @@ tab_search, tab_manage = st.tabs(["　🔍　文書を検索　", "　📂　文
 
 # ---- 検索タブ ----
 with tab_search:
+    # タブ切り替えを検知して active_tab を更新
+    if st.session_state.get("active_tab") != "search":
+        st.session_state["active_tab"] = "search"
+        st.rerun()
     st.markdown('<p class="search-lead">社内文書に関する質問を入力してください</p>', unsafe_allow_html=True)
 
     if "search_query" not in st.session_state:
@@ -947,6 +952,10 @@ with tab_search:
 
 # ---- 文書管理タブ ----
 with tab_manage:
+    # タブ切り替えを検知して active_tab を更新
+    if st.session_state.get("active_tab") != "manage":
+        st.session_state["active_tab"] = "manage"
+        st.rerun()
     is_admin = check_admin_timeout()
 
     if not is_admin:
