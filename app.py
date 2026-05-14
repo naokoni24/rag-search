@@ -64,9 +64,8 @@ html, body, [class*="css"], .stApp, p, div, span, label, textarea, button {
     display: none !important;
 }
 
-/* アップロードボタンを青色に統一 */
-[data-testid="stFileUploaderDropzone"] button,
-[data-testid="stFileUploader"] button {
+/* アップロードボタンを青色に統一（子要素は触らない） */
+[data-testid="stFileUploaderDropzone"] button {
     background: #1a73e8 !important;
     color: #ffffff !important;
     border: none !important;
@@ -74,10 +73,6 @@ html, body, [class*="css"], .stApp, p, div, span, label, textarea, button {
     font-size: 0.9rem !important;
     font-weight: 500 !important;
     padding: 0.4rem 1.2rem !important;
-}
-[data-testid="stFileUploaderDropzone"] button *,
-[data-testid="stFileUploader"] button * {
-    color: #ffffff !important;
 }
 
 /* ベースフォントサイズ */
@@ -229,14 +224,6 @@ div[data-testid="stTextInput"] input:focus {
     background: #1765cc !important;
     color: #ffffff !important;
     box-shadow: 0 1px 3px rgba(60,64,67,0.2) !important;
-}
-.stButton > button > div,
-.stButton > button > div > p,
-.stButton > button p,
-.stButton > button span,
-.stButton > button div {
-    color: #ffffff !important;
-    font-weight: 500 !important;
 }
 
 
