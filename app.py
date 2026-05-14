@@ -209,17 +209,7 @@ div[data-testid="stTextInput"] input:focus {
     color: #ffffff !important;
     box-shadow: 0 1px 3px rgba(60,64,67,0.2) !important;
 }
-.stButton > button p {
-    color: #ffffff !important;
-}
 
-/* ファイルアップローダー内は一切上書きしない */
-[data-testid="stFileUploader"] button,
-[data-testid="stFileUploader"] button *,
-[data-testid="stFileUploaderDropzone"] button,
-[data-testid="stFileUploaderDropzone"] button * {
-    all: revert !important;
-}
 
 /* チャットメッセージ */
 [data-testid="stChatMessage"] {
@@ -233,25 +223,6 @@ div[data-testid="stTextInput"] input:focus {
 .stCaptionContainer, [data-testid="stCaptionContainer"] {
     font-size: 0.88rem !important;
     color: #5f6368 !important;
-}
-
-/* ファイルアップローダー */
-[data-testid="stFileUploader"] {
-    background: #ffffff !important;
-    border-radius: 8px !important;
-}
-[data-testid="stFileUploaderDropzone"] {
-    background: #f8f9fa !important;
-}
-[data-testid="stFileUploaderDropzoneInstructions"] span,
-[data-testid="stFileUploaderDropzoneInstructions"] small {
-    color: #5f6368 !important;
-}
-
-/* info / warning / error ボックス */
-[data-testid="stAlert"] {
-    background: #ffffff !important;
-    color: #202124 !important;
 }
 
 /* expander */
