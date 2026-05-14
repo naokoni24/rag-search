@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="48" viewBox="0 0 200 48">
+  <!-- アイコン：六角形ベース -->
+  <polygon points="24,4 42,14 42,34 24,44 6,34 6,14" fill="#1a73e8"/>
+  <polygon points="24,10 36,17 36,31 24,38 12,31 12,17" fill="#1557b0"/>
+  <!-- 中央のドキュメントアイコン -->
+  <rect x="17" y="16" width="14" height="17" rx="2" fill="white"/>
+  <rect x="20" y="20" width="8" height="1.5" rx="0.75" fill="#1a73e8"/>
+  <rect x="20" y="23" width="8" height="1.5" rx="0.75" fill="#1a73e8"/>
+  <rect x="20" y="26" width="5" height="1.5" rx="0.75" fill="#1a73e8"/>
+  <!-- チェックマーク -->
+  <circle cx="30" cy="32" r="5" fill="#34a853"/>
+  <polyline points="27.5,32 29.5,34 33,29.5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+
+  <!-- 会社名 -->
+  <text x="52" y="20" font-family="'Arial', sans-serif" font-size="11" font-weight="400" fill="#5f6368" letter-spacing="1">SAMPLE CO., LTD.</text>
+  <text x="52" y="40" font-family="'Arial', sans-serif" font-size="20" font-weight="700" fill="#1a1a2e" letter-spacing="-0.5">KnowledgeAI</text>
+</svg>

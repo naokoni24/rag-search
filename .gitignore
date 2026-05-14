@@ -1,0 +1,8 @@
+.env
+venv/
+qdrant_data/
+search_log.json
+__pycache__/
+*.pyc
+*.pdf
+.DS_Store
