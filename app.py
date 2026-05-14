@@ -236,6 +236,8 @@ div[data-testid="stTextInput"] input:focus {
     font-family: 'Noto Sans JP', Arial, sans-serif !important;
     padding: 0.5rem 1.4rem !important;
     width: auto !important;
+    height: 2.6rem !important;
+    line-height: 1 !important;
 }
 .stButton > button:hover {
     background: #1765cc !important;
@@ -655,7 +657,6 @@ st.markdown(f"""
       <div class="header-subtitle">社内文書をAIで即座に検索・回答</div>
     </div>
   </div>
-  <span class="ai-badge">AI 搭載</span>
 </div>
 """, unsafe_allow_html=True)
 
