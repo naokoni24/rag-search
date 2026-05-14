@@ -291,6 +291,35 @@ div[data-testid="stTextInput"] input:focus {
     font-size: 0.88rem !important;
     color: #5f6368 !important;
 }
+
+/* 参照元ドキュメント 折りたたみ（details/summary） */
+details.src-section {
+    border: 1px solid #dadce0;
+    border-radius: 8px;
+    margin-top: 0.8rem;
+    background: #ffffff;
+    overflow: hidden;
+}
+details.src-section > summary {
+    list-style: none;
+    cursor: pointer;
+    padding: 0.65rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    user-select: none;
+    font-family: 'Noto Sans JP', Arial, sans-serif;
+}
+details.src-section > summary::-webkit-details-marker { display: none; }
+details.src-section > summary::after {
+    content: "▼";
+    margin-left: auto;
+    color: #5f6368;
+    font-size: 0.82rem;
+}
+details.src-section[open] > summary::after { content: "▲"; }
+details.src-section > summary:hover { background: #f8f9fa; }
+.src-cards { padding: 0.6rem 1rem 0.4rem 1rem; }
 </style>
 """
 
@@ -789,68 +818,49 @@ with tab_search:
                 with st.chat_message("assistant", avatar="🤖"):
                     st.markdown(linkify_answer(answer), unsafe_allow_html=True)
 
-                # 参照元ドキュメント（expander を使わず直接表示）
-                st.markdown(f"""
-<div style="
-    display:flex;align-items:center;gap:0.5rem;
-    margin:1rem 0 0.6rem 0;
-    padding-bottom:0.5rem;
-    border-bottom:1px solid #dadce0;
-">
-  <span style="
-    background:#1a73e8;color:#fff;
-    border-radius:4px;padding:2px 10px;
-    font-size:0.8rem;font-weight:700;
-  ">参照元</span>
-  <span style="font-size:0.9rem;font-weight:600;color:#5f6368;">
-    ドキュメント（{len(chunks_result)} 件）
-  </span>
-</div>
-""", unsafe_allow_html=True)
+                # 参照元ドキュメント（details/summary で折りたたみ）
+                _cards_html = ""
                 for i, c in enumerate(chunks_result, 1):
                     score_pct = int(c["score"] * 100)
                     b64 = get_pdf_b64(c["filename"])
                     if b64:
-                        fname_html = (
+                        _fname_html = (
                             f'<a href="data:application/pdf;base64,{b64}" '
                             f'download="{c["filename"]}" '
-                            f'style="font-weight:700;color:#1a73e8;font-size:0.95rem;'
-                            f'text-decoration:none;">{c["filename"]}</a>'
+                            f'style="font-weight:700;color:#1a73e8;font-size:0.95rem;text-decoration:none;">'
+                            f'{c["filename"]}</a>'
                         )
                     else:
-                        fname_html = (
+                        _fname_html = (
                             f'<span style="font-weight:700;color:#202124;font-size:0.95rem;">'
                             f'{c["filename"]}</span>'
                         )
-                    excerpt = c['text'][:200] + '...' if len(c['text']) > 200 else c['text']
-                    st.markdown(f"""
-<div style="
-    background:#f8f9fa;
-    border-left:4px solid #1a73e8;
-    border-radius:4px;
-    padding:0.8rem 1rem;
-    margin-bottom:0.6rem;
-">
+                    _excerpt = c['text'][:200] + '...' if len(c['text']) > 200 else c['text']
+                    _cards_html += f"""
+<div style="background:#f8f9fa;border-left:4px solid #1a73e8;border-radius:4px;
+            padding:0.8rem 1rem;margin-bottom:0.6rem;">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.4rem;">
     <div style="display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;">
-      <span style="
-        background:#1a73e8;color:#fff;
-        border-radius:4px;padding:2px 10px;
-        font-size:0.8rem;font-weight:700;
-      ">{i}</span>
-      {fname_html}
+      <span style="background:#1a73e8;color:#fff;border-radius:4px;padding:2px 10px;
+                   font-size:0.8rem;font-weight:700;">{i}</span>
+      {_fname_html}
       <span style="color:#5f6368;font-size:0.85rem;">p.{c['page']}</span>
     </div>
-    <span style="
-      background:#e8f0fe;color:#1a73e8;
-      border-radius:12px;padding:2px 10px;
-      font-size:0.8rem;font-weight:600;white-space:nowrap;
-    ">関連度 {score_pct}%</span>
+    <span style="background:#e8f0fe;color:#1a73e8;border-radius:12px;padding:2px 10px;
+                 font-size:0.8rem;font-weight:600;white-space:nowrap;">関連度 {score_pct}%</span>
   </div>
-  <div style="color:#5f6368;font-size:0.88rem;line-height:1.7;">
-    {excerpt}
-  </div>
+  <div style="color:#5f6368;font-size:0.88rem;line-height:1.7;">{_excerpt}</div>
 </div>
+"""
+                st.markdown(f"""
+<details class="src-section">
+  <summary>
+    <span style="background:#1a73e8;color:#fff;border-radius:4px;padding:2px 10px;
+                 font-size:0.8rem;font-weight:700;">参照元</span>
+    <span style="font-size:0.9rem;font-weight:600;color:#5f6368;">ドキュメント（{len(chunks_result)} 件）</span>
+  </summary>
+  <div class="src-cards">{_cards_html}</div>
+</details>
 """, unsafe_allow_html=True)
 
     # よく検索されるキーワード（結果の下・常時表示・APIなし）
