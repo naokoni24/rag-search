@@ -55,8 +55,20 @@ STYLE = """
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap');
 
-html, body, [class*="css"], .stApp, p, div, span, label, input, textarea, button {
+html, body, [class*="css"], .stApp, p, div, span, label, textarea, button {
     font-family: 'Noto Sans JP', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', Arial, sans-serif !important;
+}
+
+/* ファイルアップローダーのネイティブ input を確実に非表示 */
+[data-testid="stFileUploader"] input[type="file"],
+[data-testid="stFileUploaderDropzone"] input[type="file"] {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    opacity: 0 !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
 }
 
 /* ベースフォントサイズ */
@@ -223,15 +235,6 @@ div[data-testid="stTextInput"] input:focus {
 .stCaptionContainer, [data-testid="stCaptionContainer"] {
     font-size: 0.88rem !important;
     color: #5f6368 !important;
-}
-
-/* ファイルアップローダーの隠し input を完全に非表示 */
-[data-testid="stFileUploader"] input[type="file"] {
-    opacity: 0 !important;
-    width: 0 !important;
-    height: 0 !important;
-    position: absolute !important;
-    pointer-events: none !important;
 }
 
 /* expander */
