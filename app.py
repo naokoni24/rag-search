@@ -59,16 +59,29 @@ html, body, [class*="css"], .stApp, p, div, span, label, textarea, button {
     font-family: 'Noto Sans JP', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', Arial, sans-serif !important;
 }
 
-/* ファイルアップローダーのネイティブ input を確実に非表示 */
-[data-testid="stFileUploader"] input[type="file"],
-[data-testid="stFileUploaderDropzone"] input[type="file"] {
-    position: absolute !important;
-    width: 1px !important;
-    height: 1px !important;
-    opacity: 0 !important;
-    overflow: hidden !important;
-    clip: rect(0, 0, 0, 0) !important;
-    white-space: nowrap !important;
+/* ネイティブ file input のボタン部分を非表示 */
+[data-testid="stFileUploader"] input[type="file"]::file-selector-button,
+[data-testid="stFileUploader"] input[type="file"]::-webkit-file-upload-button {
+    display: none !important;
+}
+[data-testid="stFileUploader"] input[type="file"] {
+    color: transparent !important;
+    font-size: 0 !important;
+}
+
+/* Streamlit のアップロードボタンを青色に */
+[data-testid="stFileUploaderDropzone"] button {
+    background: #1a73e8 !important;
+    color: #ffffff !important;
+    border: none !important;
+    border-radius: 6px !important;
+    font-size: 0.9rem !important;
+    font-weight: 500 !important;
+    padding: 0.4rem 1.2rem !important;
+}
+[data-testid="stFileUploaderDropzone"] button span,
+[data-testid="stFileUploaderDropzone"] button p {
+    color: #ffffff !important;
 }
 
 /* ベースフォントサイズ */
