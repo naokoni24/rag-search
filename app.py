@@ -702,17 +702,38 @@ with tab_search:
                 with st.chat_message("assistant", avatar="🤖"):
                     st.write(answer)
 
-                with st.expander(f"📄 参照元ドキュメント（{len(chunks_result)} 件）"):
+                with st.expander(f"参照元ドキュメント（{len(chunks_result)} 件）"):
                     for i, c in enumerate(chunks_result, 1):
-                        st.markdown(
-                            f'<span class="source-badge">{i}</span>'
-                            f'<strong>{c["filename"]}</strong> — {c["page"]} ページ　'
-                            f'<span style="color:#5f6368;font-size:0.8rem;">関連度 {c["score"]:.0%}</span>',
-                            unsafe_allow_html=True,
-                        )
-                        st.caption(c["text"][:250] + "..." if len(c["text"]) > 250 else c["text"])
-                        if i < len(chunks_result):
-                            st.divider()
+                        score_pct = int(c["score"] * 100)
+                        st.markdown(f"""
+<div style="
+    background:#f8f9fa;
+    border-left: 4px solid #1a73e8;
+    border-radius: 4px;
+    padding: 0.8rem 1rem;
+    margin-bottom: 0.6rem;
+">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.4rem;">
+    <div style="display:flex;align-items:center;gap:0.6rem;">
+      <span style="
+        background:#1a73e8;color:#fff;
+        border-radius:4px;padding:2px 10px;
+        font-size:0.8rem;font-weight:700;
+      ">{i}</span>
+      <span style="font-weight:700;color:#202124;font-size:0.95rem;">{c['filename']}</span>
+      <span style="color:#5f6368;font-size:0.85rem;">p.{c['page']}</span>
+    </div>
+    <span style="
+      background:#e8f0fe;color:#1a73e8;
+      border-radius:12px;padding:2px 10px;
+      font-size:0.8rem;font-weight:600;
+    ">関連度 {score_pct}%</span>
+  </div>
+  <div style="color:#5f6368;font-size:0.88rem;line-height:1.7;">
+    {c['text'][:200] + '...' if len(c['text']) > 200 else c['text']}
+  </div>
+</div>
+""", unsafe_allow_html=True)
 
     # よく検索されるキーワード（結果の下・常時表示・APIなし）
     if docs:
