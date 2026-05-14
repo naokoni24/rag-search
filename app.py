@@ -225,6 +225,15 @@ div[data-testid="stTextInput"] input:focus {
     color: #5f6368 !important;
 }
 
+/* ファイルアップローダーの隠し input を完全に非表示 */
+[data-testid="stFileUploader"] input[type="file"] {
+    opacity: 0 !important;
+    width: 0 !important;
+    height: 0 !important;
+    position: absolute !important;
+    pointer-events: none !important;
+}
+
 /* expander */
 [data-testid="stExpander"] {
     background: #ffffff !important;
