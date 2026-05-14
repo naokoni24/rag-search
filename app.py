@@ -221,6 +221,51 @@ div[data-testid="stTextInput"] input:focus {
     font-size: 0.88rem !important;
     color: #5f6368 !important;
 }
+
+/* ファイルアップローダー */
+[data-testid="stFileUploader"] {
+    background: #ffffff !important;
+    border: 1.5px dashed #dadce0 !important;
+    border-radius: 8px !important;
+    padding: 0.5rem !important;
+}
+[data-testid="stFileUploader"] * {
+    color: #202124 !important;
+}
+[data-testid="stFileUploader"] section {
+    background: #ffffff !important;
+    border: none !important;
+}
+[data-testid="stFileUploader"] button {
+    background: #e8f0fe !important;
+    color: #1a73e8 !important;
+    border: 1px solid #c5d9f8 !important;
+    border-radius: 6px !important;
+}
+[data-testid="stFileUploaderDropzone"] {
+    background: #f8f9fa !important;
+    color: #202124 !important;
+}
+[data-testid="stFileUploaderDropzoneInstructions"] {
+    color: #5f6368 !important;
+}
+
+/* info / warning / error ボックス */
+[data-testid="stAlert"] {
+    background: #ffffff !important;
+    color: #202124 !important;
+}
+
+/* expander */
+[data-testid="stExpander"] {
+    background: #ffffff !important;
+    border: 1px solid #dadce0 !important;
+    border-radius: 8px !important;
+}
+[data-testid="stExpander"] summary {
+    color: #202124 !important;
+    font-size: 0.95rem !important;
+}
 </style>
 """
 
