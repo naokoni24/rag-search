@@ -55,8 +55,26 @@ STYLE = """
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap');
 
-html, body, [class*="css"], .stApp, p, div, span, label, textarea, button {
+html, body, [class*="css"], .stApp, p, div, label, textarea, button {
     font-family: 'Noto Sans JP', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', Arial, sans-serif !important;
+}
+
+/* アイコン系 span は font 上書きしない（Material Icons 文字化け防止） */
+[data-testid="stExpander"] summary span,
+[data-testid="stExpanderToggleIcon"] span,
+[data-baseweb="icon"] span,
+.stChatMessage [data-testid="chatAvatarIcon"] span {
+    font-family: inherit !important;
+    font-size: inherit !important;
+    color: inherit !important;
+}
+
+/* expander トグルアイコンのテキスト文字列を非表示（_arr~ 等の漏れ対策） */
+[data-testid="stExpanderToggleIcon"] {
+    overflow: hidden !important;
+}
+[data-testid="stExpanderToggleIcon"] > span:not(:has(svg)) {
+    display: none !important;
 }
 
 /* ネイティブ file input を非表示（JSクリックは引き続き動作） */
