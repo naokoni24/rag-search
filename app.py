@@ -53,13 +53,23 @@ OVERLAP = 80
 
 STYLE = """
 <style>
-html, body, [class*="css"] {
-    font-family: 'Google Sans', 'Hiragino Kaku Gothic ProN', Arial, sans-serif;
-    font-size: 18px;
-    color: #202124;
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap');
+
+html, body, [class*="css"], .stApp, p, div, span, label, input, textarea, button {
+    font-family: 'Noto Sans JP', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', Arial, sans-serif !important;
 }
 
-.stApp { background: #f1f3f4; }
+/* ベースフォントサイズ */
+.stApp {
+    background: #f1f3f4 !important;
+    font-size: 17px !important;
+}
+
+p, li, span, label {
+    font-size: 1rem !important;
+    color: #202124 !important;
+    line-height: 1.8 !important;
+}
 
 /* ヘッダー */
 .header {
@@ -73,68 +83,54 @@ html, body, [class*="css"] {
     border-radius: 0;
 }
 .header-title {
-    font-size: 1.7rem;
-    font-weight: 700;
-    color: #202124;
+    font-size: 1.6rem !important;
+    font-weight: 700 !important;
+    color: #202124 !important;
     letter-spacing: -0.02em;
 }
 .header-subtitle {
-    font-size: 1rem;
-    color: #5f6368;
-    margin-top: 5px;
+    font-size: 0.95rem !important;
+    color: #5f6368 !important;
+    margin-top: 4px;
 }
 .ai-badge {
     background: #e8f0fe;
-    color: #1a73e8;
-    font-size: 0.9rem;
-    font-weight: 600;
-    padding: 7px 18px;
+    color: #1a73e8 !important;
+    font-size: 0.85rem !important;
+    font-weight: 600 !important;
+    padding: 6px 16px;
     border-radius: 12px;
-    letter-spacing: 0.03em;
     border: 1px solid #c5d9f8;
+    white-space: nowrap;
 }
 
-/* 回答カード */
-.answer-card {
-    background: #ffffff;
-    border: 1px solid #dadce0;
-    border-radius: 8px;
-    padding: 1.8rem 2rem;
-    margin: 0.8rem 0;
-    line-height: 2;
-    font-size: 1.15rem;
-    color: #202124;
-    box-shadow: 0 1px 3px rgba(60,64,67,0.08);
+/* タブ */
+.stTabs [data-baseweb="tab"] {
+    font-size: 1rem !important;
+    font-weight: 500 !important;
+    color: #5f6368 !important;
 }
-.answer-label {
-    font-size: 0.9rem;
-    font-weight: 600;
-    letter-spacing: 0.06em;
-    color: #1a73e8;
-    text-transform: uppercase;
-    margin-bottom: 0.9rem;
-    display: flex;
-    align-items: center;
-    gap: 5px;
+.stTabs [aria-selected="true"] {
+    color: #1a73e8 !important;
 }
 
 /* 出典バッジ */
 .source-badge {
     display: inline-block;
     background: #e8f0fe;
-    color: #1a73e8;
+    color: #1a73e8 !important;
     border-radius: 4px;
-    padding: 4px 13px;
-    font-size: 0.95rem;
-    font-weight: 600;
+    padding: 3px 12px;
+    font-size: 0.9rem !important;
+    font-weight: 600 !important;
     margin-right: 6px;
 }
 
 /* セクションタイトル */
 .section-title {
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: #5f6368;
+    font-size: 0.85rem !important;
+    font-weight: 700 !important;
+    color: #5f6368 !important;
     letter-spacing: 0.08em;
     text-transform: uppercase;
     padding-bottom: 0.5rem;
@@ -147,21 +143,21 @@ html, body, [class*="css"] {
     display: flex;
     align-items: center;
     gap: 0.6rem;
-    padding: 0.9rem 1.2rem;
+    padding: 0.85rem 1.1rem;
     border-radius: 8px;
     margin-bottom: 0.4rem;
     background: #ffffff;
     border: 1px solid #dadce0;
-    font-size: 1.1rem;
-    color: #202124;
+    font-size: 1rem !important;
+    color: #202124 !important;
     box-shadow: 0 1px 2px rgba(60,64,67,0.05);
 }
 
 /* よく検索ラベル */
 .top-label {
-    font-size: 1rem;
-    color: #5f6368;
-    margin: 0.6rem 0 0.5rem 0;
+    font-size: 0.9rem !important;
+    color: #5f6368 !important;
+    margin: 0.8rem 0 0.4rem 0;
 }
 
 /* ログインカード */
@@ -176,33 +172,54 @@ html, body, [class*="css"] {
     box-shadow: 0 1px 3px rgba(60,64,67,0.1);
 }
 .login-icon { font-size: 2.5rem; margin-bottom: 0.6rem; }
-.login-title { font-size: 1.3rem; font-weight: 600; color: #202124; margin-bottom: 0.4rem; }
-.login-subtitle { font-size: 0.95rem; color: #5f6368; margin-bottom: 1.5rem; }
+.login-title { font-size: 1.2rem !important; font-weight: 600 !important; color: #202124 !important; margin-bottom: 0.4rem; }
+.login-subtitle { font-size: 0.9rem !important; color: #5f6368 !important; margin-bottom: 1.5rem; }
 
-/* Streamlit ウィジェット上書き */
+/* テキスト入力 */
 div[data-testid="stTextInput"] input {
     border: 1px solid #dadce0 !important;
     border-radius: 24px !important;
     padding: 0.75rem 1.4rem !important;
-    font-size: 1.1rem !important;
+    font-size: 1rem !important;
+    font-family: 'Noto Sans JP', Arial, sans-serif !important;
     box-shadow: 0 1px 3px rgba(60,64,67,0.1) !important;
     background: white !important;
+    color: #202124 !important;
 }
 div[data-testid="stTextInput"] input:focus {
     border-color: #1a73e8 !important;
     box-shadow: 0 0 0 3px rgba(26,115,232,0.15) !important;
+    outline: none !important;
 }
+
+/* ボタン */
 .stButton > button {
     background: #1a73e8 !important;
     color: white !important;
     border: none !important;
     border-radius: 6px !important;
+    font-size: 0.95rem !important;
     font-weight: 500 !important;
-    padding: 0.5rem 1.5rem !important;
+    font-family: 'Noto Sans JP', Arial, sans-serif !important;
+    padding: 0.5rem 1.4rem !important;
 }
 .stButton > button:hover {
     background: #1765cc !important;
     box-shadow: 0 1px 3px rgba(60,64,67,0.2) !important;
+}
+
+/* チャットメッセージ */
+[data-testid="stChatMessage"] {
+    background: #ffffff !important;
+    border: 1px solid #dadce0 !important;
+    border-radius: 8px !important;
+    font-size: 1rem !important;
+}
+
+/* キャプション */
+.stCaptionContainer, [data-testid="stCaptionContainer"] {
+    font-size: 0.88rem !important;
+    color: #5f6368 !important;
 }
 </style>
 """
