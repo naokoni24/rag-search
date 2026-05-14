@@ -702,7 +702,7 @@ with tab_search:
                 with st.chat_message("assistant", avatar="🤖"):
                     st.write(answer)
 
-                with st.expander(f"参照元ドキュメント（{len(chunks_result)} 件）"):
+                with st.expander(f"📄 参照元ドキュメント（{len(chunks_result)} 件）"):
                     for i, c in enumerate(chunks_result, 1):
                         st.markdown(
                             f'<span class="source-badge">{i}</span>'
