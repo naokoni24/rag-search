@@ -64,7 +64,7 @@ html, body, [class*="css"], .stApp, p, div, span, label, textarea, button {
     display: none !important;
 }
 
-/* アップロードボタンを青色に、テキストは非表示 */
+/* アップロードボタン：元テキストを非表示にして「アップロード」を表示 */
 [data-testid="stFileUploaderDropzone"] button {
     background: #1a73e8 !important;
     color: transparent !important;
@@ -72,12 +72,24 @@ html, body, [class*="css"], .stApp, p, div, span, label, textarea, button {
     border-radius: 6px !important;
     font-size: 0 !important;
     padding: 0.4rem 1.2rem !important;
-    min-width: 80px !important;
+    min-width: 100px !important;
     min-height: 36px !important;
+    position: relative !important;
 }
 [data-testid="stFileUploaderDropzone"] button * {
     color: transparent !important;
     font-size: 0 !important;
+}
+[data-testid="stFileUploaderDropzone"] button::after {
+    content: "アップロード" !important;
+    color: #ffffff !important;
+    font-size: 0.9rem !important;
+    font-family: 'Noto Sans JP', Arial, sans-serif !important;
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    white-space: nowrap !important;
 }
 
 /* ベースフォントサイズ */
