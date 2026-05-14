@@ -951,13 +951,6 @@ with tab_manage:
     else:
         touch_admin_session()
 
-        _spacer, _logout_col = st.columns([6, 1])
-        with _logout_col:
-            if st.button("ログアウト", use_container_width=True):
-                st.session_state["admin_authenticated"] = False
-                st.session_state.pop("admin_last_active", None)
-                st.rerun()
-
         col_left, col_right = st.columns([1, 1], gap="large")
 
         with col_left:
@@ -985,7 +978,15 @@ with tab_manage:
                     st.rerun()
 
         with col_right:
-            st.markdown('<div class="section-title">登録済みドキュメント</div>', unsafe_allow_html=True)
+            # セクションタイトルとログアウトを同じ行・削除ボタンと同列に配置
+            _title_col, _logout_col = st.columns([5, 1])
+            with _title_col:
+                st.markdown('<div class="section-title">登録済みドキュメント</div>', unsafe_allow_html=True)
+            with _logout_col:
+                if st.button("ログアウト", use_container_width=True):
+                    st.session_state["admin_authenticated"] = False
+                    st.session_state.pop("admin_last_active", None)
+                    st.rerun()
             docs = get_registered_docs()
             if docs:
                 for name in docs:
