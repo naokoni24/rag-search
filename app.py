@@ -64,15 +64,20 @@ html, body, [class*="css"], .stApp, p, div, span, label, textarea, button {
     display: none !important;
 }
 
-/* アップロードボタンを青色に統一（子要素は触らない） */
+/* アップロードボタンを青色に、テキストは非表示 */
 [data-testid="stFileUploaderDropzone"] button {
     background: #1a73e8 !important;
-    color: #ffffff !important;
+    color: transparent !important;
     border: none !important;
     border-radius: 6px !important;
-    font-size: 0.9rem !important;
-    font-weight: 500 !important;
+    font-size: 0 !important;
     padding: 0.4rem 1.2rem !important;
+    min-width: 80px !important;
+    min-height: 36px !important;
+}
+[data-testid="stFileUploaderDropzone"] button * {
+    color: transparent !important;
+    font-size: 0 !important;
 }
 
 /* ベースフォントサイズ */
