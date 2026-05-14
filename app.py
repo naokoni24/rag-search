@@ -750,8 +750,11 @@ with tab_manage:
           <div class="login-subtitle">文書管理には管理者権限が必要です</div>
         </div>
         """, unsafe_allow_html=True)
-        pwd = st.text_input("管理者パスワード", type="password", placeholder="パスワードを入力してください")
-        if st.button("ログイン", type="primary", use_container_width=True):
+        _col, _ = st.columns([1, 2])
+        with _col:
+            pwd = st.text_input("管理者パスワード", type="password", placeholder="パスワードを入力してください")
+            login_btn = st.button("ログイン", type="primary", use_container_width=True)
+        if login_btn:
             if ADMIN_PASSWORD and pwd == ADMIN_PASSWORD:
                 st.session_state["admin_authenticated"] = True
                 touch_admin_session()
