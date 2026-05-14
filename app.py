@@ -818,6 +818,20 @@ st.markdown(f"""
 docs = get_registered_docs()
 ADMIN_PASSWORD = get_secret("ADMIN_PASSWORD")
 
+# ---- ログアウトボタン（タブバーと同じ高さ・右端に配置） ----
+if st.session_state.get("admin_authenticated", False):
+    _, _lc = st.columns([11, 1])
+    with _lc:
+        if st.button("ログアウト", key="top_logout", use_container_width=True):
+            st.session_state["admin_authenticated"] = False
+            st.session_state.pop("admin_last_active", None)
+            st.rerun()
+    # タブバーをボタン行と同じ高さに引き上げる
+    st.markdown(
+        "<style>[data-testid='stTabs']{margin-top:-3.2rem!important;}</style>",
+        unsafe_allow_html=True,
+    )
+
 # ---- メインエリア ----
 tab_search, tab_manage = st.tabs(["　🔍　文書を検索　", "　📂　文書を管理　"])
 
@@ -979,15 +993,7 @@ with tab_manage:
                     st.rerun()
 
         with col_right:
-            # セクションタイトルとログアウトを同じ行・削除ボタンと同列に配置
-            _title_col, _logout_col = st.columns([5, 1])
-            with _title_col:
-                st.markdown('<div class="section-title">登録済みドキュメント</div>', unsafe_allow_html=True)
-            with _logout_col:
-                if st.button("ログアウト", use_container_width=True):
-                    st.session_state["admin_authenticated"] = False
-                    st.session_state.pop("admin_last_active", None)
-                    st.rerun()
+            st.markdown('<div class="section-title">登録済みドキュメント</div>', unsafe_allow_html=True)
             docs = get_registered_docs()
             if docs:
                 for name in docs:
