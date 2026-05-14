@@ -716,15 +716,10 @@ with tab_manage:
     else:
         touch_admin_session()
 
-        remaining = int((ADMIN_TIMEOUT_SEC - (time.time() - st.session_state["admin_last_active"])) / 60)
-        col_logout, col_timer = st.columns([3, 1])
-        with col_logout:
-            if st.button("ログアウト"):
-                st.session_state["admin_authenticated"] = False
-                st.session_state.pop("admin_last_active", None)
-                st.rerun()
-        with col_timer:
-            st.caption(f"⏱ セッション残り約 {remaining} 分")
+        if st.button("ログアウト"):
+            st.session_state["admin_authenticated"] = False
+            st.session_state.pop("admin_last_active", None)
+            st.rerun()
 
         col_left, col_right = st.columns([1, 1], gap="large")
 
