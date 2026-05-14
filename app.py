@@ -84,32 +84,43 @@ html, body, [class*="css"], .stApp, p, div, label, textarea, button {
     display: none !important;
 }
 
-/* アップロードボタン：元テキストを非表示にして「アップロード」を表示 */
+/* アップロードボタン：2つ目以降を非表示にして1つ目だけ「＋」ボタンとして表示 */
 [data-testid="stFileUploaderDropzone"] button {
+    display: none !important;
+}
+[data-testid="stFileUploaderDropzone"] button:first-of-type {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
     background: #1a73e8 !important;
     color: transparent !important;
     border: none !important;
-    border-radius: 6px !important;
+    border-radius: 50% !important;
     font-size: 0 !important;
-    padding: 0.4rem 1.2rem !important;
-    min-width: 100px !important;
-    min-height: 36px !important;
+    width: 40px !important;
+    height: 40px !important;
+    min-width: 40px !important;
+    min-height: 40px !important;
+    padding: 0 !important;
     position: relative !important;
+    cursor: pointer !important;
+    flex-shrink: 0 !important;
 }
-[data-testid="stFileUploaderDropzone"] button * {
+[data-testid="stFileUploaderDropzone"] button:first-of-type * {
     color: transparent !important;
     font-size: 0 !important;
 }
-[data-testid="stFileUploaderDropzone"] button::after {
-    content: "アップロード" !important;
+[data-testid="stFileUploaderDropzone"] button:first-of-type::after {
+    content: "+" !important;
     color: #ffffff !important;
-    font-size: 0.9rem !important;
-    font-family: 'Noto Sans JP', Arial, sans-serif !important;
+    font-size: 1.6rem !important;
+    font-weight: 300 !important;
+    font-family: Arial, sans-serif !important;
     position: absolute !important;
     top: 50% !important;
     left: 50% !important;
-    transform: translate(-50%, -50%) !important;
-    white-space: nowrap !important;
+    transform: translate(-50%, -52%) !important;
+    line-height: 1 !important;
 }
 
 /* ベースフォントサイズ */
