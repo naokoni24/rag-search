@@ -59,16 +59,25 @@ html, body, [class*="css"], .stApp, p, div, span, label, textarea, button {
     font-family: 'Noto Sans JP', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', Arial, sans-serif !important;
 }
 
-/* ネイティブ file input をStreamlit本来の動作通り透明化 */
+/* ネイティブ file input を非表示（JSクリックは引き続き動作） */
 [data-testid="stFileUploader"] input[type="file"] {
-    position: absolute !important;
-    top: 0 !important;
-    left: 0 !important;
-    width: 100% !important;
-    height: 100% !important;
-    opacity: 0 !important;
-    cursor: pointer !important;
-    font-size: 0 !important;
+    display: none !important;
+}
+
+/* アップロードボタンを青色に統一 */
+[data-testid="stFileUploaderDropzone"] button,
+[data-testid="stFileUploader"] button {
+    background: #1a73e8 !important;
+    color: #ffffff !important;
+    border: none !important;
+    border-radius: 6px !important;
+    font-size: 0.9rem !important;
+    font-weight: 500 !important;
+    padding: 0.4rem 1.2rem !important;
+}
+[data-testid="stFileUploaderDropzone"] button *,
+[data-testid="stFileUploader"] button * {
+    color: #ffffff !important;
 }
 
 /* ベースフォントサイズ */
