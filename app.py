@@ -760,10 +760,12 @@ with tab_manage:
     else:
         touch_admin_session()
 
-        if st.button("ログアウト"):
-            st.session_state["admin_authenticated"] = False
-            st.session_state.pop("admin_last_active", None)
-            st.rerun()
+        _spacer, _logout_col = st.columns([6, 1])
+        with _logout_col:
+            if st.button("ログアウト", use_container_width=True):
+                st.session_state["admin_authenticated"] = False
+                st.session_state.pop("admin_last_active", None)
+                st.rerun()
 
         col_left, col_right = st.columns([1, 1], gap="large")
 
