@@ -303,19 +303,6 @@ div[data-testid="stTextInput"] input:focus {
 
 
 
-/* ログアウトボタン：スマホはタブ上、デスクトップはタブ内 */
-/* スマホ：タブ内のログアウトを非表示 */
-@media (max-width: 600px) {
-    [data-testid="stMarkdownContainer"]:has(.desktop-logout-marker) + [data-testid="stHorizontalBlock"] {
-        display: none !important;
-    }
-}
-/* デスクトップ：タブ前のログアウトを非表示 */
-@media (min-width: 601px) {
-    [data-testid="stMarkdownContainer"]:has(.mobile-logout-marker) + [data-testid="stHorizontalBlock"] {
-        display: none !important;
-    }
-}
 
 /* スマホ：ヘッダーを縦積み */
 @media (max-width: 600px) {
@@ -832,26 +819,11 @@ st.markdown(f"""
 docs = get_registered_docs()
 ADMIN_PASSWORD = get_secret("ADMIN_PASSWORD")
 
-# ---- スマホ用ログアウト（タブの上・「文書を管理」タブのときのみ表示） ----
-if (st.session_state.get("admin_authenticated", False)
-        and st.session_state.get("active_tab") == "manage"):
-    st.markdown('<div class="mobile-logout-marker"></div>', unsafe_allow_html=True)
-    _, _mlc = st.columns([4, 1])
-    with _mlc:
-        if st.button("ログアウト", key="mobile_logout", use_container_width=True):
-            st.session_state["admin_authenticated"] = False
-            st.session_state.pop("admin_last_active", None)
-            st.rerun()
-
 # ---- メインエリア ----
 tab_search, tab_manage = st.tabs(["　🔍　文書を検索　", "　📂　文書を管理　"])
 
 # ---- 検索タブ ----
 with tab_search:
-    # タブ切り替えを検知して active_tab を更新
-    if st.session_state.get("active_tab") != "search":
-        st.session_state["active_tab"] = "search"
-        st.rerun()
     st.markdown('<p class="search-lead">社内文書に関する質問を入力してください</p>', unsafe_allow_html=True)
 
     if "search_query" not in st.session_state:
@@ -952,10 +924,6 @@ with tab_search:
 
 # ---- 文書管理タブ ----
 with tab_manage:
-    # タブ切り替えを検知して active_tab を更新
-    if st.session_state.get("active_tab") != "manage":
-        st.session_state["active_tab"] = "manage"
-        st.rerun()
     is_admin = check_admin_timeout()
 
     if not is_admin:
