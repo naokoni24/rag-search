@@ -264,14 +264,6 @@ div[data-testid="stTextInput"] input:focus {
     font-size: 1rem !important;
 }
 
-/* アバターのMaterial Iconsフォントをグローバル指定から保護 */
-[data-testid="stChatMessageAvatarUser"] span,
-[data-testid="stChatMessageAvatarUser"] *,
-[data-testid="stChatMessageAvatarAssistant"] span,
-[data-testid="stChatMessageAvatarAssistant"] * {
-    font-family: 'Material Icons', 'Material Symbols Outlined', sans-serif !important;
-    font-size: 1.5rem !important;
-}
 
 
 /* キャプション */
@@ -705,9 +697,9 @@ with tab_search:
                     chunks_result = None
 
             if chunks_result:
-                with st.chat_message("user"):
+                with st.chat_message("user", avatar="🧑"):
                     st.write(safe_query)
-                with st.chat_message("assistant"):
+                with st.chat_message("assistant", avatar="🤖"):
                     st.write(answer)
 
                 with st.expander(f"参照元ドキュメント（{len(chunks_result)} 件）"):
