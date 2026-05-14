@@ -293,6 +293,49 @@ div[data-testid="stTextInput"] input:focus {
 }
 
 
+/* ドキュメント選択カード（未選択） */
+[data-testid="stMarkdownContainer"]:has(.doc-unselected) + [data-testid="stButton"] > button {
+    background: #ffffff !important;
+    color: #202124 !important;
+    border: 1px solid #dadce0 !important;
+    border-radius: 8px !important;
+    text-align: left !important;
+    font-weight: 400 !important;
+    height: auto !important;
+    min-height: 2.8rem !important;
+    padding: 0.65rem 1rem !important;
+    box-shadow: 0 1px 2px rgba(60,64,67,0.05) !important;
+    justify-content: flex-start !important;
+}
+[data-testid="stMarkdownContainer"]:has(.doc-unselected) + [data-testid="stButton"] > button:hover {
+    background: #f8f9fa !important;
+    color: #202124 !important;
+    box-shadow: 0 1px 3px rgba(60,64,67,0.15) !important;
+}
+[data-testid="stMarkdownContainer"]:has(.doc-unselected) + [data-testid="stButton"] > button p {
+    color: #202124 !important;
+}
+/* ドキュメント選択カード（選択済み） */
+[data-testid="stMarkdownContainer"]:has(.doc-selected) + [data-testid="stButton"] > button {
+    background: #e8f0fe !important;
+    color: #1a73e8 !important;
+    border: 2px solid #1a73e8 !important;
+    border-radius: 8px !important;
+    text-align: left !important;
+    font-weight: 600 !important;
+    height: auto !important;
+    min-height: 2.8rem !important;
+    padding: 0.65rem 1rem !important;
+    justify-content: flex-start !important;
+}
+[data-testid="stMarkdownContainer"]:has(.doc-selected) + [data-testid="stButton"] > button:hover {
+    background: #d2e3fc !important;
+    color: #1a73e8 !important;
+}
+[data-testid="stMarkdownContainer"]:has(.doc-selected) + [data-testid="stButton"] > button p {
+    color: #1a73e8 !important;
+}
+
 /* チャットメッセージ */
 [data-testid="stChatMessage"] {
     background: #ffffff !important;
@@ -991,29 +1034,39 @@ with tab_manage:
             st.markdown('<div class="section-title">登録済みドキュメント</div>', unsafe_allow_html=True)
             docs = get_registered_docs()
             if docs:
-                # チェックボックスで選択 → 一括削除
-                checked = []
-                for name in docs:
-                    col_chk, col_name = st.columns([1, 5])
-                    with col_chk:
-                        if st.checkbox("", key=f"chk_{name}"):
-                            checked.append(name)
-                    with col_name:
-                        st.markdown(f'<div class="doc-item">📄 {name}</div>', unsafe_allow_html=True)
+                if "selected_docs" not in st.session_state:
+                    st.session_state["selected_docs"] = []
+                # 削除済みのものをリストから除外
+                st.session_state["selected_docs"] = [
+                    d for d in st.session_state["selected_docs"] if d in docs
+                ]
+                selected = st.session_state["selected_docs"]
 
-                if checked:
-                    st.warning(f"{len(checked)} 件選択中")
+                for name in docs:
+                    is_sel = name in selected
+                    marker = "doc-selected" if is_sel else "doc-unselected"
+                    label = f"✓  {name}" if is_sel else f"📄  {name}"
+                    st.markdown(f'<span class="{marker}" style="display:none;"></span>', unsafe_allow_html=True)
+                    if st.button(label, key=f"doc_{name}", use_container_width=True):
+                        if is_sel:
+                            selected.remove(name)
+                        else:
+                            selected.append(name)
+                        st.rerun()
+
+                if selected:
+                    st.warning(f"{len(selected)} 件選択中")
                     c1, c2 = st.columns(2)
                     with c1:
                         if st.button("選択したPDFを削除", type="primary", use_container_width=True):
-                            for name in checked:
+                            for name in selected:
                                 delete_document(name)
-                            st.success(f"{len(checked)} 件削除しました")
+                            st.session_state["selected_docs"] = []
+                            st.success(f"{len(selected)} 件削除しました")
                             st.rerun()
                     with c2:
                         if st.button("選択を解除", use_container_width=True):
-                            for name in docs:
-                                st.session_state[f"chk_{name}"] = False
+                            st.session_state["selected_docs"] = []
                             st.rerun()
             else:
                 st.caption("まだドキュメントが登録されていません。")
