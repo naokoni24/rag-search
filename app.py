@@ -991,28 +991,29 @@ with tab_manage:
             st.markdown('<div class="section-title">登録済みドキュメント</div>', unsafe_allow_html=True)
             docs = get_registered_docs()
             if docs:
+                # チェックボックスで選択 → 一括削除
+                checked = []
                 for name in docs:
-                    col_name, col_btn = st.columns([5, 1])
+                    col_chk, col_name = st.columns([1, 5])
+                    with col_chk:
+                        if st.checkbox("", key=f"chk_{name}"):
+                            checked.append(name)
                     with col_name:
                         st.markdown(f'<div class="doc-item">📄 {name}</div>', unsafe_allow_html=True)
-                    with col_btn:
-                        if st.button("削除", key=f"del_{name}"):
-                            st.session_state["confirm_delete"] = name
-                            st.rerun()
 
-                if "confirm_delete" in st.session_state:
-                    target = st.session_state["confirm_delete"]
-                    st.warning(f"「{target}」を削除しますか？")
+                if checked:
+                    st.warning(f"{len(checked)} 件選択中")
                     c1, c2 = st.columns(2)
                     with c1:
-                        if st.button("削除する", type="primary", use_container_width=True):
-                            delete_document(target)
-                            del st.session_state["confirm_delete"]
-                            st.success("削除しました")
+                        if st.button("選択したPDFを削除", type="primary", use_container_width=True):
+                            for name in checked:
+                                delete_document(name)
+                            st.success(f"{len(checked)} 件削除しました")
                             st.rerun()
                     with c2:
-                        if st.button("キャンセル", use_container_width=True):
-                            del st.session_state["confirm_delete"]
+                        if st.button("選択を解除", use_container_width=True):
+                            for name in docs:
+                                st.session_state[f"chk_{name}"] = False
                             st.rerun()
             else:
                 st.caption("まだドキュメントが登録されていません。")
