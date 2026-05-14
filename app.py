@@ -818,20 +818,6 @@ st.markdown(f"""
 docs = get_registered_docs()
 ADMIN_PASSWORD = get_secret("ADMIN_PASSWORD")
 
-# ---- ログアウトボタン（タブバーと同じ高さ・右端に配置） ----
-if st.session_state.get("admin_authenticated", False):
-    _, _lc = st.columns([11, 1])
-    with _lc:
-        if st.button("ログアウト", key="top_logout", use_container_width=True):
-            st.session_state["admin_authenticated"] = False
-            st.session_state.pop("admin_last_active", None)
-            st.rerun()
-    # タブバーをボタン行と同じ高さに引き上げる
-    st.markdown(
-        "<style>[data-testid='stTabs']{margin-top:-3.2rem!important;}</style>",
-        unsafe_allow_html=True,
-    )
-
 # ---- メインエリア ----
 tab_search, tab_manage = st.tabs(["　🔍　文書を検索　", "　📂　文書を管理　"])
 
@@ -965,6 +951,13 @@ with tab_manage:
                 st.error("パスワードが違います")
     else:
         touch_admin_session()
+
+        _, _lc = st.columns([11, 1])
+        with _lc:
+            if st.button("ログアウト", key="manage_logout", use_container_width=True):
+                st.session_state["admin_authenticated"] = False
+                st.session_state.pop("admin_last_active", None)
+                st.rerun()
 
         col_left, col_right = st.columns([1, 1], gap="large")
 
