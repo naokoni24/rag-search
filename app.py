@@ -12,6 +12,7 @@ import tempfile
 import time
 import json
 import re
+import base64
 from pathlib import Path
 
 import fitz  # PyMuPDF
@@ -34,6 +35,7 @@ def get_secret(key: str, default: str = "") -> str:
 COLLECTION = "documents"
 LOG_COLLECTION = "search_logs"
 LOG_POINT_ID   = "00000000-0000-0000-0000-000000000001"
+PDF_COLLECTION = "pdf_files"
 MAX_UPLOAD_MB = 20
 ADMIN_TIMEOUT_SEC = 30 * 60
 EMBED_MODEL = "gemini-embedding-001"
@@ -382,7 +384,49 @@ def ingest_pdf(pdf_bytes: bytes, filename: str) -> int:
         for vec, meta in zip(vectors, chunk_meta)
     ]
     client.upsert(collection_name=COLLECTION, points=points)
+    _store_pdf_bytes(client, filename, pdf_bytes)
     return len(points)
+
+
+def _ensure_pdf_collection(client: QdrantClient):
+    names = [c.name for c in client.get_collections().collections]
+    if PDF_COLLECTION not in names:
+        client.create_collection(
+            collection_name=PDF_COLLECTION,
+            vectors_config=VectorParams(size=1, distance=Distance.COSINE),
+        )
+
+
+def _store_pdf_bytes(client: QdrantClient, filename: str, data: bytes):
+    _ensure_pdf_collection(client)
+    point_id = str(uuid.uuid5(uuid.NAMESPACE_DNS, filename))
+    client.upsert(
+        collection_name=PDF_COLLECTION,
+        points=[PointStruct(
+            id=point_id,
+            vector=[0.0],
+            payload={"filename": filename, "b64": base64.b64encode(data).decode()},
+        )],
+    )
+
+
+@st.cache_data(ttl=3600)
+def get_pdf_b64(filename: str) -> str | None:
+    """PDF の base64 文字列を返す（キャッシュあり）"""
+    client = get_qdrant()
+    try:
+        _ensure_pdf_collection(client)
+        point_id = str(uuid.uuid5(uuid.NAMESPACE_DNS, filename))
+        results = client.retrieve(
+            collection_name=PDF_COLLECTION,
+            ids=[point_id],
+            with_payload=True,
+        )
+        if results:
+            return results[0].payload.get("b64")
+    except Exception:
+        pass
+    return None
 
 
 def _ensure_log_collection(client: QdrantClient):
@@ -489,6 +533,13 @@ def delete_document(filename: str) -> int:
             must=[FieldCondition(key="filename", match=MatchValue(value=filename))]
         ),
     )
+    try:
+        _ensure_pdf_collection(client)
+        point_id = str(uuid.uuid5(uuid.NAMESPACE_DNS, filename))
+        client.delete(collection_name=PDF_COLLECTION, points_selector=[point_id])
+        get_pdf_b64.clear()
+    except Exception:
+        pass
     return result
 
 
@@ -644,6 +695,24 @@ def generate_answer(query: str, chunks: list[dict]) -> str:
         raise RuntimeError(_gemini_error_message(e))
 
 
+_CITATION_RE = re.compile(r'【参照】([^\s\n【】]+\.pdf)\s+p\.(\d+)')
+
+def linkify_answer(answer: str) -> str:
+    """回答内の【参照】ファイル名 p.N をダウンロードリンクに変換"""
+    def _replace(m):
+        fname = m.group(1)
+        page = m.group(2)
+        b64 = get_pdf_b64(fname)
+        if b64:
+            return (
+                f'<a href="data:application/pdf;base64,{b64}" download="{fname}" '
+                f'style="color:#1a73e8;font-weight:600;text-decoration:underline;">'
+                f'📄 {fname} p.{page}</a>'
+            )
+        return m.group(0)
+    return _CITATION_RE.sub(_replace, answer)
+
+
 # ---- UI ----
 
 st.set_page_config(
@@ -718,11 +787,25 @@ with tab_search:
                 with st.chat_message("user", avatar="🧑"):
                     st.write(safe_query)
                 with st.chat_message("assistant", avatar="🤖"):
-                    st.write(answer)
+                    st.markdown(linkify_answer(answer), unsafe_allow_html=True)
 
                 with st.expander(f"参照元ドキュメント（{len(chunks_result)} 件）"):
                     for i, c in enumerate(chunks_result, 1):
                         score_pct = int(c["score"] * 100)
+                        b64 = get_pdf_b64(c["filename"])
+                        if b64:
+                            fname_html = (
+                                f'<a href="data:application/pdf;base64,{b64}" '
+                                f'download="{c["filename"]}" '
+                                f'style="font-weight:700;color:#1a73e8;font-size:0.95rem;'
+                                f'text-decoration:none;">{c["filename"]}</a>'
+                            )
+                        else:
+                            fname_html = (
+                                f'<span style="font-weight:700;color:#202124;font-size:0.95rem;">'
+                                f'{c["filename"]}</span>'
+                            )
+                        excerpt = c['text'][:200] + '...' if len(c['text']) > 200 else c['text']
                         st.markdown(f"""
 <div style="
     background:#f8f9fa;
@@ -738,7 +821,7 @@ with tab_search:
         border-radius:4px;padding:2px 10px;
         font-size:0.8rem;font-weight:700;
       ">{i}</span>
-      <span style="font-weight:700;color:#202124;font-size:0.95rem;">{c['filename']}</span>
+      {fname_html}
       <span style="color:#5f6368;font-size:0.85rem;">p.{c['page']}</span>
     </div>
     <span style="
@@ -748,7 +831,7 @@ with tab_search:
     ">関連度 {score_pct}%</span>
   </div>
   <div style="color:#5f6368;font-size:0.88rem;line-height:1.7;">
-    {c['text'][:200] + '...' if len(c['text']) > 200 else c['text']}
+    {excerpt}
   </div>
 </div>
 """, unsafe_allow_html=True)
