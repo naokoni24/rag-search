@@ -311,13 +311,12 @@ details.src-section > summary {
     font-family: 'Noto Sans JP', Arial, sans-serif;
 }
 details.src-section > summary::-webkit-details-marker { display: none; }
-details.src-section > summary::after {
+details.src-section > summary::before {
     content: "▼";
-    margin-left: auto;
     color: #5f6368;
     font-size: 0.82rem;
 }
-details.src-section[open] > summary::after { content: "▲"; }
+details.src-section[open] > summary::before { content: "▲"; }
 details.src-section > summary:hover { background: #f8f9fa; }
 .src-cards { padding: 0.6rem 1rem 0.4rem 1rem; }
 </style>
