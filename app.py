@@ -177,18 +177,18 @@ p, li, span, label {
 
 /* テキスト入力 */
 div[data-testid="stTextInput"] input {
-    border: 1px solid #dadce0 !important;
-    border-radius: 24px !important;
-    padding: 0.75rem 1.4rem !important;
+    border: 1.5px solid #dadce0 !important;
+    border-radius: 8px !important;
+    padding: 0.65rem 1rem !important;
     font-size: 1rem !important;
     font-family: 'Noto Sans JP', Arial, sans-serif !important;
-    box-shadow: 0 1px 3px rgba(60,64,67,0.1) !important;
+    box-shadow: 0 1px 2px rgba(60,64,67,0.08) !important;
     background: white !important;
     color: #202124 !important;
 }
 div[data-testid="stTextInput"] input:focus {
     border-color: #1a73e8 !important;
-    box-shadow: 0 0 0 3px rgba(26,115,232,0.15) !important;
+    box-shadow: 0 0 0 2px rgba(26,115,232,0.2) !important;
     outline: none !important;
 }
 
