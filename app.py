@@ -789,33 +789,50 @@ with tab_search:
                 with st.chat_message("assistant", avatar="🤖"):
                     st.markdown(linkify_answer(answer), unsafe_allow_html=True)
 
-                with st.expander(f"参照元ドキュメント（{len(chunks_result)} 件）"):
-                    for i, c in enumerate(chunks_result, 1):
-                        score_pct = int(c["score"] * 100)
-                        b64 = get_pdf_b64(c["filename"])
-                        if b64:
-                            fname_html = (
-                                f'<a href="data:application/pdf;base64,{b64}" '
-                                f'download="{c["filename"]}" '
-                                f'style="font-weight:700;color:#1a73e8;font-size:0.95rem;'
-                                f'text-decoration:none;">{c["filename"]}</a>'
-                            )
-                        else:
-                            fname_html = (
-                                f'<span style="font-weight:700;color:#202124;font-size:0.95rem;">'
-                                f'{c["filename"]}</span>'
-                            )
-                        excerpt = c['text'][:200] + '...' if len(c['text']) > 200 else c['text']
-                        st.markdown(f"""
+                # 参照元ドキュメント（expander を使わず直接表示）
+                st.markdown(f"""
+<div style="
+    display:flex;align-items:center;gap:0.5rem;
+    margin:1rem 0 0.6rem 0;
+    padding-bottom:0.5rem;
+    border-bottom:1px solid #dadce0;
+">
+  <span style="
+    background:#1a73e8;color:#fff;
+    border-radius:4px;padding:2px 10px;
+    font-size:0.8rem;font-weight:700;
+  ">参照元</span>
+  <span style="font-size:0.9rem;font-weight:600;color:#5f6368;">
+    ドキュメント（{len(chunks_result)} 件）
+  </span>
+</div>
+""", unsafe_allow_html=True)
+                for i, c in enumerate(chunks_result, 1):
+                    score_pct = int(c["score"] * 100)
+                    b64 = get_pdf_b64(c["filename"])
+                    if b64:
+                        fname_html = (
+                            f'<a href="data:application/pdf;base64,{b64}" '
+                            f'download="{c["filename"]}" '
+                            f'style="font-weight:700;color:#1a73e8;font-size:0.95rem;'
+                            f'text-decoration:none;">{c["filename"]}</a>'
+                        )
+                    else:
+                        fname_html = (
+                            f'<span style="font-weight:700;color:#202124;font-size:0.95rem;">'
+                            f'{c["filename"]}</span>'
+                        )
+                    excerpt = c['text'][:200] + '...' if len(c['text']) > 200 else c['text']
+                    st.markdown(f"""
 <div style="
     background:#f8f9fa;
-    border-left: 4px solid #1a73e8;
-    border-radius: 4px;
-    padding: 0.8rem 1rem;
-    margin-bottom: 0.6rem;
+    border-left:4px solid #1a73e8;
+    border-radius:4px;
+    padding:0.8rem 1rem;
+    margin-bottom:0.6rem;
 ">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.4rem;">
-    <div style="display:flex;align-items:center;gap:0.6rem;">
+    <div style="display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;">
       <span style="
         background:#1a73e8;color:#fff;
         border-radius:4px;padding:2px 10px;
@@ -827,7 +844,7 @@ with tab_search:
     <span style="
       background:#e8f0fe;color:#1a73e8;
       border-radius:12px;padding:2px 10px;
-      font-size:0.8rem;font-weight:600;
+      font-size:0.8rem;font-weight:600;white-space:nowrap;
     ">関連度 {score_pct}%</span>
   </div>
   <div style="color:#5f6368;font-size:0.88rem;line-height:1.7;">
