@@ -135,6 +135,11 @@ p, li, label {
     justify-content: space-between;
     border-radius: 0;
 }
+.header-inner {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
 .header-title {
     font-size: 1.6rem !important;
     font-weight: 700 !important;
@@ -285,6 +290,18 @@ div[data-testid="stTextInput"] input:focus {
 }
 
 
+
+/* スマホ：ヘッダーを縦積み */
+@media (max-width: 600px) {
+    .header { padding: 0.8rem 1rem; }
+    .header-inner {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    .header-title { font-size: 1.2rem !important; }
+    .header-subtitle { font-size: 0.85rem !important; }
+}
 
 /* キャプション */
 .stCaptionContainer, [data-testid="stCaptionContainer"] {
@@ -772,7 +789,7 @@ setup_genai()
 logo_b64 = __import__("base64").b64encode(Path("logo.svg").read_bytes()).decode()
 st.markdown(f"""
 <div class="header">
-  <div style="display:flex;align-items:center;gap:1rem;">
+  <div class="header-inner">
     <img src="data:image/svg+xml;base64,{logo_b64}" width="200">
     <div>
       <div class="header-title">社内ナレッジ検索システム</div>
