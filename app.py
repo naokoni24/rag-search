@@ -570,20 +570,17 @@ def get_cached_result(query: str) -> tuple[str, list[dict]] | None:
 
 
 def delete_document(filename: str) -> int:
-    from qdrant_client.models import Filter, FieldCondition, MatchValue, PointIdsList
+    from qdrant_client.models import PointIdsList
     client = get_qdrant()
 
-    # scroll でマッチするID一覧を取得してから ID指定で削除（Filter直接削除の互換性問題を回避）
+    # サーバーサイドフィルターを使わず全件取得→Python側でファイル名絞り込み
     records, _ = client.scroll(
         collection_name=COLLECTION,
-        scroll_filter=Filter(
-            must=[FieldCondition(key="filename", match=MatchValue(value=filename))]
-        ),
         limit=10000,
-        with_payload=False,
+        with_payload=["filename"],
         with_vectors=False,
     )
-    point_ids = [r.id for r in records]
+    point_ids = [r.id for r in records if r.payload.get("filename") == filename]
     if point_ids:
         client.delete(
             collection_name=COLLECTION,
@@ -592,11 +589,18 @@ def delete_document(filename: str) -> int:
 
     try:
         _ensure_pdf_collection(client)
-        pdf_pid = str(uuid.uuid5(uuid.NAMESPACE_DNS, filename))
-        client.delete(
+        pdf_records, _ = client.scroll(
             collection_name=PDF_COLLECTION,
-            points_selector=PointIdsList(points=[pdf_pid]),
+            limit=1000,
+            with_payload=["filename"],
+            with_vectors=False,
         )
+        pdf_ids = [r.id for r in pdf_records if r.payload.get("filename") == filename]
+        if pdf_ids:
+            client.delete(
+                collection_name=PDF_COLLECTION,
+                points_selector=PointIdsList(points=pdf_ids),
+            )
         get_pdf_b64.clear()
     except Exception:
         pass
