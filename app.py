@@ -225,9 +225,14 @@ div[data-testid="stTextInput"] input:focus {
     color: #ffffff !important;
     box-shadow: 0 1px 3px rgba(60,64,67,0.2) !important;
 }
-/* .stButton 配下のボタンテキストのみ白に（file uploader は除外） */
-.stButton > button > p,
-.stButton > button > div > p {
+/* .stButton 配下のボタンテキストを白に（グローバルp色を上書き） */
+.stButton > button,
+.stButton > button p,
+.stButton > button span,
+.stButton > button div,
+.stButton > button label,
+[data-testid="stBaseButton-secondary"],
+[data-testid="stBaseButton-primary"] {
     color: #ffffff !important;
 }
 
