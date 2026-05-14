@@ -264,18 +264,6 @@ div[data-testid="stTextInput"] input:focus {
     font-size: 1rem !important;
 }
 
-/* チャットアバター（アイコン）を正常表示 */
-[data-testid="stChatMessageAvatarUser"],
-[data-testid="stChatMessageAvatarAssistant"] {
-    overflow: visible !important;
-    font-size: 1.5rem !important;
-    background: transparent !important;
-}
-[data-testid="stChatMessageAvatarUser"] img,
-[data-testid="stChatMessageAvatarAssistant"] img {
-    width: 2rem !important;
-    height: 2rem !important;
-}
 
 /* キャプション */
 .stCaptionContainer, [data-testid="stCaptionContainer"] {
