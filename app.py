@@ -213,18 +213,12 @@ div[data-testid="stTextInput"] input:focus {
     color: #ffffff !important;
 }
 
-/* ファイルアップローダー内ボタンはデフォルトに戻す */
-[data-testid="stFileUploader"] button {
-    background: transparent !important;
-    color: #1a73e8 !important;
-    border: 1px solid #dadce0 !important;
-    border-radius: 4px !important;
-    font-size: 0.9rem !important;
-    padding: 0.3rem 0.8rem !important;
-    width: auto !important;
-}
-[data-testid="stFileUploader"] button * {
-    color: #1a73e8 !important;
+/* ファイルアップローダー内は一切上書きしない */
+[data-testid="stFileUploader"] button,
+[data-testid="stFileUploader"] button *,
+[data-testid="stFileUploaderDropzone"] button,
+[data-testid="stFileUploaderDropzone"] button * {
+    all: revert !important;
 }
 
 /* チャットメッセージ */
