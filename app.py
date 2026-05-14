@@ -786,7 +786,7 @@ docs = get_registered_docs()
 ADMIN_PASSWORD = get_secret("ADMIN_PASSWORD")
 
 # ---- メインエリア ----
-tab_search, tab_manage = st.tabs(["　🔍　文書を検索する　", "　📂　文書を管理する　"])
+tab_search, tab_manage = st.tabs(["　🔍　文書を検索　", "　📂　文書を管理　"])
 
 # ---- 検索タブ ----
 with tab_search:
@@ -804,7 +804,7 @@ with tab_search:
     st.session_state["search_query"] = query
 
     if not docs:
-        st.info("「文書を管理する」タブからPDFを登録してください。")
+        st.info("「文書を管理」タブからPDFを登録してください。")
     elif query:
         safe_query = sanitize_query(query)
         if safe_query is None:
