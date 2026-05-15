@@ -399,11 +399,12 @@ details.src-section[open] > summary::before { content: "▲"; }
 details.src-section > summary:hover { background: #f8f9fa; }
 .src-cards { padding: 0.6rem 1rem 0.4rem 1rem; }
 
-/* Streamlit ネイティブUI（右上メニュー・シェアボタン・ヘッダー）を非表示 */
-[data-testid="stHeader"]  { display: none !important; }
-[data-testid="stToolbar"] { display: none !important; }
-[data-testid="stMainMenu"] { display: none !important; }
-[data-testid="stDecoration"] { display: none !important; }
+/* Streamlit ネイティブUI（右上メニュー・シェアボタン・ヘッダー・右下Manage app）を非表示 */
+[data-testid="stHeader"]       { display: none !important; }
+[data-testid="stToolbar"]      { display: none !important; }
+[data-testid="stMainMenu"]     { display: none !important; }
+[data-testid="stDecoration"]   { display: none !important; }
+[data-testid="stStatusWidget"] { display: none !important; }
 #MainMenu { display: none !important; }
 footer    { display: none !important; }
 </style>
