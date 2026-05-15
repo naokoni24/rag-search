@@ -792,9 +792,17 @@ def linkify_answer(answer: str) -> str:
         pdf_bytes = get_pdf_bytes(fname)
         if pdf_bytes:
             b64 = base64.b64encode(pdf_bytes).decode()
-            # #page=N で指定ページを開く（Chrome/Firefox 対応）
+            # Blob URL 方式（Chrome の data: URL ブロックを回避）
+            onclick = (
+                f"var b=this.dataset.b64;"
+                f"var by=Uint8Array.from(atob(b),function(c){{return c.charCodeAt(0)}});"
+                f"var bl=new Blob([by],{{type:'application/pdf'}});"
+                f"var u=URL.createObjectURL(bl);"
+                f"window.open(u+'#page={page}','_blank');"
+                f"return false;"
+            )
             return (
-                f'<a href="data:application/pdf;base64,{b64}#page={page}" target="_blank" '
+                f'<a href="#" data-b64="{b64}" onclick="{onclick}" '
                 f'style="color:#1a73e8;font-weight:600;text-decoration:underline;cursor:pointer;">'
                 f'📄 {fname} p.{page}</a>'
             )
