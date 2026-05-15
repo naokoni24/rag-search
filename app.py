@@ -943,9 +943,10 @@ st.set_page_config(
 
 st.markdown(STYLE, unsafe_allow_html=True)
 
-# Manage app ボタンを JS で確実に非表示（動的追加要素対策）
+# Manage app ボタンを JS で確実に非表示（iframe→親ページのDOMを操作）
 st.components.v1.html("""<script>
 (function() {
+    var p = window.parent;
     var SELECTORS = [
         '[data-testid="stStatusWidget"]',
         '[class*="StatusWidget"]',
@@ -954,13 +955,15 @@ st.components.v1.html("""<script>
     ];
     function hideElements() {
         SELECTORS.forEach(function(sel) {
-            document.querySelectorAll(sel).forEach(function(el) {
-                el.style.setProperty('display', 'none', 'important');
-            });
+            try {
+                p.document.querySelectorAll(sel).forEach(function(el) {
+                    el.style.setProperty('display', 'none', 'important');
+                });
+            } catch(e) {}
         });
     }
     hideElements();
-    new MutationObserver(hideElements).observe(document.body, {childList: true, subtree: true});
+    new MutationObserver(hideElements).observe(p.document.body, {childList: true, subtree: true});
 })();
 </script>""", height=0)
 
