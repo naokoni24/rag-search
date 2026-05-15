@@ -861,7 +861,7 @@ with tab_search:
     if "search_submitted" not in st.session_state:
         st.session_state["search_submitted"] = False
 
-    with st.form("search_form", clear_on_submit=False):
+    with st.form("search_form", clear_on_submit=True):
         query = st.text_input(
             "質問",
             value=st.session_state["search_query"],
