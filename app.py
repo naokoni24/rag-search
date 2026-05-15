@@ -80,6 +80,24 @@ html, body, [class*="css"], .stApp, p, div, label, textarea, button {
 }
 
 
+/* 検索フォームの枠線を非表示 */
+[data-testid="stForm"] {
+    border: none !important;
+    padding: 0 !important;
+    background: transparent !important;
+}
+
+/* 検索ボタン：白文字・青背景 */
+[data-testid="stFormSubmitButton"] > button {
+    color: #ffffff !important;
+    background-color: #1a73e8 !important;
+    border: none !important;
+}
+[data-testid="stFormSubmitButton"] > button:hover {
+    background-color: #1557b0 !important;
+    color: #ffffff !important;
+}
+
 /* ベースフォントサイズ */
 .stApp {
     background: #f1f3f4 !important;
