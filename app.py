@@ -79,50 +79,6 @@ html, body, [class*="css"], .stApp, p, div, label, textarea, button {
     display: none !important;
 }
 
-/* ネイティブ file input を非表示（JSクリックは引き続き動作） */
-[data-testid="stFileUploader"] input[type="file"] {
-    display: none !important;
-}
-
-/* アップローダー内のボタンをすべて非表示（重複対策） */
-[data-testid="stFileUploader"] button {
-    display: none !important;
-}
-/* ドロップゾーン内の最初のボタンだけグレーの丸「＋」として表示 */
-[data-testid="stFileUploaderDropzone"] button:first-of-type {
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    background: #5f6368 !important;
-    color: transparent !important;
-    border: none !important;
-    border-radius: 50% !important;
-    font-size: 0 !important;
-    width: 40px !important;
-    height: 40px !important;
-    min-width: 40px !important;
-    min-height: 40px !important;
-    padding: 0 !important;
-    position: relative !important;
-    cursor: pointer !important;
-    flex-shrink: 0 !important;
-}
-[data-testid="stFileUploaderDropzone"] button:first-of-type * {
-    color: transparent !important;
-    font-size: 0 !important;
-}
-[data-testid="stFileUploaderDropzone"] button:first-of-type::after {
-    content: "+" !important;
-    color: #ffffff !important;
-    font-size: 1.6rem !important;
-    font-weight: 300 !important;
-    font-family: Arial, sans-serif !important;
-    position: absolute !important;
-    top: 50% !important;
-    left: 50% !important;
-    transform: translate(-50%, -52%) !important;
-    line-height: 1 !important;
-}
 
 /* ベースフォントサイズ */
 .stApp {
@@ -538,6 +494,7 @@ def _ensure_log_collection(client: QdrantClient):
             vectors_config=VectorParams(size=1, distance=Distance.COSINE),
         )
 
+@st.cache_data(ttl=300)
 def load_search_log() -> dict:
     client = get_qdrant()
     try:
@@ -560,6 +517,7 @@ def save_search_log(log: dict):
         collection_name=LOG_COLLECTION,
         points=[PointStruct(id=LOG_POINT_ID, vector=[0.0], payload={"log": log})],
     )
+    load_search_log.clear()  # キャッシュを即時無効化して次回取得を最新化
 
 def normalize_query(query: str) -> str:
     q = query.strip()
@@ -819,18 +777,13 @@ def generate_answer(query: str, chunks: list[dict]) -> str:
 _CITATION_RE = re.compile(r'【参照】([^\s\n【】]+\.pdf)\s+p\.(\d+)')
 
 def linkify_answer(answer: str) -> str:
-    """回答内の【参照】ファイル名 p.N をダウンロードリンクに変換"""
+    """回答内の【参照】ファイル名 p.N をスタイル付きテキストに変換（ダウンロードは参照元カードから）"""
     def _replace(m):
         fname = m.group(1)
         page = m.group(2)
-        b64 = get_pdf_b64(fname)
-        if b64:
-            return (
-                f'<a href="data:application/pdf;base64,{b64}" download="{fname}" '
-                f'style="color:#1a73e8;font-weight:600;text-decoration:underline;">'
-                f'📄 {fname} p.{page}</a>'
-            )
-        return m.group(0)
+        return (
+            f'<span style="color:#1a73e8;font-weight:600;">📄 {fname} p.{page}</span>'
+        )
     return _CITATION_RE.sub(_replace, answer)
 
 
@@ -871,22 +824,37 @@ with tab_search:
 
     if "search_query" not in st.session_state:
         st.session_state["search_query"] = ""
+    if "search_submitted" not in st.session_state:
+        st.session_state["search_submitted"] = False
 
-    query = st.text_input(
-        "質問",
-        value=st.session_state["search_query"],
-        placeholder="例：有給休暇の申請手続きを教えてください",
-        label_visibility="collapsed",
-    )
-    st.session_state["search_query"] = query
+    with st.form("search_form", clear_on_submit=False):
+        query = st.text_input(
+            "質問",
+            value=st.session_state["search_query"],
+            placeholder="例：有給休暇の申請手続きを教えてください",
+            label_visibility="collapsed",
+        )
+        submitted = st.form_submit_button("検索する", use_container_width=True)
+
+    if submitted and query:
+        st.session_state["search_query"] = query
+        st.session_state["search_submitted"] = True
+
+    # 今回のレンダリングで実行するかどうかを確定し、すぐにリセット
+    run_query = st.session_state["search_submitted"]
+    current_query = st.session_state["search_query"]
+    st.session_state["search_submitted"] = False
 
     if not docs:
         st.info("「文書を管理」タブからPDFを登録してください。")
-    elif query:
-        safe_query = sanitize_query(query)
+    elif run_query and current_query:
+        safe_query = sanitize_query(current_query)
         if safe_query is None:
             st.warning("入力内容を確認できませんでした。500文字以内の質問を入力してください。")
         else:
+            answer = None
+            chunks_result = None
+
             cached = get_cached_result(safe_query)
             if cached:
                 answer, chunks_result = cached
@@ -894,17 +862,17 @@ with tab_search:
                 try:
                     with st.spinner("回答を生成中..."):
                         chunks_result = search(safe_query)
-                    if not chunks_result:
-                        st.warning("関連するドキュメントが見つかりませんでした。別のキーワードで試してください。")
-                        chunks_result = None
-                    else:
-                        answer = generate_answer(safe_query, chunks_result)
-                        record_search(safe_query, answer, chunks_result)
-                except RuntimeError as e:
-                    st.error(str(e))
+                        if chunks_result:
+                            answer = generate_answer(safe_query, chunks_result)
+                            record_search(safe_query, answer, chunks_result)
+                except Exception as e:
+                    st.error(_gemini_error_message(e))
                     chunks_result = None
 
-            if chunks_result:
+            if not chunks_result:
+                if not cached:
+                    st.warning("関連するドキュメントが見つかりませんでした。別のキーワードで試してください。")
+            elif answer:
                 with st.chat_message("user", avatar="🧑"):
                     st.write(safe_query)
                 with st.chat_message("assistant", avatar="🤖"):
@@ -914,19 +882,10 @@ with tab_search:
                 _cards_html = ""
                 for i, c in enumerate(chunks_result, 1):
                     score_pct = int(c["score"] * 100)
-                    b64 = get_pdf_b64(c["filename"])
-                    if b64:
-                        _fname_html = (
-                            f'<a href="data:application/pdf;base64,{b64}" '
-                            f'download="{c["filename"]}" '
-                            f'style="font-weight:700;color:#1a73e8;font-size:0.95rem;text-decoration:none;">'
-                            f'{c["filename"]}</a>'
-                        )
-                    else:
-                        _fname_html = (
-                            f'<span style="font-weight:700;color:#202124;font-size:0.95rem;">'
-                            f'{c["filename"]}</span>'
-                        )
+                    _fname_html = (
+                        f'<span style="font-weight:700;color:#1a73e8;font-size:0.95rem;">'
+                        f'{c["filename"]}</span>'
+                    )
                     _excerpt = c['text'][:200] + '...' if len(c['text']) > 200 else c['text']
                     _cards_html += f"""
 <div style="background:#f8f9fa;border-left:4px solid #1a73e8;border-radius:4px;
@@ -955,6 +914,7 @@ with tab_search:
 </details>
 """, unsafe_allow_html=True)
 
+
     # よく検索されるキーワード（結果の下・常時表示・APIなし）
     if docs:
         top_queries = get_top_queries(3)
@@ -963,6 +923,7 @@ with tab_search:
             for i, (tq, label) in enumerate(top_queries):
                 if st.button(f"🔍 {label}", key=f"top_{i}"):
                     st.session_state["search_query"] = tq
+                    st.session_state["search_submitted"] = True
                     st.rerun()
 
 # ---- 文書管理タブ ----
@@ -1008,26 +969,22 @@ with tab_manage:
 
         with col_left:
             st.markdown('<div class="section-title">PDFをアップロード</div>', unsafe_allow_html=True)
-            uploaded_files = st.file_uploader(
-                "PDFファイルを選択（複数可）",
+            uploaded_file = st.file_uploader(
+                "PDFファイルを選択",
                 type="pdf",
-                accept_multiple_files=True,
+                accept_multiple_files=False,
                 label_visibility="collapsed",
             )
-            if uploaded_files:
-                st.write(f"{len(uploaded_files)} 件選択中")
+            if uploaded_file:
                 if st.button("登録する", type="primary", use_container_width=True):
-                    progress = st.progress(0)
-                    for i, f in enumerate(uploaded_files):
-                        data = f.read()
-                        err = validate_pdf(data, f.name)
-                        if err:
-                            st.error(err)
-                        else:
-                            with st.spinner(f"処理中: {f.name}"):
-                                ingest_pdf(data, f.name)
-                            st.success(f"{f.name} — 登録完了")
-                        progress.progress((i + 1) / len(uploaded_files))
+                    data = uploaded_file.read()
+                    err = validate_pdf(data, uploaded_file.name)
+                    if err:
+                        st.error(err)
+                    else:
+                        with st.spinner(f"処理中: {uploaded_file.name}"):
+                            ingest_pdf(data, uploaded_file.name)
+                        st.success(f"{uploaded_file.name} — 登録完了")
                     st.rerun()
 
         with col_right:
