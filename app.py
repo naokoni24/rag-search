@@ -940,11 +940,15 @@ with tab_search:
         st.session_state["search_query"] = ""
     if "search_submitted" not in st.session_state:
         st.session_state["search_submitted"] = False
+    if "_search_input" not in st.session_state:
+        st.session_state["_search_input"] = ""
+    if "_search_result" not in st.session_state:
+        st.session_state["_search_result"] = None  # (safe_query, answer, chunks)
 
-    with st.form("search_form", clear_on_submit=True):
+    with st.form("search_form", clear_on_submit=False):
         query = st.text_input(
             "質問",
-            value=st.session_state["search_query"],
+            key="_search_input",
             placeholder="例：有給休暇の申請手続きを教えてください",
             label_visibility="collapsed",
         )
@@ -953,10 +957,15 @@ with tab_search:
     if submitted and query:
         st.session_state["search_query"] = query
         st.session_state["search_submitted"] = True
+        st.session_state["_search_result"] = None
 
     run_query = st.session_state["search_submitted"]
     current_query = st.session_state["search_query"]
     st.session_state["search_submitted"] = False
+
+    # 表示対象（検索直後 or フォームクリア後の保持結果）
+    _disp_query = _disp_answer = _disp_chunks = None
+    _just_searched = False
 
     if not docs:
         st.info("「文書を管理」タブからPDFを登録してください。")
@@ -986,23 +995,30 @@ with tab_search:
                 if not cached:
                     st.warning("関連するドキュメントが見つかりませんでした。別のキーワードで試してください。")
             elif answer:
-                with st.chat_message("user", avatar="🧑"):
-                    st.write(safe_query)
-                with st.chat_message("assistant", avatar="🤖"):
-                    _display_answer = answer if _has_citation(answer) else strip_citations(answer)
-                    st.markdown(linkify_answer(_display_answer), unsafe_allow_html=True)
+                _disp_query, _disp_answer, _disp_chunks = safe_query, answer, chunks_result
+                _just_searched = True
 
-                # 参照元ドキュメント・PDFダウンロード（引用がある回答のみ表示）
-                if _has_citation(answer):
-                    _cards_html = ""
-                    for i, c in enumerate(chunks_result, 1):
-                        score_pct = int(c["score"] * 100)
-                        _fname_html = (
-                            f'<span style="font-weight:700;color:#1a73e8;font-size:0.95rem;">'
-                            f'{c["filename"]}</span>'
-                        )
-                        _excerpt = c['text'][:200] + '...' if len(c['text']) > 200 else c['text']
-                        _cards_html += f"""
+    elif st.session_state["_search_result"]:
+        _disp_query, _disp_answer, _disp_chunks = st.session_state["_search_result"]
+
+    # ---- 回答描画（検索直後 / フォームクリア後の保持結果 共通） ----
+    if _disp_answer and _disp_chunks:
+        with st.chat_message("user", avatar="🧑"):
+            st.write(_disp_query)
+        with st.chat_message("assistant", avatar="🤖"):
+            _show_ans = _disp_answer if _has_citation(_disp_answer) else strip_citations(_disp_answer)
+            st.markdown(linkify_answer(_show_ans), unsafe_allow_html=True)
+
+        if _has_citation(_disp_answer):
+            _cards_html = ""
+            for i, c in enumerate(_disp_chunks, 1):
+                score_pct = int(c["score"] * 100)
+                _fname_html = (
+                    f'<span style="font-weight:700;color:#1a73e8;font-size:0.95rem;">'
+                    f'{c["filename"]}</span>'
+                )
+                _excerpt = c['text'][:200] + '...' if len(c['text']) > 200 else c['text']
+                _cards_html += f"""
 <div style="background:#f8f9fa;border-left:4px solid #1a73e8;border-radius:4px;
             padding:0.8rem 1rem;margin-bottom:0.6rem;">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.4rem;">
@@ -1018,20 +1034,26 @@ with tab_search:
   <div style="color:#5f6368;font-size:0.88rem;line-height:1.7;">{_excerpt}</div>
 </div>
 """
-                    st.markdown(f"""
+            st.markdown(f"""
 <details class="src-section">
   <summary>
     <span style="background:#1a73e8;color:#fff;border-radius:4px;padding:2px 10px;
                  font-size:0.8rem;font-weight:700;">参照元</span>
-    <span style="font-size:0.9rem;font-weight:600;color:#5f6368;">ドキュメント（{len(chunks_result)} 件）</span>
+    <span style="font-size:0.9rem;font-weight:600;color:#5f6368;">ドキュメント（{len(_disp_chunks)} 件）</span>
   </summary>
   <div class="src-cards">{_cards_html}</div>
 </details>
 """, unsafe_allow_html=True)
 
-                    _unique_fnames = list({m.group(1) for m in _CITATION_RE.finditer(answer)})
-                    if _unique_fnames:
-                        inject_pdf_downloader(_unique_fnames)
+            _unique_fnames = list({m.group(1) for m in _CITATION_RE.finditer(_disp_answer)})
+            if _unique_fnames:
+                inject_pdf_downloader(_unique_fnames)
+
+        if _just_searched:
+            # 回答表示完了 → 結果を保存してフォームをクリア
+            st.session_state["_search_result"] = (_disp_query, _disp_answer, _disp_chunks)
+            st.session_state["_search_input"] = ""
+            st.rerun()
 
 
 
