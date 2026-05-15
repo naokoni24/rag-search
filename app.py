@@ -88,11 +88,15 @@ html, body, [class*="css"], .stApp, p, div, label, textarea, button {
 }
 
 /* 検索ボタン：白文字・青背景 */
-[data-testid="stFormSubmitButton"] > button {
+[data-testid="stFormSubmitButton"] button,
+[data-testid="stFormSubmitButton"] > button,
+[data-testid="stBaseButton-primaryFormSubmit"],
+[data-testid="stBaseButton-primary"] {
     color: #ffffff !important;
     background-color: #1a73e8 !important;
     border: none !important;
 }
+[data-testid="stFormSubmitButton"] button:hover,
 [data-testid="stFormSubmitButton"] > button:hover {
     background-color: #1557b0 !important;
     color: #ffffff !important;
