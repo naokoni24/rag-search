@@ -277,6 +277,27 @@ div[data-testid="stTextInput"] input:focus {
     color: #ffffff !important;
 }
 
+/* ファイルアップローダーのブラウズボタン：青背景・白文字 */
+[data-testid="stFileUploader"] button,
+[data-testid="stFileUploaderDropzone"] button,
+[data-testid="stFileUploaderDropzoneInput"] + div button {
+    background: #1a73e8 !important;
+    color: #ffffff !important;
+    border: none !important;
+    border-radius: 6px !important;
+}
+[data-testid="stFileUploader"] button:hover,
+[data-testid="stFileUploaderDropzone"] button:hover {
+    background: #1765cc !important;
+    color: #ffffff !important;
+}
+[data-testid="stFileUploader"] button p,
+[data-testid="stFileUploader"] button span,
+[data-testid="stFileUploaderDropzone"] button p,
+[data-testid="stFileUploaderDropzone"] button span {
+    color: #ffffff !important;
+}
+
 
 /* ドキュメント選択カード（未選択） */
 [data-testid="stMarkdownContainer"]:has(.doc-unselected) + [data-testid="stButton"] > button {
