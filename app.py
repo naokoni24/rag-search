@@ -1138,11 +1138,14 @@ with tab_manage:
 
         with col_left:
             st.markdown('<div class="section-title">PDFをアップロード</div>', unsafe_allow_html=True)
+            if "uploader_key" not in st.session_state:
+                st.session_state["uploader_key"] = 0
             uploaded_file = st.file_uploader(
                 "PDFファイルを選択",
                 type="pdf",
                 accept_multiple_files=False,
                 label_visibility="collapsed",
+                key=f"uploader_{st.session_state['uploader_key']}",
             )
             if uploaded_file:
                 if uploaded_file.name in docs:
@@ -1157,6 +1160,7 @@ with tab_manage:
                             with st.spinner(f"処理中: {uploaded_file.name}"):
                                 ingest_pdf(data, uploaded_file.name)
                             st.success(f"{uploaded_file.name} — 登録完了")
+                            st.session_state["uploader_key"] += 1
                         st.rerun()
 
         with col_right:
