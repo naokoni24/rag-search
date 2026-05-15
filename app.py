@@ -532,30 +532,32 @@ def _ensure_log_collection(client: QdrantClient):
             vectors_config=VectorParams(size=1, distance=Distance.COSINE),
         )
 
-@st.cache_data(ttl=300)
 def load_search_log() -> dict:
-    client = get_qdrant()
-    try:
-        _ensure_log_collection(client)
-        results = client.retrieve(
-            collection_name=LOG_COLLECTION,
-            ids=[LOG_POINT_ID],
-            with_payload=True,
-        )
-        if results:
-            return results[0].payload.get("log", {})
-    except Exception:
-        pass
-    return {}
+    """session_state に保持（ディープコピーなし・rerun をまたいで高速アクセス）"""
+    if "_search_log" not in st.session_state:
+        client = get_qdrant()
+        try:
+            _ensure_log_collection(client)
+            results = client.retrieve(
+                collection_name=LOG_COLLECTION,
+                ids=[LOG_POINT_ID],
+                with_payload=True,
+            )
+            st.session_state["_search_log"] = (
+                results[0].payload.get("log", {}) if results else {}
+            )
+        except Exception:
+            st.session_state["_search_log"] = {}
+    return st.session_state["_search_log"]
 
 def save_search_log(log: dict):
+    st.session_state["_search_log"] = log   # session_state を即時更新
     client = get_qdrant()
     _ensure_log_collection(client)
     client.upsert(
         collection_name=LOG_COLLECTION,
         points=[PointStruct(id=LOG_POINT_ID, vector=[0.0], payload={"log": log})],
     )
-    load_search_log.clear()  # キャッシュを即時無効化して次回取得を最新化
 
 def normalize_query(query: str) -> str:
     q = query.strip()
@@ -655,7 +657,6 @@ def delete_document(filename: str) -> int:
             )
         get_pdf_b64.clear()
         get_pdf_bytes.clear()
-        linkify_answer.clear()
     except Exception:
         pass
 
@@ -819,9 +820,16 @@ def generate_answer(query: str, chunks: list[dict]) -> str:
 _CITATION_RE = re.compile(r'【参照】([^\s\n【】]+\.pdf)\s+p\.(\d+)')
 
 def linkify_answer(answer: str) -> str:
-    """回答内の【参照】ファイル名 p.N をスタイル付きテキストに変換（base64埋め込みなし）"""
+    """回答内の【参照】ファイル名 p.N をダウンロードリンクに変換"""
     def _replace(m):
         fname, page = m.group(1), m.group(2)
+        b64 = get_pdf_b64(fname)
+        if b64:
+            return (
+                f'<a href="data:application/pdf;base64,{b64}" download="{fname}" '
+                f'style="color:#1a73e8;font-weight:600;text-decoration:underline;">'
+                f'📄 {fname} p.{page}</a>'
+            )
         return f'<span style="color:#1a73e8;font-weight:600;">📄 {fname} p.{page}</span>'
     return _CITATION_RE.sub(_replace, answer)
 
@@ -952,20 +960,6 @@ with tab_search:
 </details>
 """, unsafe_allow_html=True)
 
-                # PDFダウンロード（ファイル単位・重複除外）
-                _seen_dl: list[str] = []
-                for c in chunks_result:
-                    if c["filename"] not in _seen_dl:
-                        _seen_dl.append(c["filename"])
-                        _pdf = get_pdf_bytes(c["filename"])
-                        if _pdf:
-                            st.download_button(
-                                label=f"📄 {c['filename']} をダウンロード",
-                                data=_pdf,
-                                file_name=c["filename"],
-                                mime="application/pdf",
-                                key=f"dl_{current_query[:20]}_{c['filename']}",
-                            )
 
 
 
