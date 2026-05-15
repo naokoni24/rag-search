@@ -587,7 +587,14 @@ def _generate_label(query: str) -> str:
     )
     return response.text.strip()
 
+def _has_citation(answer: str) -> bool:
+    """回答に【参照】引用が含まれるか（AIが実際にドキュメントから回答した証拠）"""
+    return bool(_CITATION_RE.search(answer))
+
 def record_search(query: str, answer: str, chunks: list[dict]):
+    """引用付きの有効な回答のみ記録する（「該当なし」回答は除外）"""
+    if not (answer and chunks and _has_citation(answer)):
+        return
     log = load_search_log()
     key = normalize_query(query)
     if not key:
@@ -602,13 +609,15 @@ def record_search(query: str, answer: str, chunks: list[dict]):
     save_search_log(log)
 
 def get_top_queries(n: int = 3) -> list[tuple[str, str]]:
-    """回答が存在するエントリのみ (normalized_query, label) で返す"""
+    """引用付きの有効な回答があるエントリのみ (normalized_query, label) で返す"""
     log = load_search_log()
     sorted_keys = sorted(log, key=lambda k: log[k]["count"], reverse=True)
     result = []
     for k in sorted_keys:
         entry = log[k]
-        if not (entry.get("answer") and entry.get("chunks")):
+        answer = entry.get("answer") or ""
+        chunks = entry.get("chunks") or []
+        if not (answer and chunks and _has_citation(answer)):
             continue
         label = entry.get("label") or k
         result.append((k, label))
@@ -621,8 +630,10 @@ def get_cached_result(query: str) -> tuple[str, list[dict]] | None:
     log = load_search_log()
     key = normalize_query(query)
     entry = log.get(key)
-    if entry and entry.get("answer") and entry.get("chunks"):
-        return entry["answer"], entry["chunks"]
+    answer = (entry or {}).get("answer") or ""
+    chunks = (entry or {}).get("chunks") or []
+    if answer and chunks and _has_citation(answer):
+        return answer, chunks
     return None
 
 
