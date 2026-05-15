@@ -1145,16 +1145,19 @@ with tab_manage:
                 label_visibility="collapsed",
             )
             if uploaded_file:
-                if st.button("登録する", type="primary", use_container_width=True):
-                    data = uploaded_file.read()
-                    err = validate_pdf(data, uploaded_file.name)
-                    if err:
-                        st.error(err)
-                    else:
-                        with st.spinner(f"処理中: {uploaded_file.name}"):
-                            ingest_pdf(data, uploaded_file.name)
-                        st.success(f"{uploaded_file.name} — 登録完了")
-                    st.rerun()
+                if uploaded_file.name in docs:
+                    st.error(f"「{uploaded_file.name}」はすでに登録されています。削除してから再アップロードしてください。")
+                else:
+                    if st.button("登録する", type="primary", use_container_width=True):
+                        data = uploaded_file.read()
+                        err = validate_pdf(data, uploaded_file.name)
+                        if err:
+                            st.error(err)
+                        else:
+                            with st.spinner(f"処理中: {uploaded_file.name}"):
+                                ingest_pdf(data, uploaded_file.name)
+                            st.success(f"{uploaded_file.name} — 登録完了")
+                        st.rerun()
 
         with col_right:
             st.markdown('<div class="section-title">登録済みドキュメント</div>', unsafe_allow_html=True)
