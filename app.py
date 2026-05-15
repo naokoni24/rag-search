@@ -818,18 +818,10 @@ def generate_answer(query: str, chunks: list[dict]) -> str:
 
 _CITATION_RE = re.compile(r'【参照】([^\s\n【】]+\.pdf)\s+p\.(\d+)')
 
-@st.cache_data(ttl=3600)
 def linkify_answer(answer: str) -> str:
-    """回答内の【参照】ファイル名 p.N をダウンロードリンクに変換（HTML結果をキャッシュ）"""
+    """回答内の【参照】ファイル名 p.N をスタイル付きテキストに変換（base64埋め込みなし）"""
     def _replace(m):
         fname, page = m.group(1), m.group(2)
-        b64 = get_pdf_b64(fname)
-        if b64:
-            return (
-                f'<a href="data:application/pdf;base64,{b64}" download="{fname}" '
-                f'style="color:#1a73e8;font-weight:600;text-decoration:underline;">'
-                f'📄 {fname} p.{page}</a>'
-            )
         return f'<span style="color:#1a73e8;font-weight:600;">📄 {fname} p.{page}</span>'
     return _CITATION_RE.sub(_replace, answer)
 
@@ -959,6 +951,21 @@ with tab_search:
   <div class="src-cards">{_cards_html}</div>
 </details>
 """, unsafe_allow_html=True)
+
+                # PDFダウンロード（ファイル単位・重複除外）
+                _seen_dl: list[str] = []
+                for c in chunks_result:
+                    if c["filename"] not in _seen_dl:
+                        _seen_dl.append(c["filename"])
+                        _pdf = get_pdf_bytes(c["filename"])
+                        if _pdf:
+                            st.download_button(
+                                label=f"📄 {c['filename']} をダウンロード",
+                                data=_pdf,
+                                file_name=c["filename"],
+                                mime="application/pdf",
+                                key=f"dl_{current_query[:20]}_{c['filename']}",
+                            )
 
 
 
