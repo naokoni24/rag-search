@@ -986,16 +986,17 @@ with tab_search:
                 with st.chat_message("assistant", avatar="🤖"):
                     st.markdown(linkify_answer(answer), unsafe_allow_html=True)
 
-                # 参照元ドキュメント（details/summary で折りたたみ）
-                _cards_html = ""
-                for i, c in enumerate(chunks_result, 1):
-                    score_pct = int(c["score"] * 100)
-                    _fname_html = (
-                        f'<span style="font-weight:700;color:#1a73e8;font-size:0.95rem;">'
-                        f'{c["filename"]}</span>'
-                    )
-                    _excerpt = c['text'][:200] + '...' if len(c['text']) > 200 else c['text']
-                    _cards_html += f"""
+                # 参照元ドキュメント・PDFダウンロード（引用がある回答のみ表示）
+                if _has_citation(answer):
+                    _cards_html = ""
+                    for i, c in enumerate(chunks_result, 1):
+                        score_pct = int(c["score"] * 100)
+                        _fname_html = (
+                            f'<span style="font-weight:700;color:#1a73e8;font-size:0.95rem;">'
+                            f'{c["filename"]}</span>'
+                        )
+                        _excerpt = c['text'][:200] + '...' if len(c['text']) > 200 else c['text']
+                        _cards_html += f"""
 <div style="background:#f8f9fa;border-left:4px solid #1a73e8;border-radius:4px;
             padding:0.8rem 1rem;margin-bottom:0.6rem;">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.4rem;">
@@ -1011,7 +1012,7 @@ with tab_search:
   <div style="color:#5f6368;font-size:0.88rem;line-height:1.7;">{_excerpt}</div>
 </div>
 """
-                st.markdown(f"""
+                    st.markdown(f"""
 <details class="src-section">
   <summary>
     <span style="background:#1a73e8;color:#fff;border-radius:4px;padding:2px 10px;
@@ -1022,10 +1023,9 @@ with tab_search:
 </details>
 """, unsafe_allow_html=True)
 
-                # PDFダウンロード機能を注入（初回のみbase64送信・以降は軽量スクリプト）
-                _unique_fnames = list({m.group(1) for m in _CITATION_RE.finditer(answer)})
-                if _unique_fnames:
-                    inject_pdf_downloader(_unique_fnames)
+                    _unique_fnames = list({m.group(1) for m in _CITATION_RE.finditer(answer)})
+                    if _unique_fnames:
+                        inject_pdf_downloader(_unique_fnames)
 
 
 
