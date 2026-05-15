@@ -405,6 +405,8 @@ details.src-section > summary:hover { background: #f8f9fa; }
 [data-testid="stMainMenu"]     { display: none !important; }
 [data-testid="stDecoration"]   { display: none !important; }
 [data-testid="stStatusWidget"] { display: none !important; }
+[class*="StatusWidget"]        { display: none !important; }
+[class*="viewerBadge"]         { display: none !important; }
 #MainMenu { display: none !important; }
 footer    { display: none !important; }
 </style>
@@ -940,6 +942,28 @@ st.set_page_config(
 )
 
 st.markdown(STYLE, unsafe_allow_html=True)
+
+# Manage app ボタンを JS で確実に非表示（動的追加要素対策）
+st.components.v1.html("""<script>
+(function() {
+    var SELECTORS = [
+        '[data-testid="stStatusWidget"]',
+        '[class*="StatusWidget"]',
+        '[class*="viewerBadge"]',
+        'footer'
+    ];
+    function hideElements() {
+        SELECTORS.forEach(function(sel) {
+            document.querySelectorAll(sel).forEach(function(el) {
+                el.style.setProperty('display', 'none', 'important');
+            });
+        });
+    }
+    hideElements();
+    new MutationObserver(hideElements).observe(document.body, {childList: true, subtree: true});
+})();
+</script>""", height=0)
+
 setup_genai()
 
 # ヘッダー
