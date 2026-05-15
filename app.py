@@ -785,15 +785,16 @@ def generate_answer(query: str, chunks: list[dict]) -> str:
 _CITATION_RE = re.compile(r'【参照】([^\s\n【】]+\.pdf)\s+p\.(\d+)')
 
 def linkify_answer(answer: str) -> str:
-    """回答内の【参照】ファイル名 p.N をクリッカブルなダウンロードリンクに変換"""
+    """回答内の【参照】ファイル名 p.N を指定ページで開くリンクに変換"""
     def _replace(m):
         fname = m.group(1)
         page = m.group(2)
         pdf_bytes = get_pdf_bytes(fname)
         if pdf_bytes:
             b64 = base64.b64encode(pdf_bytes).decode()
+            # #page=N で指定ページを開く（Chrome/Firefox 対応）
             return (
-                f'<a href="data:application/pdf;base64,{b64}" download="{fname}" '
+                f'<a href="data:application/pdf;base64,{b64}#page={page}" target="_blank" '
                 f'style="color:#1a73e8;font-weight:600;text-decoration:underline;cursor:pointer;">'
                 f'📄 {fname} p.{page}</a>'
             )
