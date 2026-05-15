@@ -832,6 +832,11 @@ def generate_answer(query: str, chunks: list[dict]) -> str:
 
 
 _CITATION_RE = re.compile(r'【参照】([^\s\n【】]+\.pdf)\s+p\.(\d+)')
+_LOOSE_CITATION_RE = re.compile(r'【参照】[^\n]*')
+
+def strip_citations(answer: str) -> str:
+    """【参照】を含む行を除去する（引用なし回答の残骸テキスト対策）"""
+    return _LOOSE_CITATION_RE.sub('', answer).strip()
 
 def linkify_answer(answer: str) -> str:
     """回答内の【参照】ファイル名 p.N をクリック可能なリンクに変換（base64なし・軽量）"""
@@ -984,7 +989,8 @@ with tab_search:
                 with st.chat_message("user", avatar="🧑"):
                     st.write(safe_query)
                 with st.chat_message("assistant", avatar="🤖"):
-                    st.markdown(linkify_answer(answer), unsafe_allow_html=True)
+                    _display_answer = answer if _has_citation(answer) else strip_citations(answer)
+                    st.markdown(linkify_answer(_display_answer), unsafe_allow_html=True)
 
                 # 参照元ドキュメント・PDFダウンロード（引用がある回答のみ表示）
                 if _has_citation(answer):
