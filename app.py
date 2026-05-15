@@ -602,12 +602,15 @@ def record_search(query: str, answer: str, chunks: list[dict]):
     save_search_log(log)
 
 def get_top_queries(n: int = 3) -> list[tuple[str, str]]:
-    """(normalized_query, label) のリストを返す"""
+    """回答が存在するエントリのみ (normalized_query, label) で返す"""
     log = load_search_log()
     sorted_keys = sorted(log, key=lambda k: log[k]["count"], reverse=True)
     result = []
     for k in sorted_keys:
-        label = log[k].get("label") or k
+        entry = log[k]
+        if not (entry.get("answer") and entry.get("chunks")):
+            continue
+        label = entry.get("label") or k
         result.append((k, label))
         if len(result) >= n:
             break
