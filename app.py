@@ -945,6 +945,10 @@ with tab_search:
     if "_search_result" not in st.session_state:
         st.session_state["_search_result"] = None  # (safe_query, answer, chunks)
 
+    # フォームクリアフラグはウィジェット描画前に処理（描画後の key 書き換えは Streamlit が禁止）
+    if st.session_state.pop("_clear_form_next", False):
+        st.session_state["_search_input"] = ""
+
     with st.form("search_form", clear_on_submit=False):
         query = st.text_input(
             "質問",
@@ -1050,9 +1054,9 @@ with tab_search:
                 inject_pdf_downloader(_unique_fnames)
 
         if _just_searched:
-            # 回答表示完了 → 結果を保存してフォームをクリア
+            # 回答表示完了 → 結果を保存してフォームクリアフラグを立て rerun
             st.session_state["_search_result"] = (_disp_query, _disp_answer, _disp_chunks)
-            st.session_state["_search_input"] = ""
+            st.session_state["_clear_form_next"] = True
             st.rerun()
 
 
