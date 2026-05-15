@@ -785,13 +785,19 @@ def generate_answer(query: str, chunks: list[dict]) -> str:
 _CITATION_RE = re.compile(r'【参照】([^\s\n【】]+\.pdf)\s+p\.(\d+)')
 
 def linkify_answer(answer: str) -> str:
-    """回答内の【参照】ファイル名 p.N をスタイル付きテキストに変換（ダウンロードは参照元カードから）"""
+    """回答内の【参照】ファイル名 p.N をクリッカブルなダウンロードリンクに変換"""
     def _replace(m):
         fname = m.group(1)
         page = m.group(2)
-        return (
-            f'<span style="color:#1a73e8;font-weight:600;">📄 {fname} p.{page}</span>'
-        )
+        pdf_bytes = get_pdf_bytes(fname)
+        if pdf_bytes:
+            b64 = base64.b64encode(pdf_bytes).decode()
+            return (
+                f'<a href="data:application/pdf;base64,{b64}" download="{fname}" '
+                f'style="color:#1a73e8;font-weight:600;text-decoration:underline;cursor:pointer;">'
+                f'📄 {fname} p.{page}</a>'
+            )
+        return f'<span style="color:#1a73e8;font-weight:600;">📄 {fname} p.{page}</span>'
     return _CITATION_RE.sub(_replace, answer)
 
 
@@ -910,24 +916,6 @@ with tab_search:
 </details>
 """, unsafe_allow_html=True)
 
-                # 参照元PDFのダウンロードボタン（ファイル名重複除外）
-                _seen = []
-                _dl_fnames = [c["filename"] for c in chunks_result
-                              if c["filename"] not in _seen and not _seen.append(c["filename"])]
-                if _dl_fnames:
-                    st.markdown('<p style="font-size:0.82rem;color:#5f6368;margin:0.6rem 0 0.2rem;">📥 PDFをダウンロード</p>', unsafe_allow_html=True)
-                    _cols = st.columns(len(_dl_fnames))
-                    for _col, _fname in zip(_cols, _dl_fnames):
-                        _pdf_bytes = get_pdf_bytes(_fname)
-                        if _pdf_bytes:
-                            _col.download_button(
-                                label=_fname,
-                                data=_pdf_bytes,
-                                file_name=_fname,
-                                mime="application/pdf",
-                                use_container_width=True,
-                                key=f"dl_{safe_query[:30]}_{_fname}",
-                            )
 
 
     # よく検索されるキーワード（結果の下・常時表示・APIなし）
