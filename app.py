@@ -485,6 +485,14 @@ def get_pdf_b64(filename: str) -> str | None:
         pass
     return None
 
+@st.cache_data(ttl=3600)
+def get_pdf_bytes(filename: str) -> bytes | None:
+    """PDF のバイト列を返す（デコード結果をキャッシュ）"""
+    b64 = get_pdf_b64(filename)
+    if b64:
+        return base64.b64decode(b64)
+    return None
+
 
 def _ensure_log_collection(client: QdrantClient):
     names = [c.name for c in client.get_collections().collections]
@@ -901,6 +909,25 @@ with tab_search:
   <div class="src-cards">{_cards_html}</div>
 </details>
 """, unsafe_allow_html=True)
+
+                # 参照元PDFのダウンロードボタン（ファイル名重複除外）
+                _seen = []
+                _dl_fnames = [c["filename"] for c in chunks_result
+                              if c["filename"] not in _seen and not _seen.append(c["filename"])]
+                if _dl_fnames:
+                    st.markdown('<p style="font-size:0.82rem;color:#5f6368;margin:0.6rem 0 0.2rem;">📥 PDFをダウンロード</p>', unsafe_allow_html=True)
+                    _cols = st.columns(len(_dl_fnames))
+                    for _col, _fname in zip(_cols, _dl_fnames):
+                        _pdf_bytes = get_pdf_bytes(_fname)
+                        if _pdf_bytes:
+                            _col.download_button(
+                                label=_fname,
+                                data=_pdf_bytes,
+                                file_name=_fname,
+                                mime="application/pdf",
+                                use_container_width=True,
+                                key=f"dl_{safe_query[:30]}_{_fname}",
+                            )
 
 
     # よく検索されるキーワード（結果の下・常時表示・APIなし）
