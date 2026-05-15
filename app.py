@@ -101,6 +101,13 @@ html, body, [class*="css"], .stApp, p, div, label, textarea, button {
     background-color: #1557b0 !important;
     color: #ffffff !important;
 }
+/* ボタン内の p/span が黒文字になるのを防ぐ */
+[data-testid="stFormSubmitButton"] button p,
+[data-testid="stFormSubmitButton"] button span,
+[data-testid="stBaseButton-primaryFormSubmit"] p,
+[data-testid="stBaseButton-primaryFormSubmit"] span {
+    color: #ffffff !important;
+}
 
 /* ベースフォントサイズ */
 .stApp {
@@ -806,15 +813,14 @@ def generate_answer(query: str, chunks: list[dict]) -> str:
 
 _CITATION_RE = re.compile(r'【参照】([^\s\n【】]+\.pdf)\s+p\.(\d+)')
 
+@st.cache_data(ttl=3600)
 def linkify_answer(answer: str) -> str:
-    """回答内の【参照】ファイル名 p.N を指定ページで開くリンクに変換"""
+    """回答内の【参照】ファイル名 p.N を指定ページで開くリンクに変換（結果をキャッシュ）"""
     def _replace(m):
         fname = m.group(1)
         page = m.group(2)
-        pdf_bytes = get_pdf_bytes(fname)
-        if pdf_bytes:
-            b64 = base64.b64encode(pdf_bytes).decode()
-            # Blob URL 方式（Chrome の data: URL ブロックを回避）
+        b64 = get_pdf_b64(fname)  # 既にbase64文字列・キャッシュ済み（再エンコード不要）
+        if b64:
             onclick = (
                 f"var b=this.dataset.b64;"
                 f"var by=Uint8Array.from(atob(b),function(c){{return c.charCodeAt(0)}});"
