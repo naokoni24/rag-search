@@ -847,19 +847,30 @@ with tab_search:
 
     if "search_query" not in st.session_state:
         st.session_state["search_query"] = ""
+    if "search_submitted" not in st.session_state:
+        st.session_state["search_submitted"] = False
 
-    query = st.text_input(
-        "質問",
-        value=st.session_state["search_query"],
-        placeholder="例：有給休暇の申請手続きを教えてください",
-        label_visibility="collapsed",
-    )
-    st.session_state["search_query"] = query
+    with st.form("search_form", clear_on_submit=False):
+        query = st.text_input(
+            "質問",
+            value=st.session_state["search_query"],
+            placeholder="例：有給休暇の申請手続きを教えてください",
+            label_visibility="collapsed",
+        )
+        submitted = st.form_submit_button("検索", type="primary")
+
+    if submitted and query:
+        st.session_state["search_query"] = query
+        st.session_state["search_submitted"] = True
+
+    run_query = st.session_state["search_submitted"]
+    current_query = st.session_state["search_query"]
+    st.session_state["search_submitted"] = False
 
     if not docs:
         st.info("「文書を管理」タブからPDFを登録してください。")
-    elif query:
-        safe_query = sanitize_query(query)
+    elif run_query and current_query:
+        safe_query = sanitize_query(current_query)
         if safe_query is None:
             st.warning("入力内容を確認できませんでした。500文字以内の質問を入力してください。")
         else:
@@ -935,6 +946,7 @@ with tab_search:
             for i, (tq, label) in enumerate(top_queries):
                 if st.button(f"🔍 {label}", key=f"top_{i}"):
                     st.session_state["search_query"] = tq
+                    st.session_state["search_submitted"] = True
                     st.rerun()
 
 # ---- 文書管理タブ ----
