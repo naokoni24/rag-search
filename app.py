@@ -471,6 +471,7 @@ def ingest_pdf(pdf_bytes: bytes, filename: str) -> int:
     ]
     client.upsert(collection_name=COLLECTION, points=points)
     _store_pdf_bytes(client, filename, pdf_bytes)
+    get_registered_docs.clear()
     return len(points)
 
 
@@ -653,12 +654,16 @@ def delete_document(filename: str) -> int:
                 points_selector=PointIdsList(points=pdf_ids),
             )
         get_pdf_b64.clear()
+        get_pdf_bytes.clear()
+        linkify_answer.clear()
     except Exception:
         pass
 
+    get_registered_docs.clear()
     return len(point_ids)
 
 
+@st.cache_data(ttl=120)
 def get_registered_docs() -> list[str]:
     client = get_qdrant()
     try:
