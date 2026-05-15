@@ -813,27 +813,10 @@ def generate_answer(query: str, chunks: list[dict]) -> str:
 
 _CITATION_RE = re.compile(r'【参照】([^\s\n【】]+\.pdf)\s+p\.(\d+)')
 
-@st.cache_data(ttl=3600)
 def linkify_answer(answer: str) -> str:
-    """回答内の【参照】ファイル名 p.N を指定ページで開くリンクに変換（結果をキャッシュ）"""
+    """回答内の【参照】ファイル名 p.N をスタイル付きテキストに変換"""
     def _replace(m):
-        fname = m.group(1)
-        page = m.group(2)
-        b64 = get_pdf_b64(fname)  # 既にbase64文字列・キャッシュ済み（再エンコード不要）
-        if b64:
-            onclick = (
-                f"var b=this.dataset.b64;"
-                f"var by=Uint8Array.from(atob(b),function(c){{return c.charCodeAt(0)}});"
-                f"var bl=new Blob([by],{{type:'application/pdf'}});"
-                f"var u=URL.createObjectURL(bl);"
-                f"window.open(u+'#page={page}','_blank');"
-                f"return false;"
-            )
-            return (
-                f'<a href="#" data-b64="{b64}" onclick="{onclick}" '
-                f'style="color:#1a73e8;font-weight:600;text-decoration:underline;cursor:pointer;">'
-                f'📄 {fname} p.{page}</a>'
-            )
+        fname, page = m.group(1), m.group(2)
         return f'<span style="color:#1a73e8;font-weight:600;">📄 {fname} p.{page}</span>'
     return _CITATION_RE.sub(_replace, answer)
 
@@ -963,6 +946,21 @@ with tab_search:
   <div class="src-cards">{_cards_html}</div>
 </details>
 """, unsafe_allow_html=True)
+
+                # PDFダウンロード（ファイル単位・重複除外）
+                _seen_dl: list[str] = []
+                for c in chunks_result:
+                    if c["filename"] not in _seen_dl:
+                        _seen_dl.append(c["filename"])
+                        _pdf = get_pdf_bytes(c["filename"])
+                        if _pdf:
+                            st.download_button(
+                                label=f"📄 {c['filename']} をダウンロード",
+                                data=_pdf,
+                                file_name=c["filename"],
+                                mime="application/pdf",
+                                key=f"dl_{current_query[:20]}_{c['filename']}",
+                            )
 
 
 
