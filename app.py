@@ -216,18 +216,18 @@ p, li, label {
 }
 
 /* ログインカード（st.container border=True） */
-[data-testid="stVerticalBlockBorderWrapper"],
-[data-testid="stVerticalBlockBorderWrapper"] [data-testid="stVerticalBlock"],
-[data-testid="stVerticalBlockBorderWrapper"] [data-testid="stForm"],
-[data-testid="stVerticalBlockBorderWrapper"] [data-testid="stForm"] [data-testid="stVerticalBlock"] {
+[data-testid="stVerticalBlockBorderWrapper"] {
     background: #ffffff !important;
     background-color: #ffffff !important;
-}
-[data-testid="stVerticalBlockBorderWrapper"] {
     border-radius: 12px !important;
     border-color: #dadce0 !important;
     box-shadow: 0 1px 4px rgba(60,64,67,0.12) !important;
     padding: 0.5rem 1.2rem 1.2rem 1.2rem !important;
+}
+[data-testid="stVerticalBlockBorderWrapper"] div,
+[data-testid="stVerticalBlockBorderWrapper"] section {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
 }
 
 /* テキスト入力 */
