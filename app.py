@@ -1182,8 +1182,7 @@ with tab_manage:
     else:
         touch_admin_session()
 
-        st.markdown('<div class="desktop-logout-marker"></div>', unsafe_allow_html=True)
-        _, _lc = st.columns([11, 1])
+        _, _lc = st.columns([3, 1])
         with _lc:
             if st.button("ログアウト", key="manage_logout", use_container_width=True):
                 st.session_state["admin_authenticated"] = False
