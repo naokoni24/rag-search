@@ -300,7 +300,7 @@ div[data-testid="stTextInput"] input:focus {
 
 
 /* ドキュメント選択カード（未選択） */
-[data-testid="stMarkdownContainer"]:has(.doc-unselected) + [data-testid="stButton"] > button {
+[data-testid="stMarkdownContainer"]:has(.doc-unselected) + [data-testid="stHorizontalBlock"] [data-testid="stButton"] > button {
     background: #ffffff !important;
     color: #202124 !important;
     border: 1px solid #dadce0 !important;
@@ -313,16 +313,16 @@ div[data-testid="stTextInput"] input:focus {
     box-shadow: 0 1px 2px rgba(60,64,67,0.05) !important;
     justify-content: flex-start !important;
 }
-[data-testid="stMarkdownContainer"]:has(.doc-unselected) + [data-testid="stButton"] > button:hover {
+[data-testid="stMarkdownContainer"]:has(.doc-unselected) + [data-testid="stHorizontalBlock"] [data-testid="stButton"] > button:hover {
     background: #f8f9fa !important;
     color: #202124 !important;
     box-shadow: 0 1px 3px rgba(60,64,67,0.15) !important;
 }
-[data-testid="stMarkdownContainer"]:has(.doc-unselected) + [data-testid="stButton"] > button p {
+[data-testid="stMarkdownContainer"]:has(.doc-unselected) + [data-testid="stHorizontalBlock"] [data-testid="stButton"] > button p {
     color: #202124 !important;
 }
 /* ドキュメント選択カード（選択済み） */
-[data-testid="stMarkdownContainer"]:has(.doc-selected) + [data-testid="stButton"] > button {
+[data-testid="stMarkdownContainer"]:has(.doc-selected) + [data-testid="stHorizontalBlock"] [data-testid="stButton"] > button {
     background: #e8f0fe !important;
     color: #1a73e8 !important;
     border: 2px solid #1a73e8 !important;
@@ -334,11 +334,11 @@ div[data-testid="stTextInput"] input:focus {
     padding: 0.65rem 1rem !important;
     justify-content: flex-start !important;
 }
-[data-testid="stMarkdownContainer"]:has(.doc-selected) + [data-testid="stButton"] > button:hover {
+[data-testid="stMarkdownContainer"]:has(.doc-selected) + [data-testid="stHorizontalBlock"] [data-testid="stButton"] > button:hover {
     background: #d2e3fc !important;
     color: #1a73e8 !important;
 }
-[data-testid="stMarkdownContainer"]:has(.doc-selected) + [data-testid="stButton"] > button p {
+[data-testid="stMarkdownContainer"]:has(.doc-selected) + [data-testid="stHorizontalBlock"] [data-testid="stButton"] > button p {
     color: #1a73e8 !important;
 }
 
@@ -1309,18 +1309,22 @@ with tab_manage:
                     is_sel = name in selected
                     marker = "doc-selected" if is_sel else "doc-unselected"
                     label = f"✓  {name}" if is_sel else f"📄  {name}"
-                    # 日付をサブテキストとして表示
-                    st.markdown(
-                        f'<span class="{marker}" style="display:none;"></span>'
-                        f'<div style="font-size:0.78rem;color:#9aa0a6;margin-bottom:1px;margin-top:6px;">📅 {date_str}</div>',
-                        unsafe_allow_html=True,
-                    )
-                    if st.button(label, key=f"doc_{name}", use_container_width=True):
-                        if is_sel:
-                            selected.remove(name)
-                        else:
-                            selected.append(name)
-                        st.rerun()
+                    st.markdown(f'<span class="{marker}" style="display:none;"></span>', unsafe_allow_html=True)
+                    _dc1, _dc2 = st.columns([3, 1])
+                    with _dc1:
+                        if st.button(label, key=f"doc_{name}", use_container_width=True):
+                            if is_sel:
+                                selected.remove(name)
+                            else:
+                                selected.append(name)
+                            st.rerun()
+                    with _dc2:
+                        st.markdown(
+                            f'<div style="font-size:0.78rem;color:#9aa0a6;'
+                            f'display:flex;align-items:center;height:100%;padding-top:0.55rem;">'
+                            f'📅 {date_str}</div>',
+                            unsafe_allow_html=True,
+                        )
 
                 if selected:
                     st.warning(f"{len(selected)} 件選択中")
