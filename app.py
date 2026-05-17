@@ -399,6 +399,13 @@ details.src-section[open] > summary::before { content: "▲"; }
 details.src-section > summary:hover { background: #f8f9fa; }
 .src-cards { padding: 0.6rem 1rem 0.4rem 1rem; }
 
+/* centered レイアウトの横幅を広げる */
+.block-container {
+    max-width: 900px !important;
+    padding-left: 2rem !important;
+    padding-right: 2rem !important;
+}
+
 /* 「Press Enter to apply」ヒントを非表示 */
 [data-testid="InputInstructions"] { display: none !important; }
 
@@ -1156,7 +1163,9 @@ with tab_manage:
     is_admin = check_admin_timeout()
 
     if not is_admin:
-        if st.session_state.get("admin_authenticated") is False and st.session_state.get("admin_last_active") is None:
+        if st.session_state.pop("_show_logout_msg", False):
+            st.success("ログアウトしました")
+        elif st.session_state.get("admin_authenticated") is False and st.session_state.get("admin_last_active") is None:
             pass  # 初回表示（タイムアウトではない）
         elif not st.session_state.get("admin_authenticated"):
             st.info("セッションがタイムアウトしました。再度ログインしてください。")
@@ -1187,6 +1196,7 @@ with tab_manage:
             if st.button("ログアウト", key="manage_logout", use_container_width=True):
                 st.session_state["admin_authenticated"] = False
                 st.session_state.pop("admin_last_active", None)
+                st.session_state["_show_logout_msg"] = True
                 st.rerun()
 
         col_left, col_right = st.columns([1, 1], gap="large")
