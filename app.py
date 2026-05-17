@@ -759,7 +759,7 @@ def get_registered_docs_with_dates() -> list[tuple[str, str]]:
             ts = r.payload.get("registered_at")
             if ts:
                 dt = datetime.datetime.fromtimestamp(ts)
-                date_str = dt.strftime("%Y/%m/%d %H:%M")
+                date_str = dt.strftime("%m/%d %H:%M")
             else:
                 date_str = "—"
             items.append((fname, date_str, ts or 0))
@@ -1306,18 +1306,18 @@ with tab_manage:
                 selected = st.session_state["selected_docs"]
 
                 # ヘッダー行
-                _hc1, _hc2 = st.columns([3, 1])
+                _hc1, _hc2 = st.columns([5, 1])
                 with _hc1:
                     st.markdown('<div style="font-size:0.78rem;font-weight:700;color:#5f6368;padding:0 0 4px 4px;">ファイル名</div>', unsafe_allow_html=True)
                 with _hc2:
-                    st.markdown('<div style="font-size:0.78rem;font-weight:700;color:#5f6368;padding:0 0 4px 4px;">アップロード日時</div>', unsafe_allow_html=True)
+                    st.markdown('<div style="font-size:0.78rem;font-weight:700;color:#5f6368;padding:0 0 4px 4px;white-space:nowrap;">登録日時</div>', unsafe_allow_html=True)
 
                 for name, date_str in docs_with_dates:
                     is_sel = name in selected
                     marker = "doc-selected" if is_sel else "doc-unselected"
                     label = f"✓  {name}" if is_sel else f"📄  {name}"
                     st.markdown(f'<span class="{marker}" style="display:none;"></span>', unsafe_allow_html=True)
-                    _dc1, _dc2 = st.columns([3, 1])
+                    _dc1, _dc2 = st.columns([5, 1])
                     with _dc1:
                         if st.button(label, key=f"doc_{name}", use_container_width=True):
                             if is_sel:
@@ -1327,7 +1327,7 @@ with tab_manage:
                             st.rerun()
                     with _dc2:
                         st.markdown(
-                            f'<div style="font-size:0.82rem;color:#5f6368;'
+                            f'<div style="font-size:0.82rem;color:#5f6368;white-space:nowrap;'
                             f'display:flex;align-items:center;height:100%;padding-top:0.55rem;">'
                             f'{date_str}</div>',
                             unsafe_allow_html=True,
