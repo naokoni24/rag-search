@@ -1277,29 +1277,35 @@ with tab_manage:
 
             # 登録完了メッセージ（rerun後も表示）
             if st.session_state["_upload_success"]:
-                st.success(f"✅ 「{st.session_state['_upload_success']}」を登録しました")
+                st.success(st.session_state["_upload_success"])
                 st.session_state["_upload_success"] = None
 
-            uploaded_file = st.file_uploader(
+            uploaded_files = st.file_uploader(
                 "PDFファイルを選択",
                 type="pdf",
-                accept_multiple_files=False,
+                accept_multiple_files=True,
                 label_visibility="collapsed",
                 key=f"uploader_{st.session_state['uploader_key']}",
             )
-            if uploaded_file:
-                if uploaded_file.name in docs:
-                    st.error(f"「{uploaded_file.name}」はすでに登録されています。削除してから再アップロードしてください。")
-                else:
-                    if st.button("登録する", type="primary", use_container_width=True):
-                        data = uploaded_file.read()
-                        err = validate_pdf(data, uploaded_file.name)
-                        if err:
-                            st.error(err)
-                        else:
-                            with st.spinner(f"処理中: {uploaded_file.name}"):
-                                ingest_pdf(data, uploaded_file.name)
-                            st.session_state["_upload_success"] = uploaded_file.name
+            if uploaded_files:
+                already = [f.name for f in uploaded_files if f.name in docs]
+                new_files = [f for f in uploaded_files if f.name not in docs]
+                if already:
+                    st.error(f"すでに登録済み: {', '.join(already)}")
+                if new_files:
+                    if st.button(f"登録する（{len(new_files)}件）", type="primary", use_container_width=True):
+                        success_names = []
+                        for uf in new_files:
+                            data = uf.read()
+                            err = validate_pdf(data, uf.name)
+                            if err:
+                                st.error(err)
+                            else:
+                                with st.spinner(f"処理中: {uf.name}"):
+                                    ingest_pdf(data, uf.name)
+                                success_names.append(uf.name)
+                        if success_names:
+                            st.session_state["_upload_success"] = f"✅ {len(success_names)}件を登録しました: {', '.join(success_names)}"
                             st.session_state["uploader_key"] += 1
                         st.rerun()
 
