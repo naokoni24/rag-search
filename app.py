@@ -1039,6 +1039,22 @@ st.components.v1.html("""<script>
     new MutationObserver(hideByText).observe(
         p.document.body, {childList: true, subtree: true}
     );
+
+    // ログインカード（stVerticalBlockBorderWrapper）の背景を白に固定
+    function fixLoginCard() {
+        p.document.querySelectorAll('[data-testid="stVerticalBlockBorderWrapper"]').forEach(function(wrapper) {
+            wrapper.style.setProperty('background', '#ffffff', 'important');
+            wrapper.style.setProperty('background-color', '#ffffff', 'important');
+            wrapper.querySelectorAll('*').forEach(function(child) {
+                child.style.setProperty('background', '#ffffff', 'important');
+                child.style.setProperty('background-color', '#ffffff', 'important');
+            });
+        });
+    }
+    fixLoginCard();
+    new MutationObserver(fixLoginCard).observe(
+        p.document.body, {childList: true, subtree: true}
+    );
 })();
 </script>""", height=0)
 
@@ -1238,26 +1254,6 @@ with tab_manage:
                     st.rerun()
                 else:
                     st.error("パスワードが違います")
-        # JS でログインカードの背景を強制的に白に（CSS では emotion スタイルに負けるため）
-        st.components.v1.html("""<script>
-(function fix() {
-    var p = window.parent;
-    var wrapper = p.document.querySelector('[data-testid="stVerticalBlockBorderWrapper"]');
-    if (!wrapper) { setTimeout(fix, 80); return; }
-    function applyWhite(el) {
-        el.style.setProperty('background', '#ffffff', 'important');
-        el.style.setProperty('background-color', '#ffffff', 'important');
-    }
-    applyWhite(wrapper);
-    wrapper.querySelectorAll('*').forEach(applyWhite);
-    // MutationObserver で再描画後も維持
-    var obs = new MutationObserver(function() {
-        applyWhite(wrapper);
-        wrapper.querySelectorAll('*').forEach(applyWhite);
-    });
-    obs.observe(wrapper, { childList: true, subtree: true, attributes: true, attributeFilter: ['style', 'class'] });
-})();
-</script>""", height=0)
     else:
         touch_admin_session()
 
