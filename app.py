@@ -251,7 +251,6 @@ div[data-testid="stTextInput"] input:focus {
     font-weight: 500 !important;
     font-family: 'Noto Sans JP', Arial, sans-serif !important;
     padding: 0.5rem 1.4rem !important;
-    width: auto !important;
     height: 2.6rem !important;
     line-height: 1 !important;
 }
