@@ -941,7 +941,7 @@ def inject_pdf_downloader(unique_fnames: list[str]):
 st.set_page_config(
     page_title="社内ナレッジ検索",
     page_icon="📋",
-    layout="wide",
+    layout="centered",
 )
 
 st.markdown(STYLE, unsafe_allow_html=True)
