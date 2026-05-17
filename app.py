@@ -217,7 +217,9 @@ p, li, label {
 
 /* ログインカード（st.container border=True） */
 [data-testid="stVerticalBlockBorderWrapper"],
-[data-testid="stVerticalBlockBorderWrapper"] > [data-testid="stVerticalBlock"] {
+[data-testid="stVerticalBlockBorderWrapper"] [data-testid="stVerticalBlock"],
+[data-testid="stVerticalBlockBorderWrapper"] [data-testid="stForm"],
+[data-testid="stVerticalBlockBorderWrapper"] [data-testid="stForm"] [data-testid="stVerticalBlock"] {
     background: #ffffff !important;
     background-color: #ffffff !important;
 }
