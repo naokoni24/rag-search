@@ -752,7 +752,7 @@ def get_registered_docs_with_dates() -> list[tuple[str, str]]:
             ts = r.payload.get("registered_at")
             if ts:
                 dt = datetime.datetime.fromtimestamp(ts)
-                date_str = dt.strftime("%m/%d %H:%M")
+                date_str = dt.strftime("%Y年\n%m/%d %H:%M")
             else:
                 date_str = "—"
             items.append((fname, date_str, ts or 0))
@@ -1337,10 +1337,13 @@ with tab_manage:
                                 selected.append(name)
                             st.rerun()
                     with _dc2:
+                        year_part, day_part = (date_str.split("\n") + [""])[:2] if "\n" in date_str else ("—", "")
                         st.markdown(
-                            f'<div style="font-size:0.82rem;color:#5f6368;white-space:nowrap;'
-                            f'display:flex;align-items:center;height:100%;padding-top:0.55rem;">'
-                            f'{date_str}</div>',
+                            f'<div style="font-size:0.78rem;color:#5f6368;line-height:1.4;'
+                            f'display:flex;flex-direction:column;justify-content:center;height:100%;padding-top:0.4rem;">'
+                            f'<span style="white-space:nowrap;">{year_part}</span>'
+                            f'<span style="white-space:nowrap;">{day_part}</span>'
+                            f'</div>',
                             unsafe_allow_html=True,
                         )
 
