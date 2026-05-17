@@ -406,6 +406,13 @@ details.src-section > summary:hover { background: #f8f9fa; }
     padding-right: 2rem !important;
 }
 
+/* ログアウトボタンをタブバーと同じ行に引き上げ */
+[data-testid="stMarkdownContainer"]:has(.logout-row-marker) + [data-testid="stHorizontalBlock"] {
+    margin-top: -52px !important;
+    position: relative !important;
+    z-index: 10 !important;
+}
+
 /* 「Press Enter to apply」ヒントを非表示 */
 [data-testid="InputInstructions"] { display: none !important; }
 
@@ -1191,6 +1198,7 @@ with tab_manage:
     else:
         touch_admin_session()
 
+        st.markdown('<div class="logout-row-marker"></div>', unsafe_allow_html=True)
         _, _lc = st.columns([3, 1])
         with _lc:
             if st.button("ログアウト", key="manage_logout", use_container_width=True):
