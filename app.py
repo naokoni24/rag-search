@@ -1232,15 +1232,16 @@ with tab_manage:
                   <div style="font-size:0.9rem;color:#5f6368;margin-bottom:0.5rem;">文書管理には管理者権限が必要です</div>
                 </div>
                 """, unsafe_allow_html=True)
-                pwd = st.text_input("管理者パスワード", type="password", placeholder="パスワードを入力してください", label_visibility="collapsed")
-                login_btn = st.button("ログイン", type="primary", use_container_width=True)
-        if login_btn:
-            if ADMIN_PASSWORD and pwd == ADMIN_PASSWORD:
-                st.session_state["admin_authenticated"] = True
-                touch_admin_session()
-                st.rerun()
-            else:
-                st.error("パスワードが違います")
+                with st.form("login_form"):
+                    pwd = st.text_input("管理者パスワード", type="password", placeholder="パスワードを入力してください", label_visibility="collapsed")
+                    login_btn = st.form_submit_button("ログイン", type="primary", use_container_width=True)
+                if login_btn:
+                    if ADMIN_PASSWORD and pwd == ADMIN_PASSWORD:
+                        st.session_state["admin_authenticated"] = True
+                        touch_admin_session()
+                        st.rerun()
+                    else:
+                        st.error("パスワードが違います")
     else:
         touch_admin_session()
 
