@@ -1170,15 +1170,15 @@ with tab_manage:
         elif not st.session_state.get("admin_authenticated"):
             st.info("セッションがタイムアウトしました。再度ログインしてください。")
 
-        _col, _ = st.columns([1, 2])
+        st.markdown("""
+        <div class="login-card">
+          <div class="login-icon">🔐</div>
+          <div class="login-title">管理者ログイン</div>
+          <div class="login-subtitle">文書管理には管理者権限が必要です</div>
+        </div>
+        """, unsafe_allow_html=True)
+        _col, _ = st.columns([1, 1])
         with _col:
-            st.markdown("""
-            <div class="login-card">
-              <div class="login-icon">🔐</div>
-              <div class="login-title">管理者ログイン</div>
-              <div class="login-subtitle">文書管理には管理者権限が必要です</div>
-            </div>
-            """, unsafe_allow_html=True)
             pwd = st.text_input("管理者パスワード", type="password", placeholder="パスワードを入力してください")
             login_btn = st.button("ログイン", type="primary", use_container_width=True)
         if login_btn:
