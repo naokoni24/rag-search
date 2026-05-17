@@ -886,7 +886,7 @@ def linkify_answer(answer: str) -> str:
         fname, page = m.group(1), m.group(2)
         safe = fname.replace('"', '&quot;')
         return (
-            f'<a class="rag-citation" data-fname="{safe}" href="#" '
+            f'<br><a class="rag-citation" data-fname="{safe}" href="#" '
             f'style="color:#1a73e8;font-weight:600;text-decoration:underline;cursor:pointer;">'
             f'📄 {fname} p.{page}</a>'
         )
