@@ -1305,6 +1305,13 @@ with tab_manage:
                 ]
                 selected = st.session_state["selected_docs"]
 
+                # ヘッダー行
+                _hc1, _hc2 = st.columns([3, 1])
+                with _hc1:
+                    st.markdown('<div style="font-size:0.78rem;font-weight:700;color:#5f6368;padding:0 0 4px 4px;">ファイル名</div>', unsafe_allow_html=True)
+                with _hc2:
+                    st.markdown('<div style="font-size:0.78rem;font-weight:700;color:#5f6368;padding:0 0 4px 4px;">アップロード日時</div>', unsafe_allow_html=True)
+
                 for name, date_str in docs_with_dates:
                     is_sel = name in selected
                     marker = "doc-selected" if is_sel else "doc-unselected"
@@ -1320,9 +1327,9 @@ with tab_manage:
                             st.rerun()
                     with _dc2:
                         st.markdown(
-                            f'<div style="font-size:0.78rem;color:#9aa0a6;'
+                            f'<div style="font-size:0.82rem;color:#5f6368;'
                             f'display:flex;align-items:center;height:100%;padding-top:0.55rem;">'
-                            f'📅 {date_str}</div>',
+                            f'{date_str}</div>',
                             unsafe_allow_html=True,
                         )
 
