@@ -215,18 +215,13 @@ p, li, label {
     margin: 0.8rem 0 0.4rem 0;
 }
 
-/* ログインカード - 中央カラムをカードスタイルに */
-[data-testid="stMarkdownContainer"]:has(.login-card-marker) + [data-testid="stHorizontalBlock"] [data-testid="stColumn"]:nth-child(2) {
-    background: #ffffff !important;
-    background-color: #ffffff !important;
-    border: 1px solid #dadce0 !important;
+/* ログインカード（st.container border=True）*/
+[data-testid="stVerticalBlockBorderWrapper"] {
     border-radius: 12px !important;
+    border-color: #dadce0 !important;
     box-shadow: 0 1px 4px rgba(60,64,67,0.12) !important;
-    padding: 1rem 1.2rem 1.5rem 1.2rem !important;
-}
-[data-testid="stMarkdownContainer"]:has(.login-card-marker) + [data-testid="stHorizontalBlock"] [data-testid="stColumn"]:nth-child(2) * {
-    background: #ffffff !important;
-    background-color: #ffffff !important;
+    padding: 0.5rem 1.2rem 1.2rem 1.2rem !important;
+    overflow: hidden !important;
 }
 
 /* テキスト入力 */
@@ -1223,19 +1218,19 @@ with tab_manage:
         elif not st.session_state.get("admin_authenticated"):
             st.info("セッションがタイムアウトしました。再度ログインしてください。")
 
-        st.markdown('<div class="login-card-marker"></div>', unsafe_allow_html=True)
         _, _mid, _ = st.columns([1, 2, 1])
         with _mid:
-            st.markdown("""
-            <div style="text-align:center;padding:1.2rem 0 0.8rem 0;">
-              <div style="font-size:2.4rem;margin-bottom:0.5rem;">🔐</div>
-              <div style="font-size:1.15rem;font-weight:700;color:#202124;margin-bottom:0.3rem;">管理者ログイン</div>
-              <div style="font-size:0.9rem;color:#5f6368;margin-bottom:0.5rem;">文書管理には管理者権限が必要です</div>
-            </div>
-            """, unsafe_allow_html=True)
-            with st.form("login_form"):
-                pwd = st.text_input("管理者パスワード", type="password", placeholder="パスワードを入力してください", label_visibility="collapsed")
-                login_btn = st.form_submit_button("ログイン", type="primary", use_container_width=True)
+            with st.container(border=True):
+                st.markdown("""
+                <div style="text-align:center;padding:1.2rem 0 0.8rem 0;">
+                  <div style="font-size:2.4rem;margin-bottom:0.5rem;">🔐</div>
+                  <div style="font-size:1.15rem;font-weight:700;color:#202124;margin-bottom:0.3rem;">管理者ログイン</div>
+                  <div style="font-size:0.9rem;color:#5f6368;margin-bottom:0.5rem;">文書管理には管理者権限が必要です</div>
+                </div>
+                """, unsafe_allow_html=True)
+                with st.form("login_form"):
+                    pwd = st.text_input("管理者パスワード", type="password", placeholder="パスワードを入力してください", label_visibility="collapsed")
+                    login_btn = st.form_submit_button("ログイン", type="primary", use_container_width=True)
             if login_btn:
                 if ADMIN_PASSWORD and pwd == ADMIN_PASSWORD:
                     st.session_state["admin_authenticated"] = True
@@ -1243,6 +1238,26 @@ with tab_manage:
                     st.rerun()
                 else:
                     st.error("パスワードが違います")
+        # JS でログインカードの背景を強制的に白に（CSS では emotion スタイルに負けるため）
+        st.components.v1.html("""<script>
+(function fix() {
+    var p = window.parent;
+    var wrapper = p.document.querySelector('[data-testid="stVerticalBlockBorderWrapper"]');
+    if (!wrapper) { setTimeout(fix, 80); return; }
+    function applyWhite(el) {
+        el.style.setProperty('background', '#ffffff', 'important');
+        el.style.setProperty('background-color', '#ffffff', 'important');
+    }
+    applyWhite(wrapper);
+    wrapper.querySelectorAll('*').forEach(applyWhite);
+    // MutationObserver で再描画後も維持
+    var obs = new MutationObserver(function() {
+        applyWhite(wrapper);
+        wrapper.querySelectorAll('*').forEach(applyWhite);
+    });
+    obs.observe(wrapper, { childList: true, subtree: true, attributes: true, attributeFilter: ['style', 'class'] });
+})();
+</script>""", height=0)
     else:
         touch_admin_session()
 
