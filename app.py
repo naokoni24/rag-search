@@ -528,6 +528,7 @@ def ingest_pdf(pdf_bytes: bytes, filename: str) -> int:
     client.upsert(collection_name=COLLECTION, points=points)
     _store_pdf_bytes(client, filename, pdf_bytes)
     get_registered_docs.clear()
+    get_registered_docs_with_dates.clear()
     return len(points)
 
 
@@ -548,7 +549,11 @@ def _store_pdf_bytes(client: QdrantClient, filename: str, data: bytes):
         points=[PointStruct(
             id=point_id,
             vector=[0.0],
-            payload={"filename": filename, "b64": base64.b64encode(data).decode()},
+            payload={
+                "filename": filename,
+                "b64": base64.b64encode(data).decode(),
+                "registered_at": time.time(),
+            },
         )],
     )
 
@@ -731,12 +736,38 @@ def delete_document(filename: str) -> int:
         pass
 
     get_registered_docs.clear()
+    get_registered_docs_with_dates.clear()
     return len(point_ids)
 
 
 @st.cache_data(ttl=120)
-def get_registered_docs() -> list[str]:
+def get_registered_docs_with_dates() -> list[tuple[str, str]]:
+    """(filename, date_str) を登録日新しい順で返す"""
+    import datetime
     client = get_qdrant()
+    try:
+        _ensure_pdf_collection(client)
+        records, _ = client.scroll(
+            collection_name=PDF_COLLECTION,
+            limit=1000,
+            with_payload=["filename", "registered_at"],
+            with_vectors=False,
+        )
+        items = []
+        for r in records:
+            fname = r.payload.get("filename", "")
+            ts = r.payload.get("registered_at")
+            if ts:
+                dt = datetime.datetime.fromtimestamp(ts)
+                date_str = dt.strftime("%Y/%m/%d %H:%M")
+            else:
+                date_str = "—"
+            items.append((fname, date_str, ts or 0))
+        items.sort(key=lambda x: x[2], reverse=True)
+        return [(fname, date_str) for fname, date_str, _ in items]
+    except Exception:
+        pass
+    # フォールバック：COLLECTION から filename のみ取得
     try:
         results, _ = client.scroll(
             collection_name=COLLECTION,
@@ -744,9 +775,19 @@ def get_registered_docs() -> list[str]:
             with_payload=["filename"],
             with_vectors=False,
         )
-        return sorted({r.payload["filename"] for r in results})
+        seen, out = set(), []
+        for r in results:
+            fname = r.payload.get("filename", "")
+            if fname and fname not in seen:
+                seen.add(fname)
+                out.append((fname, "—"))
+        return out
     except Exception:
         return []
+
+@st.cache_data(ttl=120)
+def get_registered_docs() -> list[str]:
+    return [fname for fname, _ in get_registered_docs_with_dates()]
 
 
 
@@ -1253,8 +1294,9 @@ with tab_manage:
 
         with col_right:
             st.markdown('<div class="section-title">登録済みドキュメント</div>', unsafe_allow_html=True)
-            docs = get_registered_docs()
-            if docs:
+            docs_with_dates = get_registered_docs_with_dates()
+            docs = [fname for fname, _ in docs_with_dates]
+            if docs_with_dates:
                 if "selected_docs" not in st.session_state:
                     st.session_state["selected_docs"] = []
                 # 削除済みのものをリストから除外
@@ -1263,11 +1305,16 @@ with tab_manage:
                 ]
                 selected = st.session_state["selected_docs"]
 
-                for name in docs:
+                for name, date_str in docs_with_dates:
                     is_sel = name in selected
                     marker = "doc-selected" if is_sel else "doc-unselected"
                     label = f"✓  {name}" if is_sel else f"📄  {name}"
-                    st.markdown(f'<span class="{marker}" style="display:none;"></span>', unsafe_allow_html=True)
+                    # 日付をサブテキストとして表示
+                    st.markdown(
+                        f'<span class="{marker}" style="display:none;"></span>'
+                        f'<div style="font-size:0.78rem;color:#9aa0a6;margin-bottom:1px;margin-top:6px;">📅 {date_str}</div>',
+                        unsafe_allow_html=True,
+                    )
                     if st.button(label, key=f"doc_{name}", use_container_width=True):
                         if is_sel:
                             selected.remove(name)
