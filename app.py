@@ -406,10 +406,6 @@ details.src-section > summary:hover { background: #f8f9fa; }
     padding-right: 2rem !important;
 }
 
-/* タブコンテナを基準位置にする */
-[data-testid="stTabs"] {
-    position: relative !important;
-}
 /* マーカーはスペースを取らない */
 [data-testid="stMarkdownContainer"]:has(.logout-row-marker) {
     height: 0 !important;
@@ -417,13 +413,11 @@ details.src-section > summary:hover { background: #f8f9fa; }
     padding: 0 !important;
     overflow: visible !important;
 }
-/* ログアウトボタンをタブバー右端に絶対配置 */
-[data-testid="stMarkdownContainer"]:has(.logout-row-marker) + [data-testid="stButton"] {
-    position: absolute !important;
-    top: 4px !important;
-    right: 0 !important;
-    z-index: 100 !important;
-    margin: 0 !important;
+/* ログアウトボタン行をタブバーと同じ縦位置に引き上げ */
+[data-testid="stMarkdownContainer"]:has(.logout-row-marker) + [data-testid="stHorizontalBlock"] {
+    margin-top: -52px !important;
+    position: relative !important;
+    z-index: 10 !important;
 }
 
 /* 「Press Enter to apply」ヒントを非表示 */
@@ -1212,11 +1206,13 @@ with tab_manage:
         touch_admin_session()
 
         st.markdown('<div class="logout-row-marker"></div>', unsafe_allow_html=True)
-        if st.button("ログアウト", key="manage_logout"):
-            st.session_state["admin_authenticated"] = False
-            st.session_state.pop("admin_last_active", None)
-            st.session_state["_show_logout_msg"] = True
-            st.rerun()
+        _, _lc = st.columns([5, 1])
+        with _lc:
+            if st.button("ログアウト", key="manage_logout", use_container_width=True):
+                st.session_state["admin_authenticated"] = False
+                st.session_state.pop("admin_last_active", None)
+                st.session_state["_show_logout_msg"] = True
+                st.rerun()
 
         col_left, col_right = st.columns([1, 1], gap="large")
 
