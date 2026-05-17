@@ -215,20 +215,14 @@ p, li, label {
     margin: 0.8rem 0 0.4rem 0;
 }
 
-/* ログインカード */
-.login-card {
-    background: white;
-    border: 1px solid #dadce0;
-    border-radius: 8px;
-    padding: 2.5rem 2rem;
-    max-width: 400px;
-    margin: 3rem auto;
-    text-align: center;
-    box-shadow: 0 1px 3px rgba(60,64,67,0.1);
+/* ログインカード（st.container border=True） */
+[data-testid="stVerticalBlockBorderWrapper"] {
+    border-radius: 12px !important;
+    border-color: #dadce0 !important;
+    box-shadow: 0 1px 4px rgba(60,64,67,0.12) !important;
+    padding: 0.5rem 1.2rem 1.2rem 1.2rem !important;
+    background: #ffffff !important;
 }
-.login-icon { font-size: 2.5rem; margin-bottom: 0.6rem; }
-.login-title { font-size: 1.2rem !important; font-weight: 600 !important; color: #202124 !important; margin-bottom: 0.4rem; }
-.login-subtitle { font-size: 0.9rem !important; color: #5f6368 !important; margin-bottom: 1.5rem; }
 
 /* テキスト入力 */
 div[data-testid="stTextInput"] input {
@@ -1227,15 +1221,16 @@ with tab_manage:
 
         _, _mid, _ = st.columns([1, 2, 1])
         with _mid:
-            st.markdown("""
-            <div class="login-card">
-              <div class="login-icon">🔐</div>
-              <div class="login-title">管理者ログイン</div>
-              <div class="login-subtitle">文書管理には管理者権限が必要です</div>
-            </div>
-            """, unsafe_allow_html=True)
-            pwd = st.text_input("管理者パスワード", type="password", placeholder="パスワードを入力してください", label_visibility="collapsed")
-            login_btn = st.button("ログイン", type="primary", use_container_width=True)
+            with st.container(border=True):
+                st.markdown("""
+                <div style="text-align:center;padding:1.2rem 0 0.8rem 0;">
+                  <div style="font-size:2.4rem;margin-bottom:0.5rem;">🔐</div>
+                  <div style="font-size:1.15rem;font-weight:700;color:#202124;margin-bottom:0.3rem;">管理者ログイン</div>
+                  <div style="font-size:0.9rem;color:#5f6368;margin-bottom:0.5rem;">文書管理には管理者権限が必要です</div>
+                </div>
+                """, unsafe_allow_html=True)
+                pwd = st.text_input("管理者パスワード", type="password", placeholder="パスワードを入力してください", label_visibility="collapsed")
+                login_btn = st.button("ログイン", type="primary", use_container_width=True)
         if login_btn:
             if ADMIN_PASSWORD and pwd == ADMIN_PASSWORD:
                 st.session_state["admin_authenticated"] = True
