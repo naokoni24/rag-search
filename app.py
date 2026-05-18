@@ -959,30 +959,28 @@ def linkify_answer(answer: str) -> str:
 def inject_pdf_downloader(unique_fnames: list[str]):
     """PDFをsessionStorageへ保存してダウンロード機能を注入する。
     初回のみPDFデータ（base64）を送信し、以降のrerunでは軽量スクリプトのみ送信。"""
-    if "_browser_pdfs" not in st.session_state:
-        st.session_state["_browser_pdfs"] = set()
-
     new_pdfs: dict[str, str] = {}
     for fname in unique_fnames:
-        if fname not in st.session_state["_browser_pdfs"]:
-            b64 = get_pdf_b64(fname)
-            if b64:
-                new_pdfs[fname] = b64
+        b64 = get_pdf_b64(fname)
+        if b64:
+            new_pdfs[fname] = b64
 
     pdf_store_js = json.dumps(new_pdfs)
 
     st.components.v1.html(f"""<script>
 (function() {{
     var p = window.parent;
+    // sessionStorage は容量制限があるためメモリキャッシュを使用
+    if (!p._ragPdfCache) p._ragPdfCache = {{}};
     var data = {pdf_store_js};
     for (var k in data) {{
-        try {{ p.sessionStorage.setItem('_rag_' + k, data[k]); }} catch(e) {{}}
+        p._ragPdfCache[k] = data[k];
     }}
     if (p._ragDlReady) return;
     p._ragDlReady = true;
     p._dlRagPdf = function(fname) {{
-        var b64 = p.sessionStorage.getItem('_rag_' + fname);
-        if (!b64) return;
+        var b64 = p._ragPdfCache[fname];
+        if (!b64) {{ console.warn('[RAG] PDF not in cache:', fname); return; }}
         var bytes = atob(b64), arr = new Uint8Array(bytes.length);
         for (var i = 0; i < bytes.length; i++) arr[i] = bytes.charCodeAt(i);
         var blob = new Blob([arr], {{type: 'application/pdf'}});
@@ -990,7 +988,7 @@ def inject_pdf_downloader(unique_fnames: list[str]):
         var a = p.document.createElement('a');
         a.href = url; a.download = fname;
         p.document.body.appendChild(a); a.click(); p.document.body.removeChild(a);
-        setTimeout(function() {{ URL.revokeObjectURL(url); }}, 1000);
+        setTimeout(function() {{ URL.revokeObjectURL(url); }}, 2000);
     }};
     p.document.addEventListener('click', function(e) {{
         var el = e.target && e.target.closest && e.target.closest('.rag-citation');
@@ -1003,7 +1001,6 @@ def inject_pdf_downloader(unique_fnames: list[str]):
 }})();
 </script>""", height=0)
 
-    st.session_state["_browser_pdfs"].update(new_pdfs.keys())
 
 
 # ---- UI ----
