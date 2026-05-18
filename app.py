@@ -313,6 +313,10 @@ div[data-testid="stTextInput"] input:focus {
 }
 [data-testid="stMarkdownContainer"]:has(.doc-unselected) + [data-testid="stHorizontalBlock"] [data-testid="stButton"] > button p {
     color: #202124 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    max-width: 100% !important;
 }
 /* ドキュメント選択カード（選択済み） */
 [data-testid="stMarkdownContainer"]:has(.doc-selected) + [data-testid="stHorizontalBlock"] [data-testid="stButton"] > button {
@@ -333,6 +337,10 @@ div[data-testid="stTextInput"] input:focus {
 }
 [data-testid="stMarkdownContainer"]:has(.doc-selected) + [data-testid="stHorizontalBlock"] [data-testid="stButton"] > button p {
     color: #1a73e8 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    max-width: 100% !important;
 }
 
 /* チャットメッセージ */
