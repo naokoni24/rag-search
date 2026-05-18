@@ -1045,9 +1045,6 @@ with tab_search:
     # フォーム入力値の変更はウィジェット描画前に処理（描画後の key 書き換えは Streamlit が禁止）
     if st.session_state.pop("_clear_form_next", False):
         st.session_state["_search_input"] = ""
-    _pending_query = st.session_state.pop("_set_form_query", None)
-    if _pending_query is not None:
-        st.session_state["_search_input"] = _pending_query
 
     with st.form("search_form", clear_on_submit=False):
         query = st.text_input(
@@ -1132,17 +1129,26 @@ with tab_search:
 
         # PDF欠損がある場合は Top3・通常検索問わず回答を非表示にして再検索を促す
         if _missing:
-            # 検索フォームにクエリをセット（次の rerun で反映）
-            st.session_state["_set_form_query"] = _disp_query
-            # 次の検索時に PDF バイナリキャッシュをクリア（再取得のため）
-            st.session_state["_clear_pdf_cache_next"] = True
+            def _retry_missing(q=_disp_query):
+                st.session_state["search_query"] = q
+                st.session_state["search_submitted"] = True
+                st.session_state["_search_result"] = None
+                st.session_state["_skip_log_cache"] = True
+                get_pdf_b64.clear()
+                get_pdf_bytes.clear()
             st.markdown(
                 '<div style="margin-top:0.4rem;padding:0.8rem 1rem;background:#fff8e1;'
                 'border-left:4px solid #f9a825;border-radius:4px;font-size:0.9rem;color:#5f6368;">'
                 '⚠️ この検索結果で参照しているPDFのダウンロードリンクが利用できません。'
-                '上の検索フォームに検索内容を入力済みですので、そのまま再検索してください。'
-                '</div><div style="height:1rem;"></div>',
+                '以下のボタンで再検索してください。'
+                '</div><div style="height:0.5rem;"></div>',
                 unsafe_allow_html=True,
+            )
+            st.button(
+                f"🔄 「{_disp_query}」で再検索する",
+                on_click=_retry_missing,
+                key="missing_retry_btn",
+                type="primary",
             )
         else:
             with st.chat_message("user", avatar="🧑"):
@@ -1200,14 +1206,11 @@ with tab_search:
         if _just_searched:
             # 回答表示完了 → 結果を保存
             st.session_state["_search_result"] = (_disp_query, _disp_answer, _disp_chunks)
-            if _missing:
-                # PDF欠損 → フォームにクエリを保持して rerun（警告を安定表示）
-                st.rerun()
-            elif st.session_state.pop("_was_form_submit", False):
+            if not _missing and st.session_state.pop("_was_form_submit", False):
                 # フォーム送信経由・PDF正常 → フォームをクリアして rerun
                 st.session_state["_clear_form_next"] = True
                 st.rerun()
-            # Top3 経由・PDF正常 → rerun 不要（フォームは callback で "" 済み）
+            # Top3 経由（PDF正常 or 欠損）・PDF欠損ボタン表示済み → rerun 不要
 
 
 
