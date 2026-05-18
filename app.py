@@ -975,9 +975,23 @@ def strip_citations(answer: str) -> str:
     return _LOOSE_CITATION_RE.sub('', answer).strip()
 
 def linkify_answer(answer: str, pdf_cache=None) -> str:
-    """回答内の【参照】ファイル名 p.N をダウンロードリンクに変換"""
+    """回答内の【参照】ファイル名 p.N をダウンロードリンクに変換。
+    同じファイル名が複数ある場合は最後の 1 件だけリンク表示し、それ以前は削除する。"""
+    matches = list(_CITATION_RE.finditer(answer))
+    # ファイル名ごとに最後に出現するマッチのインデックスを記録
+    last_idx: dict = {}
+    for i, m in enumerate(matches):
+        last_idx[m.group(1)] = i
+
+    counter = [0]
+
     def _replace(m):
+        idx = counter[0]
+        counter[0] += 1
         fname, page = m.group(1), m.group(2)
+        # 最後の出現でなければ削除
+        if idx != last_idx[fname]:
+            return ''
         safe = fname.replace('"', '&quot;')
         b64 = (pdf_cache or {}).get(fname, '')
         if b64:
