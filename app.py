@@ -1287,27 +1287,39 @@ with tab_manage:
                 label_visibility="collapsed",
                 key=f"uploader_{st.session_state['uploader_key']}",
             )
+            MAX_DOCS = 50
+            current_count = len(docs)
+            remaining = MAX_DOCS - current_count
+            st.caption(f"登録済み: {current_count} / {MAX_DOCS} 件")
+
             if uploaded_files:
                 already = [f.name for f in uploaded_files if f.name in docs]
                 new_files = [f for f in uploaded_files if f.name not in docs]
                 if already:
                     st.error(f"すでに登録済み: {', '.join(already)}")
                 if new_files:
-                    if st.button(f"登録する（{len(new_files)}件）", type="primary", use_container_width=True):
-                        success_names = []
-                        for uf in new_files:
-                            data = uf.read()
-                            err = validate_pdf(data, uf.name)
-                            if err:
-                                st.error(err)
-                            else:
-                                with st.spinner(f"処理中: {uf.name}"):
-                                    ingest_pdf(data, uf.name)
-                                success_names.append(uf.name)
-                        if success_names:
-                            st.session_state["_upload_success"] = f"✅ {len(success_names)}件を登録しました: {', '.join(success_names)}"
-                            st.session_state["uploader_key"] += 1
-                        st.rerun()
+                    if remaining <= 0:
+                        st.error(f"登録上限（{MAX_DOCS}件）に達しています。不要なファイルを削除してください。")
+                    else:
+                        addable = new_files[:remaining]
+                        over = new_files[remaining:]
+                        if over:
+                            st.warning(f"上限のため {len(over)} 件は登録できません（残り {remaining} 件まで登録可）")
+                        if st.button(f"登録する（{len(addable)}件）", type="primary", use_container_width=True):
+                            success_names = []
+                            for uf in addable:
+                                data = uf.read()
+                                err = validate_pdf(data, uf.name)
+                                if err:
+                                    st.error(err)
+                                else:
+                                    with st.spinner(f"処理中: {uf.name}"):
+                                        ingest_pdf(data, uf.name)
+                                    success_names.append(uf.name)
+                            if success_names:
+                                st.session_state["_upload_success"] = f"✅ {len(success_names)}件を登録しました: {', '.join(success_names)}"
+                                st.session_state["uploader_key"] += 1
+                            st.rerun()
 
         with col_right:
             st.markdown('<div class="section-title">登録済みドキュメント</div>', unsafe_allow_html=True)
