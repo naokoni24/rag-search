@@ -584,6 +584,28 @@ def get_pdf_bytes(filename: str) -> object:
         return base64.b64decode(b64)
     return None
 
+@st.cache_data(ttl=3600)
+def get_pdf_b64_batch(filenames: tuple) -> dict:
+    """複数 PDF の base64 を 1 回の Qdrant retrieve で一括取得する（キャッシュあり）"""
+    if not filenames:
+        return {}
+    client = get_qdrant()
+    try:
+        _ensure_pdf_collection(client)
+        point_ids = [str(uuid.uuid5(uuid.NAMESPACE_DNS, fn)) for fn in filenames]
+        results = client.retrieve(
+            collection_name=PDF_COLLECTION,
+            ids=point_ids,
+            with_payload=True,
+        )
+        return {
+            r.payload["filename"]: r.payload["b64"]
+            for r in results
+            if r.payload.get("b64") and r.payload.get("filename")
+        }
+    except Exception:
+        return {}
+
 
 def _ensure_log_collection(client: QdrantClient):
     names = [c.name for c in client.get_collections().collections]
@@ -731,6 +753,7 @@ def delete_document(filename: str) -> int:
                 points_selector=PointIdsList(points=pdf_ids),
             )
         get_pdf_b64.clear()
+        get_pdf_b64_batch.clear()
         get_pdf_bytes.clear()
     except Exception:
         pass
@@ -1035,6 +1058,7 @@ with tab_search:
     if st.session_state.pop("_trigger_re_search", False):
         _rq = st.session_state.pop("_re_search_query", "")
         get_pdf_b64.clear()
+        get_pdf_b64_batch.clear()
         get_pdf_bytes.clear()
         st.session_state["_search_result"] = None
         st.session_state["search_query"]   = _rq
@@ -1065,6 +1089,7 @@ with tab_search:
         # PDFキャッシュは PDF欠損再検索時のみクリア（毎回クリアすると Top3 が遅くなる）
         if st.session_state.pop("_clear_pdf_cache_next", False):
             get_pdf_b64.clear()
+            get_pdf_b64_batch.clear()
             get_pdf_bytes.clear()
 
     run_query = st.session_state["search_submitted"]
@@ -1113,16 +1138,12 @@ with tab_search:
     # ---- 回答描画（検索直後 / フォームクリア後の保持結果 共通） ----
     _missing = []  # _just_searched ブロックで参照するため先に初期化
     if _disp_answer and _disp_chunks:
-        # PDF の base64 をキャッシュから取得（data: URL ダウンロードリンク用）
-        _unique_fnames = list({
+        # PDF の base64 を一括取得（1 回の Qdrant retrieve で完了）
+        _unique_fnames = tuple(sorted({
             *[m.group(1) for m in _CITATION_RE.finditer(_disp_answer)],
             *[c["filename"] for c in _disp_chunks],
-        })
-        _pdf_cache = {}
-        for _fn in _unique_fnames:
-            _b64val = get_pdf_b64(_fn)
-            if _b64val:
-                _pdf_cache[_fn] = _b64val
+        }))
+        _pdf_cache = get_pdf_b64_batch(_unique_fnames)
 
         # PDF欠損チェック（_just_searched ブロックでも使用）
         _missing = [c["filename"] for c in _disp_chunks if not _pdf_cache.get(c["filename"])]
@@ -1135,6 +1156,7 @@ with tab_search:
                 st.session_state["_search_result"] = None
                 st.session_state["_skip_log_cache"] = True
                 get_pdf_b64.clear()
+                get_pdf_b64_batch.clear()
                 get_pdf_bytes.clear()
             st.markdown(
                 '<div style="margin-top:0.4rem;padding:0.8rem 1rem;background:#fff8e1;'
@@ -1229,8 +1251,8 @@ with tab_search:
                     if _tc:
                         for _c in _tc[1]:
                             _prewarm_fnames.add(_c["filename"])
-                for _fn in _prewarm_fnames:
-                    get_pdf_b64(_fn)
+                if _prewarm_fnames:
+                    get_pdf_b64_batch(tuple(sorted(_prewarm_fnames)))
                 st.session_state["_top3_pdf_prewarmed"] = True
 
             st.markdown('<p class="top-label">よく検索されています</p>', unsafe_allow_html=True)
