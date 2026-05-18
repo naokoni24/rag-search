@@ -1095,23 +1095,19 @@ with tab_search:
                 _pdf_cache[_fn] = _b64val
 
         # キャッシュ結果表示中（_just_searched=False）かつPDF欠損がある場合
-        # → 回答を出さず再検索ボタンのみ表示
+        # → 検索フォームにクエリをセットし、再検索を促すメッセージのみ表示
         _missing = [c["filename"] for c in _disp_chunks if not _pdf_cache.get(c["filename"])]
         if _missing and not _just_searched:
-            with st.chat_message("user", avatar="🧑"):
-                st.write(_disp_query)
+            # 検索フォームにクエリをセット（次の rerun で反映）
+            st.session_state["_set_form_query"] = _disp_query
             st.markdown(
                 '<div style="margin-top:0.4rem;padding:0.8rem 1rem;background:#fff8e1;'
                 'border-left:4px solid #f9a825;border-radius:4px;font-size:0.9rem;color:#5f6368;">'
-                '⚠️ この回答で参照しているPDFのダウンロードリンクが利用できません。'
-                '再検索すると最新の状態で回答を取得できます。'
+                '⚠️ この検索結果で参照しているPDFのダウンロードリンクが利用できません。'
+                '上の検索フォームに検索内容を入力済みですので、そのまま再検索してください。'
                 '</div>',
                 unsafe_allow_html=True,
             )
-            if st.button("🔄 同じ内容で再検索", key="re_search_btn"):
-                st.session_state["_trigger_re_search"] = True
-                st.session_state["_re_search_query"] = _disp_query
-                st.rerun()
         else:
             with st.chat_message("user", avatar="🧑"):
                 st.write(_disp_query)
