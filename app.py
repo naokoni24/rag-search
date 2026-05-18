@@ -409,7 +409,7 @@ details.src-section > summary:hover { background: #f8f9fa; }
 /* centered レイアウトの横幅を広げる・上部スペースを縮小 */
 .block-container {
     max-width: 900px !important;
-    padding-top: 0.5rem !important;
+    padding-top: 3.5rem !important;
     padding-left: 2rem !important;
     padding-right: 2rem !important;
 }
