@@ -1157,9 +1157,12 @@ with tab_search:
                 def _do_re_search():
                     get_pdf_b64.clear()
                     get_pdf_bytes.clear()
+                    _q = st.session_state.get("_re_search_query", "")
                     st.session_state["_search_result"] = None
-                    st.session_state["search_query"] = st.session_state.get("_re_search_query", "")
+                    st.session_state["search_query"] = _q
+                    st.session_state["_search_input"] = _q   # スピナー中もフォームに表示
                     st.session_state["search_submitted"] = True
+                    st.session_state["_keep_form_query"] = True
                 st.button("🔄 同じ内容で再検索", key="re_search_btn", on_click=_do_re_search)
 
         if _just_searched:
@@ -1185,9 +1188,10 @@ with tab_search:
             for i, (tq, label) in enumerate(top_queries):
                 def _top_click(q=tq):
                     st.session_state["search_query"] = q
+                    st.session_state["_search_input"] = q   # スピナー中もフォームに表示
                     st.session_state["search_submitted"] = True
                     st.session_state["_search_result"] = None
-                    st.session_state["_keep_form_query"] = True  # フォームにクエリを残す
+                    st.session_state["_keep_form_query"] = True
                 st.button(f"🔍 {label}", key=f"top_{i}", on_click=_top_click)
 
 # ---- 文書管理タブ ----
