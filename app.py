@@ -1201,6 +1201,7 @@ with tab_search:
                     st.session_state["search_query"] = q
                     st.session_state["search_submitted"] = True
                     st.session_state["_search_result"] = None
+                    st.session_state["_search_input"] = ""  # フォームをクリア
                 st.button(f"🔍 {label}", key=f"top_{i}", on_click=_top_click)
 
 # ---- 文書管理タブ ----
