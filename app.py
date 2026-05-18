@@ -1168,50 +1168,48 @@ with tab_search:
                 st.write(_disp_query)
             with st.chat_message("assistant", avatar="🤖"):
                 _show_ans = _disp_answer if _has_citation(_disp_answer) else strip_citations(_disp_answer)
-                # base64 は HTML に埋め込まない（WebSocket 転送量削減）
-                st.markdown(linkify_answer(_show_ans, {}), unsafe_allow_html=True)
+                st.markdown(linkify_answer(_show_ans, _pdf_cache), unsafe_allow_html=True)
 
             if _has_citation(_disp_answer):
                 with st.expander(
                     f"参照元ドキュメント（{len(_disp_chunks)} 件）",
                     expanded=False,
                 ):
+                    _cards_html = ""
                     for i, c in enumerate(_disp_chunks, 1):
                         score_pct = int(c["score"] * 100)
                         _safe_fname = c["filename"].replace('"', '&quot;')
-                        _excerpt = c['text'][:200] + '...' if len(c['text']) > 200 else c['text']
-                        _b64 = _pdf_cache.get(c["filename"])
-
-                        col_card, col_dl = st.columns([5, 1])
-                        with col_card:
-                            st.markdown(
-                                f'<div style="background:#f8f9fa;border-left:4px solid #1a73e8;'
-                                f'border-radius:4px;padding:0.7rem 1rem 0.5rem 1rem;">'
-                                f'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.35rem;">'
-                                f'<div style="display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;">'
-                                f'<span style="background:#1a73e8;color:#fff;border-radius:4px;'
-                                f'padding:2px 10px;font-size:0.8rem;font-weight:700;">{i}</span>'
-                                f'<span style="font-weight:700;color:#202124;font-size:0.95rem;">📄 {_safe_fname}</span>'
-                                f'<span style="color:#5f6368;font-size:0.85rem;">p.{c["page"]}</span>'
-                                f'</div>'
-                                f'<span style="background:#e8f0fe;color:#1a73e8;border-radius:12px;'
-                                f'padding:2px 10px;font-size:0.8rem;font-weight:600;white-space:nowrap;">'
-                                f'関連度 {score_pct}%</span>'
-                                f'</div>'
-                                f'<div style="color:#5f6368;font-size:0.88rem;line-height:1.7;">{_excerpt}</div>'
-                                f'</div>',
-                                unsafe_allow_html=True,
+                        _b64 = _pdf_cache.get(c["filename"], '')
+                        if _b64:
+                            _fname_html = (
+                                f'<a href="data:application/pdf;base64,{_b64}" download="{_safe_fname}" '
+                                f'style="font-weight:700;color:#1a73e8;font-size:0.95rem;'
+                                f'text-decoration:underline;cursor:pointer;">'
+                                f'📄 {c["filename"]}</a>'
                             )
-                        with col_dl:
-                            if _b64:
-                                st.download_button(
-                                    "📥 DL",
-                                    data=base64.b64decode(_b64),
-                                    file_name=c["filename"],
-                                    mime="application/pdf",
-                                    key=f"src_dl_{i}_{c['filename']}",
-                                    use_container_width=True,
-                                )
+                        else:
+                            _fname_html = (
+                                f'<span style="font-weight:700;color:#202124;font-size:0.95rem;">'
+                                f'📄 {c["filename"]}</span>'
+                            )
+                        _excerpt = c['text'][:200] + '...' if len(c['text']) > 200 else c['text']
+                        _cards_html += f"""
+<div style="background:#f8f9fa;border-left:4px solid #1a73e8;border-radius:4px;
+            padding:0.8rem 1rem;margin-bottom:0.6rem;">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.4rem;">
+    <div style="display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;">
+      <span style="background:#1a73e8;color:#fff;border-radius:4px;padding:2px 10px;
+                   font-size:0.8rem;font-weight:700;">{i}</span>
+      {_fname_html}
+      <span style="color:#5f6368;font-size:0.85rem;">p.{c['page']}</span>
+    </div>
+    <span style="background:#e8f0fe;color:#1a73e8;border-radius:12px;padding:2px 10px;
+                 font-size:0.8rem;font-weight:600;white-space:nowrap;">関連度 {score_pct}%</span>
+  </div>
+  <div style="color:#5f6368;font-size:0.88rem;line-height:1.7;">{_excerpt}</div>
+</div>
+"""
+                    st.markdown(_cards_html, unsafe_allow_html=True)
 
         if _just_searched:
             # 回答表示完了 → 結果を保存
