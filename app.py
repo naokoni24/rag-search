@@ -1190,11 +1190,14 @@ with tab_search:
                     expanded=False,
                 ):
                     _cards_html = ""
+                    _linked_in_cards: set = set()
                     for i, c in enumerate(_disp_chunks, 1):
                         score_pct = int(c["score"] * 100)
                         _safe_fname = c["filename"].replace('"', '&quot;')
                         _b64 = _pdf_cache.get(c["filename"], '')
-                        if _b64:
+                        # 同じPDFのbase64は1枚目だけ埋め込み、2枚目以降はテキストにして転送量を削減
+                        if _b64 and c["filename"] not in _linked_in_cards:
+                            _linked_in_cards.add(c["filename"])
                             _fname_html = (
                                 f'<a href="data:application/pdf;base64,{_b64}" download="{_safe_fname}" '
                                 f'style="font-weight:700;color:#1a73e8;font-size:0.95rem;'
@@ -1245,14 +1248,17 @@ with tab_search:
             # Top3 の参照 PDF をセッション内で一度だけプリウォーム
             # → クリック時に get_pdf_b64 がキャッシュから即時返るようにする
             if "_top3_pdf_prewarmed" not in st.session_state:
-                _prewarm_fnames: set = set()
+                # 表示部が使うのと同じ tuple で呼ぶことでキャッシュヒットさせる
                 for _tq, _ in top_queries:
                     _tc = get_cached_result(_tq)
                     if _tc:
-                        for _c in _tc[1]:
-                            _prewarm_fnames.add(_c["filename"])
-                if _prewarm_fnames:
-                    get_pdf_b64_batch(tuple(sorted(_prewarm_fnames)))
+                        _t_ans, _t_chks = _tc
+                        _t_fnames = tuple(sorted({
+                            *[m.group(1) for m in _CITATION_RE.finditer(_t_ans)],
+                            *[c["filename"] for c in _t_chks],
+                        }))
+                        if _t_fnames:
+                            get_pdf_b64_batch(_t_fnames)
                 st.session_state["_top3_pdf_prewarmed"] = True
 
             st.markdown('<p class="top-label">よく検索されています</p>', unsafe_allow_html=True)
