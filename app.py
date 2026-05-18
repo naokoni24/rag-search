@@ -1058,21 +1058,32 @@ st.components.v1.html("""<script>
         p.document.body, {childList: true, subtree: true}
     );
 
-    // ログインカード（stVerticalBlockBorderWrapper）の背景を白に固定
+    // ① 親 <head> にスタイルタグを追加（emotion CSS より後になるので優先される）
+    if (!p._ragLoginCardStyleInjected) {
+        p._ragLoginCardStyleInjected = true;
+        var ls = p.document.createElement('style');
+        ls.textContent =
+            '[data-testid="stVerticalBlockBorderWrapper"],' +
+            '[data-testid="stVerticalBlockBorderWrapper"] > div,' +
+            '[data-testid="stVerticalBlockBorderWrapper"] > div > div,' +
+            '[data-testid="stVerticalBlockBorderWrapper"] [data-testid="stVerticalBlock"],' +
+            '[data-testid="stVerticalBlockBorderWrapper"] [data-testid="stForm"],' +
+            '[data-testid="stVerticalBlockBorderWrapper"] [class*="st-emotion"]' +
+            '{background:#ffffff!important;background-color:#ffffff!important;}';
+        p.document.head.appendChild(ls);
+    }
+
+    // ② setInterval で定期的にインラインスタイルを強制上書き（React の再レンダリング対策）
     function fixLoginCard() {
         p.document.querySelectorAll('[data-testid="stVerticalBlockBorderWrapper"]').forEach(function(wrapper) {
-            wrapper.style.setProperty('background', '#ffffff', 'important');
             wrapper.style.setProperty('background-color', '#ffffff', 'important');
             wrapper.querySelectorAll('*').forEach(function(child) {
-                child.style.setProperty('background', '#ffffff', 'important');
                 child.style.setProperty('background-color', '#ffffff', 'important');
             });
         });
     }
     fixLoginCard();
-    new MutationObserver(fixLoginCard).observe(
-        p.document.body, {childList: true, subtree: true}
-    );
+    setInterval(fixLoginCard, 300);
 })();
 </script>""", height=0)
 
