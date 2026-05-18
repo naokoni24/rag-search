@@ -1047,20 +1047,9 @@ with tab_search:
             chunks_result = None
 
             cached = get_cached_result(safe_query)
-            _use_cached = False
             if cached:
-                _c_answer, _c_chunks = cached
-                # PDF バイナリが全ファイル揃っている場合のみキャッシュを使用
-                _check_fnames = list({c["filename"] for c in _c_chunks})
-                if all(get_pdf_b64(fn) for fn in _check_fnames):
-                    answer, chunks_result = _c_answer, _c_chunks
-                    _use_cached = True
-                else:
-                    # PDF が再アップロードされた可能性があるためキャッシュをクリアして再検索
-                    get_pdf_b64.clear()
-                    get_pdf_bytes.clear()
-
-            if not _use_cached:
+                answer, chunks_result = cached
+            else:
                 try:
                     with st.spinner("回答を生成中..."):
                         chunks_result = search(safe_query)
