@@ -1025,7 +1025,7 @@ with tab_search:
     if _pending_query is not None:
         st.session_state["_search_input"] = _pending_query
 
-    with st.form("search_form", clear_on_submit=False):
+    with st.form("search_form", clear_on_submit=True):
         query = st.text_input(
             "質問",
             key="_search_input",
@@ -1040,8 +1040,10 @@ with tab_search:
         st.session_state["_search_result"] = None
         # フォーム直接送信時はキャッシュをスキップして必ず新規検索
         st.session_state["_skip_log_cache"] = True
-        get_pdf_b64.clear()
-        get_pdf_bytes.clear()
+        # PDFキャッシュは PDF欠損再検索時のみクリア（毎回クリアすると Top3 が遅くなる）
+        if st.session_state.pop("_clear_pdf_cache_next", False):
+            get_pdf_b64.clear()
+            get_pdf_bytes.clear()
 
     run_query = st.session_state["search_submitted"]
     current_query = st.session_state["search_query"]
@@ -1111,6 +1113,8 @@ with tab_search:
         if _missing and not _just_searched and not _skip_pdf_warning:
             # 検索フォームにクエリをセット（次の rerun で反映）
             st.session_state["_set_form_query"] = _disp_query
+            # 次の検索時に PDF バイナリキャッシュをクリア（再取得のため）
+            st.session_state["_clear_pdf_cache_next"] = True
             st.markdown(
                 '<div style="margin-top:0.4rem;padding:0.8rem 1rem;background:#fff8e1;'
                 'border-left:4px solid #f9a825;border-radius:4px;font-size:0.9rem;color:#5f6368;">'
