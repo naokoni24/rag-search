@@ -138,10 +138,12 @@ p, li, label {
     gap: 1rem;
 }
 .header-title {
-    font-size: 1.6rem !important;
+    font-size: 1.25rem !important;
     font-weight: 700 !important;
     color: #202124 !important;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+    overflow: visible;
 }
 .header-subtitle {
     font-size: 0.95rem !important;
@@ -366,7 +368,7 @@ div[data-testid="stTextInput"] input:focus {
         align-items: flex-start;
         gap: 0.5rem;
     }
-    .header-title { font-size: 1.2rem !important; }
+    .header-title { font-size: 1rem !important; }
     .header-subtitle { font-size: 0.85rem !important; }
 }
 
