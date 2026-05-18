@@ -138,7 +138,7 @@ p, li, label {
     gap: 1rem;
 }
 .header-title {
-    font-size: 1.25rem !important;
+    font-size: 1.5rem !important;
     font-weight: 700 !important;
     color: #202124 !important;
     letter-spacing: -0.01em;
@@ -146,7 +146,7 @@ p, li, label {
     overflow: visible;
 }
 .header-subtitle {
-    font-size: 0.95rem !important;
+    font-size: 1rem !important;
     color: #5f6368 !important;
     margin-top: 4px;
 }
