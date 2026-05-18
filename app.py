@@ -974,9 +974,15 @@ def strip_citations(answer: str) -> str:
     """【参照】を含む行を除去する（引用なし回答の残骸テキスト対策）"""
     return _LOOSE_CITATION_RE.sub('', answer).strip()
 
+_PLAIN_EXTRA_CITATION_RE = re.compile(
+    r'[,、]\s*([^\s\n【】,、]+\.pdf)\s+p\.\d+'
+)
+
 def linkify_answer(answer: str, pdf_cache=None) -> str:
     """回答内の【参照】ファイル名 p.N をダウンロードリンクに変換。
-    同じファイル名が複数ある場合は最後の 1 件だけリンク表示し、それ以前は削除する。"""
+    同じファイル名が複数ある場合は最後の 1 件だけリンク表示し、それ以前は削除する。
+    「【参照】file.pdf p.2, file.pdf p.1」のようにカンマ続きで書かれた plain text
+    部分も、対象ファイル名なら除去する。"""
     matches = list(_CITATION_RE.finditer(answer))
     # ファイル名ごとに最後に出現するマッチのインデックスを記録
     last_idx: dict = {}
@@ -1007,7 +1013,17 @@ def linkify_answer(answer: str, pdf_cache=None) -> str:
             f'<br>{link}'
             f'<span style="color:#5f6368;font-weight:400;"> p.{page}</span>'
         )
-    return _CITATION_RE.sub(_replace, answer)
+
+    result = _CITATION_RE.sub(_replace, answer)
+
+    # 【参照】タグなしで続くカンマ区切りの plain text 重複を除去
+    # 例: ", 広告制作ガイドライン.pdf p.1" → '' (すでにリンク済みのファイル名のみ対象)
+    cited_fnames = set(last_idx.keys())
+    def _remove_plain(m):
+        return '' if m.group(1) in cited_fnames else m.group(0)
+    result = _PLAIN_EXTRA_CITATION_RE.sub(_remove_plain, result)
+
+    return result
 
 
 
