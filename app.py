@@ -946,7 +946,8 @@ def linkify_answer(answer: str) -> str:
         return (
             f'<br><a class="rag-citation" data-fname="{safe}" href="#" '
             f'style="color:#1a73e8;font-weight:600;text-decoration:underline;cursor:pointer;">'
-            f'📄 {fname} p.{page}</a>'
+            f'📄 {fname}</a>'
+            f'<span style="color:#5f6368;font-weight:400;font-size:0.92em;"> p.{page}</span>'
         )
     return _CITATION_RE.sub(_replace, answer)
 
