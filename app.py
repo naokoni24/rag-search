@@ -1280,6 +1280,7 @@ with tab_manage:
                 st.success(st.session_state["_upload_success"])
                 st.session_state["_upload_success"] = None
 
+            st.markdown('<div style="font-size:0.88rem;color:#5f6368;margin-bottom:0.3rem;">📎 ファイルを選択、またはここにドラッグ＆ドロップ（複数可）</div>', unsafe_allow_html=True)
             uploaded_files = st.file_uploader(
                 "PDFファイルを選択",
                 type="pdf",
