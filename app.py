@@ -1007,6 +1007,17 @@ with tab_search:
     if "_search_result" not in st.session_state:
         st.session_state["_search_result"] = None  # (safe_query, answer, chunks)
 
+    # ── 再検索フラグ処理（ウィジェット描画前に必ず実行） ──────────────
+    if st.session_state.pop("_trigger_re_search", False):
+        _rq = st.session_state.pop("_re_search_query", "")
+        get_pdf_b64.clear()
+        get_pdf_bytes.clear()
+        st.session_state["_search_result"] = None
+        st.session_state["search_query"]   = _rq
+        st.session_state["_search_input"]  = _rq
+        st.session_state["search_submitted"] = True
+        st.session_state["_keep_form_query"] = True
+
     # フォーム入力値の変更はウィジェット描画前に処理（描画後の key 書き換えは Streamlit が禁止）
     if st.session_state.pop("_clear_form_next", False):
         st.session_state["_search_input"] = ""
@@ -1146,18 +1157,11 @@ with tab_search:
                     '</div>',
                     unsafe_allow_html=True,
                 )
-                # on_click コールバック方式（条件分岐内でも確実に動作）
-                st.session_state["_re_search_query"] = _disp_query
-                def _do_re_search():
-                    get_pdf_b64.clear()
-                    get_pdf_bytes.clear()
-                    _q = st.session_state.get("_re_search_query", "")
-                    st.session_state["_search_result"] = None
-                    st.session_state["search_query"] = _q
-                    st.session_state["_search_input"] = _q   # スピナー中もフォームに表示
-                    st.session_state["search_submitted"] = True
-                    st.session_state["_keep_form_query"] = True
-                st.button("🔄 同じ内容で再検索", key="re_search_btn", on_click=_do_re_search)
+                # フラグ方式（タブ先頭で処理済み → 確実に動作）
+                if st.button("🔄 同じ内容で再検索", key="re_search_btn"):
+                    st.session_state["_trigger_re_search"] = True
+                    st.session_state["_re_search_query"] = _disp_query
+                    st.rerun()
 
         if _just_searched:
             # 回答表示完了 → 結果を保存して rerun
