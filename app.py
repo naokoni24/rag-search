@@ -934,12 +934,23 @@ def strip_citations(answer: str) -> str:
     """【参照】を含む行を除去する（引用なし回答の残骸テキスト対策）"""
     return _LOOSE_CITATION_RE.sub('', answer).strip()
 
-def linkify_answer(answer: str) -> str:
-    """回答内の【参照】ファイル名 p.N をスタイル付きテキストに変換（下の参照元カードからDL可）"""
+def linkify_answer(answer: str, pdf_cache=None) -> str:
+    """回答内の【参照】ファイル名 p.N をダウンロードリンクに変換"""
     def _replace(m):
         fname, page = m.group(1), m.group(2)
+        safe = fname.replace('"', '&quot;')
+        b64 = (pdf_cache or {}).get(fname, '')
+        if b64:
+            href = f'data:application/pdf;base64,{b64}'
+            link = (
+                f'<a href="{href}" download="{safe}" '
+                f'style="color:#1a73e8;font-weight:600;text-decoration:underline;cursor:pointer;">'
+                f'📄 {fname}</a>'
+            )
+        else:
+            link = f'<span style="color:#1a73e8;font-weight:600;">📄 {fname}</span>'
         return (
-            f'<br><span style="color:#1a73e8;font-weight:600;">📄 {fname}</span>'
+            f'<br>{link}'
             f'<span style="color:#5f6368;font-weight:400;font-size:0.92em;"> p.{page}</span>'
         )
     return _CITATION_RE.sub(_replace, answer)
@@ -1056,30 +1067,50 @@ with tab_search:
 
     # ---- 回答描画（検索直後 / フォームクリア後の保持結果 共通） ----
     if _disp_answer and _disp_chunks:
+        # PDF の base64 をキャッシュから取得（data: URL ダウンロードリンク用）
+        _unique_fnames = list({
+            *[m.group(1) for m in _CITATION_RE.finditer(_disp_answer)],
+            *[c["filename"] for c in _disp_chunks],
+        })
+        _pdf_cache = {}
+        for _fn in _unique_fnames:
+            _b64val = get_pdf_b64(_fn)
+            if _b64val:
+                _pdf_cache[_fn] = _b64val
+
         with st.chat_message("user", avatar="🧑"):
             st.write(_disp_query)
         with st.chat_message("assistant", avatar="🤖"):
             _show_ans = _disp_answer if _has_citation(_disp_answer) else strip_citations(_disp_answer)
-            st.markdown(linkify_answer(_show_ans), unsafe_allow_html=True)
+            st.markdown(linkify_answer(_show_ans, _pdf_cache), unsafe_allow_html=True)
 
         if _has_citation(_disp_answer):
-            _qhash = str(abs(hash(_disp_query)))[:8]
-            with st.expander(
-                f"📄 参照元ドキュメント（{len(_disp_chunks)} 件）",
-                expanded=True,
-            ):
-                for i, c in enumerate(_disp_chunks, 1):
-                    score_pct = int(c["score"] * 100)
-                    _excerpt = c['text'][:200] + '...' if len(c['text']) > 200 else c['text']
-                    # カード情報（HTMLのみ・base64埋め込みなし）
-                    st.markdown(f"""
+            _cards_html = ""
+            for i, c in enumerate(_disp_chunks, 1):
+                score_pct = int(c["score"] * 100)
+                _safe_fname = c["filename"].replace('"', '&quot;')
+                _b64 = _pdf_cache.get(c["filename"], '')
+                if _b64:
+                    _fname_html = (
+                        f'<a href="data:application/pdf;base64,{_b64}" download="{_safe_fname}" '
+                        f'style="font-weight:700;color:#1a73e8;font-size:0.95rem;'
+                        f'text-decoration:underline;cursor:pointer;">'
+                        f'📄 {c["filename"]}</a>'
+                    )
+                else:
+                    _fname_html = (
+                        f'<span style="font-weight:700;color:#202124;font-size:0.95rem;">'
+                        f'📄 {c["filename"]}</span>'
+                    )
+                _excerpt = c['text'][:200] + '...' if len(c['text']) > 200 else c['text']
+                _cards_html += f"""
 <div style="background:#f8f9fa;border-left:4px solid #1a73e8;border-radius:4px;
-            padding:0.8rem 1rem;margin-bottom:0.3rem;">
+            padding:0.8rem 1rem;margin-bottom:0.6rem;">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.4rem;">
     <div style="display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;">
       <span style="background:#1a73e8;color:#fff;border-radius:4px;padding:2px 10px;
                    font-size:0.8rem;font-weight:700;">{i}</span>
-      <span style="font-weight:700;color:#202124;font-size:0.95rem;">📄 {c["filename"]}</span>
+      {_fname_html}
       <span style="color:#5f6368;font-size:0.85rem;">p.{c['page']}</span>
     </div>
     <span style="background:#e8f0fe;color:#1a73e8;border-radius:12px;padding:2px 10px;
@@ -1087,17 +1118,17 @@ with tab_search:
   </div>
   <div style="color:#5f6368;font-size:0.88rem;line-height:1.7;">{_excerpt}</div>
 </div>
+"""
+            st.markdown(f"""
+<details class="src-section" open>
+  <summary>
+    <span style="background:#1a73e8;color:#fff;border-radius:4px;padding:2px 10px;
+                 font-size:0.8rem;font-weight:700;">参照元</span>
+    <span style="font-size:0.9rem;font-weight:600;color:#5f6368;">ドキュメント（{len(_disp_chunks)} 件）</span>
+  </summary>
+  <div class="src-cards">{_cards_html}</div>
+</details>
 """, unsafe_allow_html=True)
-                    # ダウンロードボタン（st.download_button = クリック時のみファイル送信）
-                    _pdf_bytes = get_pdf_bytes(c["filename"])
-                    if _pdf_bytes:
-                        st.download_button(
-                            label="📥 PDFをダウンロード",
-                            data=_pdf_bytes,
-                            file_name=c["filename"],
-                            mime="application/pdf",
-                            key=f"dl_{_qhash}_{i}",
-                        )
 
         if _just_searched:
             # 回答表示完了 → 結果を保存してフォームクリアフラグを立て rerun
