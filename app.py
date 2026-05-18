@@ -62,8 +62,6 @@ html, body, [class*="css"], .stApp, p, div, label, textarea, button {
 }
 
 /* アイコン系 span は font 上書きしない（Material Icons 文字化け防止） */
-[data-testid="stExpander"] summary span,
-[data-testid="stExpanderToggleIcon"] span,
 [data-baseweb="icon"] span,
 .stChatMessage [data-testid="chatAvatarIcon"] span {
     font-family: inherit !important;
@@ -71,12 +69,15 @@ html, body, [class*="css"], .stApp, p, div, label, textarea, button {
     color: inherit !important;
 }
 
-/* expander トグルアイコンのテキスト文字列を非表示（_arr~ 等の漏れ対策） */
+/* expander トグルアイコンの _arr テキストを完全に非表示 */
 [data-testid="stExpanderToggleIcon"] {
     overflow: hidden !important;
+    font-size: 0 !important;
 }
-[data-testid="stExpanderToggleIcon"] > span:not(:has(svg)) {
-    display: none !important;
+[data-testid="stExpanderToggleIcon"] svg {
+    display: block !important;
+    width: 1.1rem !important;
+    height: 1.1rem !important;
 }
 
 
