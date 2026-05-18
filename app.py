@@ -1005,7 +1005,7 @@ def linkify_answer(answer: str, pdf_cache=None) -> str:
             link = f'<span style="color:#1a73e8;font-weight:600;">📄 {fname}</span>'
         return (
             f'<br>{link}'
-            f'<span style="color:#5f6368;font-weight:400;font-size:0.92em;"> p.{page}</span>'
+            f'<span style="color:#202124;font-weight:400;font-size:0.92em;"> p.{page}</span>'
         )
     return _CITATION_RE.sub(_replace, answer)
 
