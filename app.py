@@ -1130,6 +1130,26 @@ with tab_search:
 </details>
 """, unsafe_allow_html=True)
 
+            # PDFバイナリが未保存のファイルがある場合は再検索ボタンを表示
+            _missing = [c["filename"] for c in _disp_chunks if not _pdf_cache.get(c["filename"])]
+            if _missing and not _just_searched:
+                st.markdown(
+                    '<div style="margin-top:0.6rem;padding:0.6rem 1rem;background:#fff8e1;'
+                    'border-left:4px solid #f9a825;border-radius:4px;font-size:0.85rem;color:#5f6368;">'
+                    '⚠️ 一部PDFのダウンロードリンクが利用できません。'
+                    '管理画面から対象PDFを再アップロード後、再検索してください。'
+                    '</div>',
+                    unsafe_allow_html=True,
+                )
+                if st.button("🔄 同じ内容で再検索", key="re_search_btn"):
+                    # PDFキャッシュをクリアして新しいバイナリを取得させる
+                    get_pdf_b64.clear()
+                    get_pdf_bytes.clear()
+                    st.session_state["_search_result"] = None
+                    st.session_state["search_query"] = _disp_query
+                    st.session_state["search_submitted"] = True
+                    st.rerun()
+
         if _just_searched:
             # 回答表示完了 → 結果を保存してフォームクリアフラグを立て rerun
             st.session_state["_search_result"] = (_disp_query, _disp_answer, _disp_chunks)
