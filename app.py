@@ -1179,7 +1179,6 @@ with tab_search:
         if _just_searched:
             # 回答表示完了 → 結果を保存して rerun
             st.session_state["_search_result"] = (_disp_query, _disp_answer, _disp_chunks)
-            st.session_state.pop("_keep_form_query", None)  # 使い終わったフラグを破棄
             if _missing:
                 # PDF欠損あり → 次の rerun では警告をスキップして回答を表示
                 # フォームにクエリを保持（再検索しやすいように）
@@ -1202,10 +1201,8 @@ with tab_search:
             for i, (tq, label) in enumerate(top_queries):
                 def _top_click(q=tq):
                     st.session_state["search_query"] = q
-                    st.session_state["_search_input"] = q   # スピナー中もフォームに表示
                     st.session_state["search_submitted"] = True
                     st.session_state["_search_result"] = None
-                    st.session_state["_keep_form_query"] = True
                 st.button(f"🔍 {label}", key=f"top_{i}", on_click=_top_click)
 
 # ---- 文書管理タブ ----
