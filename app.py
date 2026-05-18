@@ -970,48 +970,6 @@ st.set_page_config(
 
 st.markdown(STYLE, unsafe_allow_html=True)
 
-# Manage app ボタンを JS で非表示（テキスト検索＋CSS注入でセレクタ依存を排除）
-st.components.v1.html("""<script>
-(function() {
-    var p = window.parent;
-
-    // 親ページの <head> にスタイルを注入（セレクタベースの非表示）
-    if (!p._ragStyleInjected) {
-        p._ragStyleInjected = true;
-        var s = p.document.createElement('style');
-        s.textContent = [
-            '[data-testid="stStatusWidget"]',
-            '[class*="StatusWidget"]',
-            '[class*="viewerBadge"]',
-            '[data-testid="stToolbar"]',
-            'footer'
-        ].join(',') + '{display:none!important;visibility:hidden!important;}';
-        p.document.head.appendChild(s);
-    }
-
-    // "Manage app" テキストを含む要素を探して親ごと非表示
-    function hideByText() {
-        p.document.querySelectorAll('*').forEach(function(el) {
-            if (el.children.length === 0 &&
-                el.textContent.trim() === 'Manage app') {
-                var target = el;
-                for (var i = 0; i < 8; i++) {
-                    if (target.parentElement) target = target.parentElement;
-                    else break;
-                }
-                target.style.setProperty('display', 'none', 'important');
-            }
-        });
-    }
-
-    hideByText();
-    new MutationObserver(hideByText).observe(
-        p.document.body, {childList: true, subtree: true}
-    );
-
-})();
-</script>""", height=0)
-
 setup_genai()
 
 # ヘッダー
