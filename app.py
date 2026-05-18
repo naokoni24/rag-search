@@ -1175,15 +1175,14 @@ with tab_search:
         if _just_searched:
             # 回答表示完了 → 結果を保存して rerun
             st.session_state["_search_result"] = (_disp_query, _disp_answer, _disp_chunks)
+            st.session_state.pop("_keep_form_query", None)  # 使い終わったフラグを破棄
             if _missing:
                 # PDF欠損あり → 次の rerun では警告をスキップして回答を表示
+                # フォームにクエリを保持（再検索しやすいように）
                 st.session_state["_pdf_warning_fresh"] = True
                 st.session_state["_set_form_query"] = _disp_query
-            elif st.session_state.pop("_keep_form_query", False):
-                # Top3経由かつPDF正常 → フォームにクエリを保持
-                st.session_state["_set_form_query"] = _disp_query
             else:
-                # フォーム送信経由かつPDF正常 → フォームをクリア
+                # PDF正常 → フォームをクリア
                 st.session_state["_clear_form_next"] = True
             st.rerun()
 
