@@ -1082,6 +1082,7 @@ with tab_search:
         _disp_query, _disp_answer, _disp_chunks = st.session_state["_search_result"]
 
     # ---- 回答描画（検索直後 / フォームクリア後の保持結果 共通） ----
+    _missing = []  # _just_searched ブロックで参照するため先に初期化
     if _disp_answer and _disp_chunks:
         # PDF の base64 をキャッシュから取得（data: URL ダウンロードリンク用）
         _unique_fnames = list({
@@ -1094,9 +1095,11 @@ with tab_search:
             if _b64val:
                 _pdf_cache[_fn] = _b64val
 
+        # PDF欠損チェック（_just_searched ブロックでも使用）
+        _missing = [c["filename"] for c in _disp_chunks if not _pdf_cache.get(c["filename"])]
+
         # キャッシュ結果表示中（_just_searched=False）かつPDF欠損がある場合
         # → 検索フォームにクエリをセットし、再検索を促すメッセージのみ表示
-        _missing = [c["filename"] for c in _disp_chunks if not _pdf_cache.get(c["filename"])]
         if _missing and not _just_searched:
             # 検索フォームにクエリをセット（次の rerun で反映）
             st.session_state["_set_form_query"] = _disp_query
@@ -1164,11 +1167,11 @@ with tab_search:
         if _just_searched:
             # 回答表示完了 → 結果を保存して rerun
             st.session_state["_search_result"] = (_disp_query, _disp_answer, _disp_chunks)
-            if st.session_state.pop("_keep_form_query", False):
-                # Top3経由 → 次のrerunのウィジェット描画前にクエリをセット
+            if st.session_state.pop("_keep_form_query", False) or _missing:
+                # Top3経由 or PDF欠損 → フォームにクエリを保持（再検索できるように）
                 st.session_state["_set_form_query"] = _disp_query
             else:
-                # フォーム送信経由 → フォームをクリア
+                # フォーム送信経由かつPDF正常 → フォームをクリア
                 st.session_state["_clear_form_next"] = True
             st.rerun()
 
