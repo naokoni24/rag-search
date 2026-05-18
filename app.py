@@ -760,7 +760,8 @@ def get_registered_docs_with_dates() -> list[tuple[str, str]]:
             fname = r.payload.get("filename", "")
             ts = r.payload.get("registered_at")
             if ts:
-                dt = datetime.datetime.fromtimestamp(ts)
+                JST = datetime.timezone(datetime.timedelta(hours=9))
+                dt = datetime.datetime.fromtimestamp(ts, tz=JST)
                 date_str = dt.strftime("%Y年\n%m/%d %H:%M")
             else:
                 date_str = "—"
