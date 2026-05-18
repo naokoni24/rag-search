@@ -1105,7 +1105,7 @@ with tab_search:
                 'border-left:4px solid #f9a825;border-radius:4px;font-size:0.9rem;color:#5f6368;">'
                 '⚠️ この検索結果で参照しているPDFのダウンロードリンクが利用できません。'
                 '上の検索フォームに検索内容を入力済みですので、そのまま再検索してください。'
-                '</div>',
+                '</div><div style="height:1rem;"></div>',
                 unsafe_allow_html=True,
             )
         else:
