@@ -1195,6 +1195,19 @@ with tab_search:
     if docs:
         top_queries = get_top_queries(3)
         if top_queries:
+            # Top3 の参照 PDF をセッション内で一度だけプリウォーム
+            # → クリック時に get_pdf_b64 がキャッシュから即時返るようにする
+            if "_top3_pdf_prewarmed" not in st.session_state:
+                _prewarm_fnames: set = set()
+                for _tq, _ in top_queries:
+                    _tc = get_cached_result(_tq)
+                    if _tc:
+                        for _c in _tc[1]:
+                            _prewarm_fnames.add(_c["filename"])
+                for _fn in _prewarm_fnames:
+                    get_pdf_b64(_fn)
+                st.session_state["_top3_pdf_prewarmed"] = True
+
             st.markdown('<p class="top-label">よく検索されています</p>', unsafe_allow_html=True)
             for i, (tq, label) in enumerate(top_queries):
                 def _top_click(q=tq):
