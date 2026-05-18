@@ -942,64 +942,21 @@ def strip_citations(answer: str) -> str:
     """【参照】を含む行を除去する（引用なし回答の残骸テキスト対策）"""
     return _LOOSE_CITATION_RE.sub('', answer).strip()
 
-def linkify_answer(answer: str) -> str:
-    """回答内の【参照】ファイル名 p.N をクリック可能なリンクに変換（base64なし・軽量）"""
+def linkify_answer(answer: str, pdf_cache: dict | None = None) -> str:
+    """回答内の【参照】ファイル名 p.N を data: URL ダウンロードリンクに変換"""
     def _replace(m):
         fname, page = m.group(1), m.group(2)
         safe = fname.replace('"', '&quot;')
+        b64 = (pdf_cache or {}).get(fname, '')
+        href = f'data:application/pdf;base64,{b64}' if b64 else '#'
+        dl   = f'download="{safe}"' if b64 else ''
         return (
-            f'<br><a class="rag-citation" data-fname="{safe}" href="#" '
+            f'<br><a href="{href}" {dl} '
             f'style="color:#1a73e8;font-weight:600;text-decoration:underline;cursor:pointer;">'
             f'📄 {fname}</a>'
             f'<span style="color:#5f6368;font-weight:400;font-size:0.92em;"> p.{page}</span>'
         )
     return _CITATION_RE.sub(_replace, answer)
-
-
-def inject_pdf_downloader(unique_fnames: list[str]):
-    """PDFをsessionStorageへ保存してダウンロード機能を注入する。
-    初回のみPDFデータ（base64）を送信し、以降のrerunでは軽量スクリプトのみ送信。"""
-    new_pdfs: dict[str, str] = {}
-    for fname in unique_fnames:
-        b64 = get_pdf_b64(fname)
-        if b64:
-            new_pdfs[fname] = b64
-
-    pdf_store_js = json.dumps(new_pdfs)
-
-    st.components.v1.html(f"""<script>
-(function() {{
-    var p = window.parent;
-    // sessionStorage は容量制限があるためメモリキャッシュを使用
-    if (!p._ragPdfCache) p._ragPdfCache = {{}};
-    var data = {pdf_store_js};
-    for (var k in data) {{
-        p._ragPdfCache[k] = data[k];
-    }}
-    if (p._ragDlReady) return;
-    p._ragDlReady = true;
-    p._dlRagPdf = function(fname) {{
-        var b64 = p._ragPdfCache[fname];
-        if (!b64) {{ console.warn('[RAG] PDF not in cache:', fname); return; }}
-        var bytes = atob(b64), arr = new Uint8Array(bytes.length);
-        for (var i = 0; i < bytes.length; i++) arr[i] = bytes.charCodeAt(i);
-        var blob = new Blob([arr], {{type: 'application/pdf'}});
-        var url = URL.createObjectURL(blob);
-        var a = p.document.createElement('a');
-        a.href = url; a.download = fname;
-        p.document.body.appendChild(a); a.click(); p.document.body.removeChild(a);
-        setTimeout(function() {{ URL.revokeObjectURL(url); }}, 2000);
-    }};
-    p.document.addEventListener('click', function(e) {{
-        var el = e.target && e.target.closest && e.target.closest('.rag-citation');
-        if (el) {{
-            e.preventDefault();
-            var fname = el.getAttribute('data-fname');
-            if (fname) p._dlRagPdf(fname);
-        }}
-    }});
-}})();
-</script>""", height=0)
 
 
 
@@ -1152,19 +1109,29 @@ with tab_search:
 
     # ---- 回答描画（検索直後 / フォームクリア後の保持結果 共通） ----
     if _disp_answer and _disp_chunks:
+        # PDF を事前取得（data: URL 埋め込み用）
+        _unique_fnames = list({
+            *[m.group(1) for m in _CITATION_RE.finditer(_disp_answer)],
+            *[c["filename"] for c in _disp_chunks],
+        })
+        _pdf_cache = {fn: b64 for fn in _unique_fnames if (b64 := get_pdf_b64(fn))}
+
         with st.chat_message("user", avatar="🧑"):
             st.write(_disp_query)
         with st.chat_message("assistant", avatar="🤖"):
             _show_ans = _disp_answer if _has_citation(_disp_answer) else strip_citations(_disp_answer)
-            st.markdown(linkify_answer(_show_ans), unsafe_allow_html=True)
+            st.markdown(linkify_answer(_show_ans, _pdf_cache), unsafe_allow_html=True)
 
         if _has_citation(_disp_answer):
             _cards_html = ""
             for i, c in enumerate(_disp_chunks, 1):
                 score_pct = int(c["score"] * 100)
                 _safe_fname = c["filename"].replace('"', '&quot;')
+                _b64 = _pdf_cache.get(c["filename"], '')
+                _href = f'data:application/pdf;base64,{_b64}' if _b64 else '#'
+                _dl   = f'download="{_safe_fname}"' if _b64 else ''
                 _fname_html = (
-                    f'<a class="rag-citation" data-fname="{_safe_fname}" href="#" '
+                    f'<a href="{_href}" {_dl} '
                     f'style="font-weight:700;color:#1a73e8;font-size:0.95rem;'
                     f'text-decoration:underline;cursor:pointer;">'
                     f'📄 {c["filename"]}</a>'
@@ -1196,14 +1163,6 @@ with tab_search:
   <div class="src-cards">{_cards_html}</div>
 </details>
 """, unsafe_allow_html=True)
-
-            # 回答内の引用 + 参照元カードのファイル名をまとめてDL対象に
-            _unique_fnames = list({
-                *[m.group(1) for m in _CITATION_RE.finditer(_disp_answer)],
-                *[c["filename"] for c in _disp_chunks],
-            })
-            if _unique_fnames:
-                inject_pdf_downloader(_unique_fnames)
 
         if _just_searched:
             # 回答表示完了 → 結果を保存してフォームクリアフラグを立て rerun
