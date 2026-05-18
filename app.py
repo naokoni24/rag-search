@@ -1105,12 +1105,8 @@ with tab_search:
         # PDF欠損チェック（_just_searched ブロックでも使用）
         _missing = [c["filename"] for c in _disp_chunks if not _pdf_cache.get(c["filename"])]
 
-        # PDF欠損チェック：新規検索直後は警告をスキップ（_pdf_warning_fresh フラグ）
-        _skip_pdf_warning = st.session_state.pop("_pdf_warning_fresh", False)
-
-        # キャッシュ結果表示中（_just_searched=False）かつPDF欠損がある場合
-        # → 検索フォームにクエリをセットし、再検索を促すメッセージのみ表示
-        if _missing and not _just_searched and not _skip_pdf_warning:
+        # PDF欠損がある場合は Top3・通常検索問わず回答を非表示にして再検索を促す
+        if _missing:
             # 検索フォームにクエリをセット（次の rerun で反映）
             st.session_state["_set_form_query"] = _disp_query
             # 次の検索時に PDF バイナリキャッシュをクリア（再取得のため）
@@ -1180,10 +1176,7 @@ with tab_search:
             # 回答表示完了 → 結果を保存
             st.session_state["_search_result"] = (_disp_query, _disp_answer, _disp_chunks)
             if _missing:
-                # PDF欠損あり → 次の rerun では警告をスキップして回答を表示
-                # フォームにクエリを保持（再検索しやすいように）
-                st.session_state["_pdf_warning_fresh"] = True
-                st.session_state["_set_form_query"] = _disp_query
+                # PDF欠損あり → フォームにクエリを保持して rerun（警告を安定表示）
                 st.rerun()
             # PDF正常 → rerun 不要（今レンダリングで回答を直接表示済み）
 
