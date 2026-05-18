@@ -1141,14 +1141,15 @@ with tab_search:
                     '</div>',
                     unsafe_allow_html=True,
                 )
-                if st.button("🔄 同じ内容で再検索", key="re_search_btn"):
-                    # PDFキャッシュをクリアして新しいバイナリを取得させる
+                # on_click コールバック方式（条件分岐内でも確実に動作）
+                st.session_state["_re_search_query"] = _disp_query
+                def _do_re_search():
                     get_pdf_b64.clear()
                     get_pdf_bytes.clear()
                     st.session_state["_search_result"] = None
-                    st.session_state["search_query"] = _disp_query
+                    st.session_state["search_query"] = st.session_state.get("_re_search_query", "")
                     st.session_state["search_submitted"] = True
-                    st.rerun()
+                st.button("🔄 同じ内容で再検索", key="re_search_btn", on_click=_do_re_search)
 
         if _just_searched:
             # 回答表示完了 → 結果を保存してフォームクリアフラグを立て rerun
