@@ -429,15 +429,7 @@ details.src-section > summary:hover { background: #f8f9fa; }
 /* 「Press Enter to apply」ヒントを非表示 */
 [data-testid="InputInstructions"] { display: none !important; }
 
-/* Streamlit ネイティブUI（右上メニュー・シェアボタン・ヘッダー・右下Manage app）を非表示 */
-[data-testid="stHeader"]       { display: none !important; }
-[data-testid="stToolbar"]      { display: none !important; }
-[data-testid="stMainMenu"]     { display: none !important; }
-[data-testid="stDecoration"]   { display: none !important; }
-[data-testid="stStatusWidget"] { display: none !important; }
-[class*="StatusWidget"]        { display: none !important; }
-[class*="viewerBadge"]         { display: none !important; }
-#MainMenu { display: none !important; }
+/* Streamlit フッターのみ非表示（ツールバー・メニューは表示） */
 footer    { display: none !important; }
 </style>
 """
