@@ -658,7 +658,7 @@ def _has_citation(answer: str) -> bool:
     """回答に【参照】引用が含まれるか（AIが実際にドキュメントから回答した証拠）"""
     return bool(_CITATION_RE.search(answer))
 
-def record_search(query: str, answer: str, chunks: list[dict]):
+def record_search(query: str, answer: str, chunks):
     """引用付きの有効な回答のみ記録する（「該当なし」回答は除外）"""
     if not (answer and chunks and _has_citation(answer)):
         return
@@ -907,7 +907,7 @@ def search(query: str, top_k: int = 5):
     ]
 
 
-def generate_answer(query: str, chunks: list[dict]) -> str:
+def generate_answer(query: str, chunks) -> str:
     client = get_genai_client()
     context = "\n\n".join(
         f"【{c['filename']} p.{c['page']}】\n{c['text']}" for c in chunks
@@ -980,7 +980,10 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-docs = get_registered_docs()
+try:
+    docs = get_registered_docs()
+except Exception:
+    docs = []
 ADMIN_PASSWORD = get_secret("ADMIN_PASSWORD")
 
 # ---- メインエリア ----
