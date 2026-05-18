@@ -1007,9 +1007,12 @@ with tab_search:
     if "_search_result" not in st.session_state:
         st.session_state["_search_result"] = None  # (safe_query, answer, chunks)
 
-    # フォームクリアフラグはウィジェット描画前に処理（描画後の key 書き換えは Streamlit が禁止）
+    # フォーム入力値の変更はウィジェット描画前に処理（描画後の key 書き換えは Streamlit が禁止）
     if st.session_state.pop("_clear_form_next", False):
         st.session_state["_search_input"] = ""
+    _pending_query = st.session_state.pop("_set_form_query", None)
+    if _pending_query is not None:
+        st.session_state["_search_input"] = _pending_query
 
     with st.form("search_form", clear_on_submit=False):
         query = st.text_input(
@@ -1171,8 +1174,8 @@ with tab_search:
             # 回答表示完了 → 結果を保存して rerun
             st.session_state["_search_result"] = (_disp_query, _disp_answer, _disp_chunks)
             if st.session_state.pop("_keep_form_query", False):
-                # Top3経由 → フォームにクエリを表示したまま
-                st.session_state["_search_input"] = _disp_query
+                # Top3経由 → 次のrerunのウィジェット描画前にクエリをセット
+                st.session_state["_set_form_query"] = _disp_query
             else:
                 # フォーム送信経由 → フォームをクリア
                 st.session_state["_clear_form_next"] = True
