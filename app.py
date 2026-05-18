@@ -1177,17 +1177,15 @@ with tab_search:
 """, unsafe_allow_html=True)
 
         if _just_searched:
-            # 回答表示完了 → 結果を保存して rerun
+            # 回答表示完了 → 結果を保存
             st.session_state["_search_result"] = (_disp_query, _disp_answer, _disp_chunks)
             if _missing:
                 # PDF欠損あり → 次の rerun では警告をスキップして回答を表示
                 # フォームにクエリを保持（再検索しやすいように）
                 st.session_state["_pdf_warning_fresh"] = True
                 st.session_state["_set_form_query"] = _disp_query
-            else:
-                # PDF正常 → フォームをクリア
-                st.session_state["_clear_form_next"] = True
-            st.rerun()
+                st.rerun()
+            # PDF正常 → rerun 不要（今レンダリングで回答を直接表示済み）
 
 
 
@@ -1232,7 +1230,9 @@ with tab_manage:
                 pwd = st.text_input("管理者パスワード", type="password", placeholder="パスワードを入力してください", label_visibility="collapsed")
                 login_btn = st.form_submit_button("ログイン", type="primary", use_container_width=True)
             if login_btn:
-                if ADMIN_PASSWORD and pwd == ADMIN_PASSWORD:
+                if not ADMIN_PASSWORD:
+                    st.error("⚠️ 管理者パスワードが設定されていません。Streamlit Cloud の Secrets に ADMIN_PASSWORD を設定してください。")
+                elif pwd == ADMIN_PASSWORD:
                     st.session_state["admin_authenticated"] = True
                     touch_admin_session()
                     st.rerun()
