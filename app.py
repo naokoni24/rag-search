@@ -1163,9 +1163,14 @@ with tab_search:
                 st.button("🔄 同じ内容で再検索", key="re_search_btn", on_click=_do_re_search)
 
         if _just_searched:
-            # 回答表示完了 → 結果を保存してフォームクリアフラグを立て rerun
+            # 回答表示完了 → 結果を保存して rerun
             st.session_state["_search_result"] = (_disp_query, _disp_answer, _disp_chunks)
-            st.session_state["_clear_form_next"] = True
+            if st.session_state.pop("_keep_form_query", False):
+                # Top3経由 → フォームにクエリを表示したまま
+                st.session_state["_search_input"] = _disp_query
+            else:
+                # フォーム送信経由 → フォームをクリア
+                st.session_state["_clear_form_next"] = True
             st.rerun()
 
 
@@ -1182,6 +1187,7 @@ with tab_search:
                     st.session_state["search_query"] = q
                     st.session_state["search_submitted"] = True
                     st.session_state["_search_result"] = None
+                    st.session_state["_keep_form_query"] = True  # フォームにクエリを残す
                 st.button(f"🔍 {label}", key=f"top_{i}", on_click=_top_click)
 
 # ---- 文書管理タブ ----
