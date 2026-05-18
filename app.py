@@ -402,9 +402,10 @@ details.src-section[open] > summary::before { content: "▲"; }
 details.src-section > summary:hover { background: #f8f9fa; }
 .src-cards { padding: 0.6rem 1rem 0.4rem 1rem; }
 
-/* centered レイアウトの横幅を広げる */
+/* centered レイアウトの横幅を広げる・上部スペースを縮小 */
 .block-container {
     max-width: 900px !important;
+    padding-top: 0.5rem !important;
     padding-left: 2rem !important;
     padding-right: 2rem !important;
 }
