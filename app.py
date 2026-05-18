@@ -1176,9 +1176,12 @@ with tab_search:
             _cards_html = ""
             for i, c in enumerate(_disp_chunks, 1):
                 score_pct = int(c["score"] * 100)
+                _safe_fname = c["filename"].replace('"', '&quot;')
                 _fname_html = (
-                    f'<span style="font-weight:700;color:#1a73e8;font-size:0.95rem;">'
-                    f'{c["filename"]}</span>'
+                    f'<a class="rag-citation" data-fname="{_safe_fname}" href="#" '
+                    f'style="font-weight:700;color:#1a73e8;font-size:0.95rem;'
+                    f'text-decoration:underline;cursor:pointer;">'
+                    f'📄 {c["filename"]}</a>'
                 )
                 _excerpt = c['text'][:200] + '...' if len(c['text']) > 200 else c['text']
                 _cards_html += f"""
@@ -1208,7 +1211,11 @@ with tab_search:
 </details>
 """, unsafe_allow_html=True)
 
-            _unique_fnames = list({m.group(1) for m in _CITATION_RE.finditer(_disp_answer)})
+            # 回答内の引用 + 参照元カードのファイル名をまとめてDL対象に
+            _unique_fnames = list({
+                *[m.group(1) for m in _CITATION_RE.finditer(_disp_answer)],
+                *[c["filename"] for c in _disp_chunks],
+            })
             if _unique_fnames:
                 inject_pdf_downloader(_unique_fnames)
 
