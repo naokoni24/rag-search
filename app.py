@@ -349,6 +349,7 @@ div[data-testid="stTextInput"] input:focus {
     border: 1px solid #dadce0 !important;
     border-radius: 8px !important;
     font-size: 1rem !important;
+    padding-right: 1.2rem !important;
 }
 
 
