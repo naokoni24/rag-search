@@ -1057,11 +1057,7 @@ with tab_search:
         st.session_state["search_submitted"] = True
         st.session_state["_keep_form_query"] = True
 
-    # フォーム入力値の変更はウィジェット描画前に処理（描画後の key 書き換えは Streamlit が禁止）
-    if st.session_state.pop("_clear_form_next", False):
-        st.session_state["_search_input"] = ""
-
-    with st.form("search_form", clear_on_submit=False):
+    with st.form("search_form", clear_on_submit=True):
         query = st.text_input(
             "質問",
             key="_search_input",
@@ -1074,7 +1070,6 @@ with tab_search:
         st.session_state["search_query"] = query
         st.session_state["search_submitted"] = True
         st.session_state["_search_result"] = None
-        st.session_state["_was_form_submit"] = True   # フォーム経由フラグ
         # フォーム直接送信時はキャッシュをスキップして必ず新規検索
         st.session_state["_skip_log_cache"] = True
         # PDFキャッシュは PDF欠損再検索時のみクリア（毎回クリアすると Top3 が遅くなる）
@@ -1214,11 +1209,6 @@ with tab_search:
         if _just_searched:
             # 回答表示完了 → 結果を保存
             st.session_state["_search_result"] = (_disp_query, _disp_answer, _disp_chunks)
-            if not _missing and st.session_state.pop("_was_form_submit", False):
-                # フォーム送信経由・PDF正常 → フォームをクリアして rerun
-                st.session_state["_clear_form_next"] = True
-                st.rerun()
-            # Top3 経由（PDF正常 or 欠損）・PDF欠損ボタン表示済み → rerun 不要
 
 
 
