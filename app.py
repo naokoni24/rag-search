@@ -1094,32 +1094,51 @@ with tab_search:
             if _b64val:
                 _pdf_cache[_fn] = _b64val
 
-        with st.chat_message("user", avatar="🧑"):
-            st.write(_disp_query)
-        with st.chat_message("assistant", avatar="🤖"):
-            _show_ans = _disp_answer if _has_citation(_disp_answer) else strip_citations(_disp_answer)
-            st.markdown(linkify_answer(_show_ans, _pdf_cache), unsafe_allow_html=True)
+        # キャッシュ結果表示中（_just_searched=False）かつPDF欠損がある場合
+        # → 回答を出さず再検索ボタンのみ表示
+        _missing = [c["filename"] for c in _disp_chunks if not _pdf_cache.get(c["filename"])]
+        if _missing and not _just_searched:
+            with st.chat_message("user", avatar="🧑"):
+                st.write(_disp_query)
+            st.markdown(
+                '<div style="margin-top:0.4rem;padding:0.8rem 1rem;background:#fff8e1;'
+                'border-left:4px solid #f9a825;border-radius:4px;font-size:0.9rem;color:#5f6368;">'
+                '⚠️ この回答で参照しているPDFのダウンロードリンクが利用できません。'
+                '再検索すると最新の状態で回答を取得できます。'
+                '</div>',
+                unsafe_allow_html=True,
+            )
+            if st.button("🔄 同じ内容で再検索", key="re_search_btn"):
+                st.session_state["_trigger_re_search"] = True
+                st.session_state["_re_search_query"] = _disp_query
+                st.rerun()
+        else:
+            with st.chat_message("user", avatar="🧑"):
+                st.write(_disp_query)
+            with st.chat_message("assistant", avatar="🤖"):
+                _show_ans = _disp_answer if _has_citation(_disp_answer) else strip_citations(_disp_answer)
+                st.markdown(linkify_answer(_show_ans, _pdf_cache), unsafe_allow_html=True)
 
-        if _has_citation(_disp_answer):
-            _cards_html = ""
-            for i, c in enumerate(_disp_chunks, 1):
-                score_pct = int(c["score"] * 100)
-                _safe_fname = c["filename"].replace('"', '&quot;')
-                _b64 = _pdf_cache.get(c["filename"], '')
-                if _b64:
-                    _fname_html = (
-                        f'<a href="data:application/pdf;base64,{_b64}" download="{_safe_fname}" '
-                        f'style="font-weight:700;color:#1a73e8;font-size:0.95rem;'
-                        f'text-decoration:underline;cursor:pointer;">'
-                        f'📄 {c["filename"]}</a>'
-                    )
-                else:
-                    _fname_html = (
-                        f'<span style="font-weight:700;color:#202124;font-size:0.95rem;">'
-                        f'📄 {c["filename"]}</span>'
-                    )
-                _excerpt = c['text'][:200] + '...' if len(c['text']) > 200 else c['text']
-                _cards_html += f"""
+            if _has_citation(_disp_answer):
+                _cards_html = ""
+                for i, c in enumerate(_disp_chunks, 1):
+                    score_pct = int(c["score"] * 100)
+                    _safe_fname = c["filename"].replace('"', '&quot;')
+                    _b64 = _pdf_cache.get(c["filename"], '')
+                    if _b64:
+                        _fname_html = (
+                            f'<a href="data:application/pdf;base64,{_b64}" download="{_safe_fname}" '
+                            f'style="font-weight:700;color:#1a73e8;font-size:0.95rem;'
+                            f'text-decoration:underline;cursor:pointer;">'
+                            f'📄 {c["filename"]}</a>'
+                        )
+                    else:
+                        _fname_html = (
+                            f'<span style="font-weight:700;color:#202124;font-size:0.95rem;">'
+                            f'📄 {c["filename"]}</span>'
+                        )
+                    _excerpt = c['text'][:200] + '...' if len(c['text']) > 200 else c['text']
+                    _cards_html += f"""
 <div style="background:#f8f9fa;border-left:4px solid #1a73e8;border-radius:4px;
             padding:0.8rem 1rem;margin-bottom:0.6rem;">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.4rem;">
@@ -1135,7 +1154,7 @@ with tab_search:
   <div style="color:#5f6368;font-size:0.88rem;line-height:1.7;">{_excerpt}</div>
 </div>
 """
-            st.markdown(f"""
+                st.markdown(f"""
 <details class="src-section" open>
   <summary>
     <span style="background:#1a73e8;color:#fff;border-radius:4px;padding:2px 10px;
@@ -1145,23 +1164,6 @@ with tab_search:
   <div class="src-cards">{_cards_html}</div>
 </details>
 """, unsafe_allow_html=True)
-
-            # PDFバイナリが未保存のファイルがある場合は再検索ボタンを表示
-            _missing = [c["filename"] for c in _disp_chunks if not _pdf_cache.get(c["filename"])]
-            if _missing and not _just_searched:
-                st.markdown(
-                    '<div style="margin-top:0.6rem;padding:0.6rem 1rem;background:#fff8e1;'
-                    'border-left:4px solid #f9a825;border-radius:4px;font-size:0.85rem;color:#5f6368;">'
-                    '⚠️ 一部PDFのダウンロードリンクが利用できません。'
-                    '管理画面から対象PDFを再アップロード後、再検索してください。'
-                    '</div>',
-                    unsafe_allow_html=True,
-                )
-                # フラグ方式（タブ先頭で処理済み → 確実に動作）
-                if st.button("🔄 同じ内容で再検索", key="re_search_btn"):
-                    st.session_state["_trigger_re_search"] = True
-                    st.session_state["_re_search_query"] = _disp_query
-                    st.rerun()
 
         if _just_searched:
             # 回答表示完了 → 結果を保存して rerun
