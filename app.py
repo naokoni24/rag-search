@@ -1038,6 +1038,10 @@ with tab_search:
         st.session_state["search_query"] = query
         st.session_state["search_submitted"] = True
         st.session_state["_search_result"] = None
+        # フォーム直接送信時はキャッシュをスキップして必ず新規検索
+        st.session_state["_skip_log_cache"] = True
+        get_pdf_b64.clear()
+        get_pdf_bytes.clear()
 
     run_query = st.session_state["search_submitted"]
     current_query = st.session_state["search_query"]
@@ -1057,7 +1061,8 @@ with tab_search:
             answer = None
             chunks_result = None
 
-            cached = get_cached_result(safe_query)
+            _skip_log = st.session_state.pop("_skip_log_cache", False)
+            cached = None if _skip_log else get_cached_result(safe_query)
             if cached:
                 answer, chunks_result = cached
             else:
@@ -1098,9 +1103,12 @@ with tab_search:
         # PDF欠損チェック（_just_searched ブロックでも使用）
         _missing = [c["filename"] for c in _disp_chunks if not _pdf_cache.get(c["filename"])]
 
+        # PDF欠損チェック：新規検索直後は警告をスキップ（_pdf_warning_fresh フラグ）
+        _skip_pdf_warning = st.session_state.pop("_pdf_warning_fresh", False)
+
         # キャッシュ結果表示中（_just_searched=False）かつPDF欠損がある場合
         # → 検索フォームにクエリをセットし、再検索を促すメッセージのみ表示
-        if _missing and not _just_searched:
+        if _missing and not _just_searched and not _skip_pdf_warning:
             # 検索フォームにクエリをセット（次の rerun で反映）
             st.session_state["_set_form_query"] = _disp_query
             st.markdown(
@@ -1167,8 +1175,12 @@ with tab_search:
         if _just_searched:
             # 回答表示完了 → 結果を保存して rerun
             st.session_state["_search_result"] = (_disp_query, _disp_answer, _disp_chunks)
-            if st.session_state.pop("_keep_form_query", False) or _missing:
-                # Top3経由 or PDF欠損 → フォームにクエリを保持（再検索できるように）
+            if _missing:
+                # PDF欠損あり → 次の rerun では警告をスキップして回答を表示
+                st.session_state["_pdf_warning_fresh"] = True
+                st.session_state["_set_form_query"] = _disp_query
+            elif st.session_state.pop("_keep_form_query", False):
+                # Top3経由かつPDF正常 → フォームにクエリを保持
                 st.session_state["_set_form_query"] = _disp_query
             else:
                 # フォーム送信経由かつPDF正常 → フォームをクリア
