@@ -1155,7 +1155,7 @@ with tab_search:
 </div>
 """
                 st.markdown(f"""
-<details class="src-section" open>
+<details class="src-section">
   <summary>
     <span style="background:#1a73e8;color:#fff;border-radius:4px;padding:2px 10px;
                  font-size:0.8rem;font-weight:700;">参照元</span>
