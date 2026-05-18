@@ -472,7 +472,7 @@ def ensure_collection(client: QdrantClient):
         )
 
 
-def extract_pages(pdf_path: str) -> list[dict]:
+def extract_pages(pdf_path: str):
     doc = fitz.open(pdf_path)
     return [
         {"page": i + 1, "text": page.get_text().strip()}
@@ -481,7 +481,7 @@ def extract_pages(pdf_path: str) -> list[dict]:
     ]
 
 
-def split_chunks(text: str) -> list[str]:
+def split_chunks(text: str):
     chunks, start = [], 0
     while start < len(text):
         chunks.append(text[start : start + CHUNK_SIZE])
@@ -489,7 +489,7 @@ def split_chunks(text: str) -> list[str]:
     return [c for c in chunks if len(c.strip()) >= 20]
 
 
-def embed_texts(texts: list[str], task_type: str) -> list[list[float]]:
+def embed_texts(texts, task_type: str):
     client = get_genai_client()
     result = client.models.embed_content(
         model=EMBED_MODEL,
@@ -565,7 +565,7 @@ def _store_pdf_bytes(client: QdrantClient, filename: str, data: bytes):
 
 
 @st.cache_data(ttl=3600)
-def get_pdf_b64(filename: str) -> str | None:
+def get_pdf_b64(filename: str) -> object:
     """PDF の base64 文字列を返す（キャッシュあり）"""
     client = get_qdrant()
     try:
@@ -583,7 +583,7 @@ def get_pdf_b64(filename: str) -> str | None:
     return None
 
 @st.cache_data(ttl=3600)
-def get_pdf_bytes(filename: str) -> bytes | None:
+def get_pdf_bytes(filename: str) -> object:
     """PDF のバイト列を返す（デコード結果をキャッシュ）"""
     b64 = get_pdf_b64(filename)
     if b64:
@@ -675,7 +675,7 @@ def record_search(query: str, answer: str, chunks: list[dict]):
     log[key] = entry
     save_search_log(log)
 
-def get_top_queries(n: int = 3) -> list[tuple[str, str]]:
+def get_top_queries(n: int = 3):
     """引用付きの有効な回答があるエントリのみ (normalized_query, label) で返す"""
     log = load_search_log()
     sorted_keys = sorted(log, key=lambda k: log[k]["count"], reverse=True)
@@ -692,7 +692,7 @@ def get_top_queries(n: int = 3) -> list[tuple[str, str]]:
             break
     return result
 
-def get_cached_result(query: str) -> tuple[str, list[dict]] | None:
+def get_cached_result(query: str):
     """Top3クリック時にキャッシュ済みの回答を返す。なければ None"""
     log = load_search_log()
     key = normalize_query(query)
@@ -747,7 +747,7 @@ def delete_document(filename: str) -> int:
 
 
 @st.cache_data(ttl=120)
-def get_registered_docs_with_dates() -> list[tuple[str, str]]:
+def get_registered_docs_with_dates():
     """(filename, date_str) を登録日新しい順で返す"""
     import datetime
     client = get_qdrant()
@@ -793,12 +793,12 @@ def get_registered_docs_with_dates() -> list[tuple[str, str]]:
         return []
 
 @st.cache_data(ttl=120)
-def get_registered_docs() -> list[str]:
+def get_registered_docs():
     return [fname for fname, _ in get_registered_docs_with_dates()]
 
 
 
-def validate_pdf(data: bytes, filename: str) -> str | None:
+def validate_pdf(data: bytes, filename: str) -> object:
     """問題があればエラーメッセージを返す。問題なければ None"""
     if len(data) > MAX_UPLOAD_MB * 1024 * 1024:
         return f"{filename}：ファイルサイズが {MAX_UPLOAD_MB}MB を超えています"
@@ -830,7 +830,7 @@ _INJECTION_PATTERNS = re.compile(
     re.IGNORECASE,
 )
 
-def sanitize_query(query: str) -> str | None:
+def sanitize_query(query: str) -> object:
     """プロンプトインジェクションの疑いがある入力を検出して None を返す"""
     q = query.strip()
     if not q:
@@ -871,7 +871,7 @@ def expand_query(query: str) -> str:
         return query  # 拡張失敗時は元のクエリをそのまま使う
 
 
-def search(query: str, top_k: int = 5) -> list[dict]:
+def search(query: str, top_k: int = 5):
     client = get_qdrant()
 
     # 元のクエリと拡張クエリの両方で検索してマージ
@@ -942,7 +942,7 @@ def strip_citations(answer: str) -> str:
     """【参照】を含む行を除去する（引用なし回答の残骸テキスト対策）"""
     return _LOOSE_CITATION_RE.sub('', answer).strip()
 
-def linkify_answer(answer: str, pdf_cache: dict | None = None) -> str:
+def linkify_answer(answer: str, pdf_cache=None) -> str:
     """回答内の【参照】ファイル名 p.N を data: URL ダウンロードリンクに変換"""
     def _replace(m):
         fname, page = m.group(1), m.group(2)
@@ -1114,7 +1114,11 @@ with tab_search:
             *[m.group(1) for m in _CITATION_RE.finditer(_disp_answer)],
             *[c["filename"] for c in _disp_chunks],
         })
-        _pdf_cache = {fn: b64 for fn in _unique_fnames if (b64 := get_pdf_b64(fn))}
+        _pdf_cache = {}
+        for _fn in _unique_fnames:
+            _b64val = get_pdf_b64(_fn)
+            if _b64val:
+                _pdf_cache[_fn] = _b64val
 
         with st.chat_message("user", avatar="🧑"):
             st.write(_disp_query)
