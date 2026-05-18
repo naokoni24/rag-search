@@ -215,20 +215,14 @@ p, li, label {
     margin: 0.8rem 0 0.4rem 0;
 }
 
-/* ログインカード（st.container border=True）*/
-[data-testid="stVerticalBlockBorderWrapper"] {
+/* ログインカード：マーカー直後のカラム（2番目）をカード化 */
+[data-testid="stMarkdownContainer"]:has(.login-col-marker) + [data-testid="stHorizontalBlock"] [data-testid="stColumn"]:nth-child(2) {
     background: #ffffff !important;
     background-color: #ffffff !important;
+    border: 1px solid #dadce0 !important;
     border-radius: 12px !important;
-    border-color: #dadce0 !important;
     box-shadow: 0 1px 4px rgba(60,64,67,0.12) !important;
-    padding: 0.5rem 1.2rem 1.2rem 1.2rem !important;
-    overflow: hidden !important;
-}
-[data-testid="stVerticalBlockBorderWrapper"] > div,
-[data-testid="stVerticalBlockBorderWrapper"] [data-testid="stVerticalBlock"] {
-    background: #ffffff !important;
-    background-color: #ffffff !important;
+    padding: 1.2rem 1.4rem 1.6rem !important;
 }
 
 /* テキスト入力 */
@@ -1058,32 +1052,6 @@ st.components.v1.html("""<script>
         p.document.body, {childList: true, subtree: true}
     );
 
-    // ① 親 <head> にスタイルタグを追加（emotion CSS より後になるので優先される）
-    if (!p._ragLoginCardStyleInjected) {
-        p._ragLoginCardStyleInjected = true;
-        var ls = p.document.createElement('style');
-        ls.textContent =
-            '[data-testid="stVerticalBlockBorderWrapper"],' +
-            '[data-testid="stVerticalBlockBorderWrapper"] > div,' +
-            '[data-testid="stVerticalBlockBorderWrapper"] > div > div,' +
-            '[data-testid="stVerticalBlockBorderWrapper"] [data-testid="stVerticalBlock"],' +
-            '[data-testid="stVerticalBlockBorderWrapper"] [data-testid="stForm"],' +
-            '[data-testid="stVerticalBlockBorderWrapper"] [class*="st-emotion"]' +
-            '{background:#ffffff!important;background-color:#ffffff!important;}';
-        p.document.head.appendChild(ls);
-    }
-
-    // ② setInterval で定期的にインラインスタイルを強制上書き（React の再レンダリング対策）
-    function fixLoginCard() {
-        p.document.querySelectorAll('[data-testid="stVerticalBlockBorderWrapper"]').forEach(function(wrapper) {
-            wrapper.style.setProperty('background-color', '#ffffff', 'important');
-            wrapper.querySelectorAll('*').forEach(function(child) {
-                child.style.setProperty('background-color', '#ffffff', 'important');
-            });
-        });
-    }
-    fixLoginCard();
-    setInterval(fixLoginCard, 300);
 })();
 </script>""", height=0)
 
@@ -1270,19 +1238,19 @@ with tab_manage:
         elif not st.session_state.get("admin_authenticated"):
             st.info("セッションがタイムアウトしました。再度ログインしてください。")
 
+        st.markdown('<span class="login-col-marker"></span>', unsafe_allow_html=True)
         _, _mid, _ = st.columns([1, 2, 1])
         with _mid:
-            with st.container(border=True):
-                st.markdown("""
-                <div style="text-align:center;padding:1.2rem 0 0.8rem 0;">
-                  <div style="font-size:2.4rem;margin-bottom:0.5rem;">🔐</div>
-                  <div style="font-size:1.15rem;font-weight:700;color:#202124;margin-bottom:0.3rem;">管理者ログイン</div>
-                  <div style="font-size:0.9rem;color:#5f6368;margin-bottom:0.5rem;">文書管理には管理者権限が必要です</div>
-                </div>
-                """, unsafe_allow_html=True)
-                with st.form("login_form"):
-                    pwd = st.text_input("管理者パスワード", type="password", placeholder="パスワードを入力してください", label_visibility="collapsed")
-                    login_btn = st.form_submit_button("ログイン", type="primary", use_container_width=True)
+            st.markdown("""
+            <div style="text-align:center;padding:1.2rem 0 0.8rem 0;">
+              <div style="font-size:2.4rem;margin-bottom:0.5rem;">🔐</div>
+              <div style="font-size:1.15rem;font-weight:700;color:#202124;margin-bottom:0.3rem;">管理者ログイン</div>
+              <div style="font-size:0.9rem;color:#5f6368;margin-bottom:0.5rem;">文書管理には管理者権限が必要です</div>
+            </div>
+            """, unsafe_allow_html=True)
+            with st.form("login_form"):
+                pwd = st.text_input("管理者パスワード", type="password", placeholder="パスワードを入力してください", label_visibility="collapsed")
+                login_btn = st.form_submit_button("ログイン", type="primary", use_container_width=True)
             if login_btn:
                 if ADMIN_PASSWORD and pwd == ADMIN_PASSWORD:
                     st.session_state["admin_authenticated"] = True
