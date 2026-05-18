@@ -215,14 +215,19 @@ p, li, label {
     margin: 0.8rem 0 0.4rem 0;
 }
 
-/* ログインカード：マーカー直後のカラム（2番目）をカード化 */
-[data-testid="stMarkdownContainer"]:has(.login-col-marker) + [data-testid="stHorizontalBlock"] [data-testid="stColumn"]:nth-child(2) {
+/* ログインカード（#root で最高特異度を確保し emotion CSS を上書き） */
+#root [data-testid="stVerticalBlockBorderWrapper"],
+#root [data-testid="stVerticalBlockBorderWrapper"] > div,
+#root [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stVerticalBlock"] {
     background: #ffffff !important;
     background-color: #ffffff !important;
-    border: 1px solid #dadce0 !important;
+}
+#root [data-testid="stVerticalBlockBorderWrapper"] {
     border-radius: 12px !important;
+    border-color: #dadce0 !important;
     box-shadow: 0 1px 4px rgba(60,64,67,0.12) !important;
-    padding: 1.2rem 1.4rem 1.6rem !important;
+    padding: 0.5rem 1.2rem 1.2rem !important;
+    overflow: hidden !important;
 }
 
 /* テキスト入力 */
@@ -1238,19 +1243,19 @@ with tab_manage:
         elif not st.session_state.get("admin_authenticated"):
             st.info("セッションがタイムアウトしました。再度ログインしてください。")
 
-        st.markdown('<span class="login-col-marker"></span>', unsafe_allow_html=True)
         _, _mid, _ = st.columns([1, 2, 1])
         with _mid:
-            st.markdown("""
-            <div style="text-align:center;padding:1.2rem 0 0.8rem 0;">
-              <div style="font-size:2.4rem;margin-bottom:0.5rem;">🔐</div>
-              <div style="font-size:1.15rem;font-weight:700;color:#202124;margin-bottom:0.3rem;">管理者ログイン</div>
-              <div style="font-size:0.9rem;color:#5f6368;margin-bottom:0.5rem;">文書管理には管理者権限が必要です</div>
-            </div>
-            """, unsafe_allow_html=True)
-            with st.form("login_form"):
-                pwd = st.text_input("管理者パスワード", type="password", placeholder="パスワードを入力してください", label_visibility="collapsed")
-                login_btn = st.form_submit_button("ログイン", type="primary", use_container_width=True)
+            with st.container(border=True):
+                st.markdown("""
+                <div style="text-align:center;padding:1.2rem 0 0.8rem 0;">
+                  <div style="font-size:2.4rem;margin-bottom:0.5rem;">🔐</div>
+                  <div style="font-size:1.15rem;font-weight:700;color:#202124;margin-bottom:0.3rem;">管理者ログイン</div>
+                  <div style="font-size:0.9rem;color:#5f6368;margin-bottom:0.5rem;">文書管理には管理者権限が必要です</div>
+                </div>
+                """, unsafe_allow_html=True)
+                with st.form("login_form"):
+                    pwd = st.text_input("管理者パスワード", type="password", placeholder="パスワードを入力してください", label_visibility="collapsed")
+                    login_btn = st.form_submit_button("ログイン", type="primary", use_container_width=True)
             if login_btn:
                 if ADMIN_PASSWORD and pwd == ADMIN_PASSWORD:
                     st.session_state["admin_authenticated"] = True
