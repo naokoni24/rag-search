@@ -1042,9 +1042,20 @@ with tab_search:
             chunks_result = None
 
             cached = get_cached_result(safe_query)
+            _use_cached = False
             if cached:
-                answer, chunks_result = cached
-            else:
+                _c_answer, _c_chunks = cached
+                # PDF バイナリが全ファイル揃っている場合のみキャッシュを使用
+                _check_fnames = list({c["filename"] for c in _c_chunks})
+                if all(get_pdf_b64(fn) for fn in _check_fnames):
+                    answer, chunks_result = _c_answer, _c_chunks
+                    _use_cached = True
+                else:
+                    # PDF が再アップロードされた可能性があるためキャッシュをクリアして再検索
+                    get_pdf_b64.clear()
+                    get_pdf_bytes.clear()
+
+            if not _use_cached:
                 try:
                     with st.spinner("回答を生成中..."):
                         chunks_result = search(safe_query)
@@ -1167,10 +1178,11 @@ with tab_search:
         if top_queries:
             st.markdown('<p class="top-label">よく検索されています</p>', unsafe_allow_html=True)
             for i, (tq, label) in enumerate(top_queries):
-                if st.button(f"🔍 {label}", key=f"top_{i}"):
-                    st.session_state["search_query"] = tq
+                def _top_click(q=tq):
+                    st.session_state["search_query"] = q
                     st.session_state["search_submitted"] = True
-                    st.rerun()
+                    st.session_state["_search_result"] = None
+                st.button(f"🔍 {label}", key=f"top_{i}", on_click=_top_click)
 
 # ---- 文書管理タブ ----
 with tab_manage:
