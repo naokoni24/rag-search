@@ -1049,7 +1049,7 @@ with tab_search:
     if _pending_query is not None:
         st.session_state["_search_input"] = _pending_query
 
-    with st.form("search_form", clear_on_submit=True):
+    with st.form("search_form", clear_on_submit=False):
         query = st.text_input(
             "質問",
             key="_search_input",
@@ -1062,6 +1062,7 @@ with tab_search:
         st.session_state["search_query"] = query
         st.session_state["search_submitted"] = True
         st.session_state["_search_result"] = None
+        st.session_state["_was_form_submit"] = True   # フォーム経由フラグ
         # フォーム直接送信時はキャッシュをスキップして必ず新規検索
         st.session_state["_skip_log_cache"] = True
         # PDFキャッシュは PDF欠損再検索時のみクリア（毎回クリアすると Top3 が遅くなる）
@@ -1200,9 +1201,13 @@ with tab_search:
             # 回答表示完了 → 結果を保存
             st.session_state["_search_result"] = (_disp_query, _disp_answer, _disp_chunks)
             if _missing:
-                # PDF欠損あり → フォームにクエリを保持して rerun（警告を安定表示）
+                # PDF欠損 → フォームにクエリを保持して rerun（警告を安定表示）
                 st.rerun()
-            # PDF正常 → rerun 不要（今レンダリングで回答を直接表示済み）
+            elif st.session_state.pop("_was_form_submit", False):
+                # フォーム送信経由・PDF正常 → フォームをクリアして rerun
+                st.session_state["_clear_form_next"] = True
+                st.rerun()
+            # Top3 経由・PDF正常 → rerun 不要（フォームは callback で "" 済み）
 
 
 
