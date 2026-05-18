@@ -252,8 +252,10 @@ div[data-testid="stTextInput"] input:focus {
     font-weight: 500 !important;
     font-family: 'Noto Sans JP', Arial, sans-serif !important;
     padding: 0.5rem 1.4rem !important;
-    height: 2.6rem !important;
-    line-height: 1 !important;
+    height: auto !important;
+    min-height: 2.6rem !important;
+    line-height: 1.4 !important;
+    white-space: normal !important;
 }
 .stButton > button:hover {
     background: #1765cc !important;
