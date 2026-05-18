@@ -846,7 +846,27 @@ def _gemini_error_message(e: Exception) -> str:
         return f"モデル '{GEN_MODEL}' が見つかりません。"
     if "429" in err or "quota" in err.lower():
         return "APIの利用上限に達しました。しばらく待ってから再試行してください。"
+    if "503" in err or "UNAVAILABLE" in err or "high demand" in err.lower():
+        return "Gemini APIが混雑しています。しばらく待ってから再検索してください。"
     return f"Gemini APIエラー: {err[:200]}"
+
+
+def _call_gemini_with_retry(fn, max_retries: int = 3):
+    """503/UNAVAILABLE 時に指数バックオフでリトライする"""
+    import time
+    last_exc = None
+    for attempt in range(max_retries):
+        try:
+            return fn()
+        except Exception as e:
+            err = str(e)
+            if "503" in err or "UNAVAILABLE" in err or "high demand" in err.lower():
+                last_exc = e
+                wait = 2 ** attempt  # 1秒 → 2秒 → 4秒
+                time.sleep(wait)
+            else:
+                raise
+    raise last_exc
 
 
 def expand_query(query: str) -> str:
@@ -859,7 +879,9 @@ def expand_query(query: str) -> str:
         f"質問: {query}\n検索クエリ:"
     )
     try:
-        response = client.models.generate_content(model=GEN_MODEL, contents=prompt)
+        response = _call_gemini_with_retry(
+            lambda: client.models.generate_content(model=GEN_MODEL, contents=prompt)
+        )
         return response.text.strip()
     except Exception:
         return query  # 拡張失敗時は元のクエリをそのまま使う
@@ -923,7 +945,9 @@ def generate_answer(query: str, chunks) -> str:
     )
 
     try:
-        response = client.models.generate_content(model=GEN_MODEL, contents=prompt)
+        response = _call_gemini_with_retry(
+            lambda: client.models.generate_content(model=GEN_MODEL, contents=prompt)
+        )
         return response.text
     except Exception as e:
         raise RuntimeError(_gemini_error_message(e))
