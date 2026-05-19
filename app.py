@@ -78,12 +78,6 @@ html, body, [class*="css"], .stApp, p, div, label, textarea, button {
     height: 1.1rem !important;
 }
 
-[data-testid="stForm"] {
-    border: none !important;
-    padding: 0 !important;
-    background: transparent !important;
-}
-
 /* Primary button (form submit / type=primary) */
 [data-testid="stFormSubmitButton"] button,
 [data-testid="stFormSubmitButton"] > button,
@@ -134,7 +128,7 @@ p, li, label {
     align-items: center;
     justify-content: space-between;
     height: 5rem;
-    max-width: 900px;
+    max-width: 960px;
     margin: 0 auto;
     gap: 1rem;
 }
@@ -193,42 +187,98 @@ p, li, label {
     min-width: 2.75rem;
 }
 
-/* ── タブ ── */
-.stTabs [data-baseweb="tab-list"] {
+/* ── カスタムタブナビ ── */
+/* タブコンテナ背景 */
+[data-testid="stMarkdownContainer"]:has(.tabnav-container-marker) + [data-testid="stHorizontalBlock"] {
     background: #f5f5f7 !important;
     border-radius: 14px !important;
     padding: 4px !important;
-    gap: 2px !important;
     border: 1px solid #e5e5e5 !important;
-    box-shadow: none !important;
+    width: fit-content !important;
+    margin-bottom: 2rem !important;
+    gap: 2px !important;
 }
-.stTabs [data-baseweb="tab"] {
-    font-size: 0.9rem !important;
-    font-weight: 500 !important;
-    color: #86868b !important;
-    border-radius: 10px !important;
-    padding: 0.5rem 1.25rem !important;
+[data-testid="stMarkdownContainer"]:has(.tabnav-container-marker) + [data-testid="stHorizontalBlock"] [data-testid="stColumn"] {
+    flex: 0 0 auto !important;
+    width: auto !important;
+    min-width: fit-content !important;
+    padding: 0 !important;
+}
+/* アクティブタブボタン */
+[data-testid="stMarkdownContainer"]:has(.tabnav-active) + [data-testid="stButton"] > button {
+    background: #1c1c1e !important;
+    color: #ffffff !important;
     border: none !important;
-    background: transparent !important;
-    transition: all 0.2s !important;
+    border-radius: 10px !important;
+    font-size: 0.875rem !important;
+    font-weight: 500 !important;
+    padding: 0.5rem 1.25rem !important;
+    min-height: 2.5rem !important;
+    box-shadow: 0 2px 8px rgba(28,28,30,0.2) !important;
 }
-.stTabs [data-baseweb="tab"]:hover {
+[data-testid="stMarkdownContainer"]:has(.tabnav-active) + [data-testid="stButton"] > button p,
+[data-testid="stMarkdownContainer"]:has(.tabnav-active) + [data-testid="stButton"] > button span {
+    color: #ffffff !important;
+}
+/* 非アクティブタブボタン */
+[data-testid="stMarkdownContainer"]:has(.tabnav-inactive) + [data-testid="stButton"] > button {
+    background: transparent !important;
+    color: #86868b !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 10px !important;
+    font-size: 0.875rem !important;
+    font-weight: 500 !important;
+    padding: 0.5rem 1.25rem !important;
+    min-height: 2.5rem !important;
+}
+[data-testid="stMarkdownContainer"]:has(.tabnav-inactive) + [data-testid="stButton"] > button p,
+[data-testid="stMarkdownContainer"]:has(.tabnav-inactive) + [data-testid="stButton"] > button span {
+    color: #86868b !important;
+}
+[data-testid="stMarkdownContainer"]:has(.tabnav-inactive) + [data-testid="stButton"] > button:hover {
     color: #1c1c1e !important;
     background: rgba(28,28,30,0.05) !important;
 }
-.stTabs [aria-selected="true"] {
-    background: #1c1c1e !important;
-    color: #ffffff !important;
-    box-shadow: 0 2px 8px rgba(28,28,30,0.2) !important;
+[data-testid="stMarkdownContainer"]:has(.tabnav-inactive) + [data-testid="stButton"] > button:hover p,
+[data-testid="stMarkdownContainer"]:has(.tabnav-inactive) + [data-testid="stButton"] > button:hover span {
+    color: #1c1c1e !important;
 }
-.stTabs [aria-selected="true"] p {
-    color: #ffffff !important;
+
+/* ── 検索フォームカード ── */
+[data-testid="stForm"] {
+    background: #ffffff !important;
+    border: 1.5px solid #e5e5e5 !important;
+    border-radius: 20px !important;
+    padding: 6px 8px !important;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.06) !important;
 }
-.stTabs [data-baseweb="tab-highlight"] {
-    display: none !important;
+[data-testid="stForm"]:focus-within {
+    border-color: rgba(28,28,30,0.2) !important;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08) !important;
 }
-.stTabs [data-baseweb="tab-border"] {
-    display: none !important;
+/* フォーム内入力からボーダーを除去 */
+[data-testid="stForm"] div[data-testid="stTextInput"] input {
+    border: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    padding: 0.7rem 0.5rem !important;
+}
+[data-testid="stForm"] div[data-testid="stTextInput"] input:focus {
+    border: none !important;
+    box-shadow: none !important;
+}
+/* フォーム内カラムを縦方向中央揃え */
+[data-testid="stForm"] [data-testid="stHorizontalBlock"] {
+    align-items: center !important;
+    gap: 4px !important;
+}
+/* フォーム送信ボタン */
+[data-testid="stForm"] [data-testid="stFormSubmitButton"] > button {
+    border-radius: 14px !important;
+    padding: 0.6rem 1.2rem !important;
+    min-height: 2.4rem !important;
+    white-space: nowrap !important;
 }
 
 /* ── 検索ヒーロー ── */
@@ -349,81 +399,57 @@ div[data-testid="stTextInput"] input:focus {
     background: #f5f5f7 !important;
 }
 
-/* ── ドキュメント選択カード ── */
-[data-testid="stMarkdownContainer"]:has(.doc-unselected) + [data-testid="stHorizontalBlock"],
-[data-testid="stMarkdownContainer"]:has(.doc-selected) + [data-testid="stHorizontalBlock"] {
-    display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: nowrap !important;
-    align-items: center !important;
-    gap: 0.4rem !important;
-    width: 100% !important;
-}
-[data-testid="stMarkdownContainer"]:has(.doc-unselected) + [data-testid="stHorizontalBlock"] [data-testid="stColumn"]:first-child,
-[data-testid="stMarkdownContainer"]:has(.doc-selected) + [data-testid="stHorizontalBlock"] [data-testid="stColumn"]:first-child {
-    flex: 1 1 0% !important;
-    width: auto !important;
-    max-width: none !important;
-    min-width: 0 !important;
-}
-[data-testid="stMarkdownContainer"]:has(.doc-unselected) + [data-testid="stHorizontalBlock"] [data-testid="stColumn"]:last-child,
-[data-testid="stMarkdownContainer"]:has(.doc-selected) + [data-testid="stHorizontalBlock"] [data-testid="stColumn"]:last-child {
-    flex: 0 0 7rem !important;
-    width: 7rem !important;
-    max-width: 7rem !important;
-    min-width: 7rem !important;
-}
-/* 未選択カード */
-[data-testid="stMarkdownContainer"]:has(.doc-unselected) + [data-testid="stHorizontalBlock"] [data-testid="stButton"] > button {
-    background: #ffffff !important;
-    color: #1c1c1e !important;
-    border: 1px solid #e5e5e5 !important;
-    border-radius: 14px !important;
+/* ── ドキュメントカード（単列 · 名前+日付の2行ボタン） ── */
+[data-testid="stMarkdownContainer"]:has(.doc-unselected) + [data-testid="stButton"] > button,
+[data-testid="stMarkdownContainer"]:has(.doc-selected)   + [data-testid="stButton"] > button {
     text-align: left !important;
-    font-weight: 400 !important;
-    height: auto !important;
-    min-height: 3rem !important;
-    padding: 0.75rem 1.1rem !important;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
     justify-content: flex-start !important;
+    height: auto !important;
+    min-height: 3.6rem !important;
+    white-space: pre-line !important;
+    padding: 0.7rem 1.1rem !important;
+    border-radius: 14px !important;
     transition: all 0.2s !important;
 }
-[data-testid="stMarkdownContainer"]:has(.doc-unselected) + [data-testid="stHorizontalBlock"] [data-testid="stButton"] > button:hover {
-    border-color: #1c1c1e !important;
+/* ベーステキスト = 日付行（小さめ・グレー） */
+[data-testid="stMarkdownContainer"]:has(.doc-unselected) + [data-testid="stButton"] > button p,
+[data-testid="stMarkdownContainer"]:has(.doc-selected)   + [data-testid="stButton"] > button p {
+    white-space: pre-line !important;
+    font-size: 0.75rem !important;
+    line-height: 1.5 !important;
+    overflow: hidden !important;
+}
+/* 1行目 = ファイル名（通常サイズ・ダーク） */
+[data-testid="stMarkdownContainer"]:has(.doc-unselected) + [data-testid="stButton"] > button p::first-line,
+[data-testid="stMarkdownContainer"]:has(.doc-selected)   + [data-testid="stButton"] > button p::first-line {
+    font-size: 0.92rem !important;
+    font-weight: 500 !important;
+}
+
+/* 未選択 */
+[data-testid="stMarkdownContainer"]:has(.doc-unselected) + [data-testid="stButton"] > button {
+    background: #ffffff !important;
+    border: 1px solid #e5e5e5 !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
+}
+[data-testid="stMarkdownContainer"]:has(.doc-unselected) + [data-testid="stButton"] > button p { color: #86868b !important; }
+[data-testid="stMarkdownContainer"]:has(.doc-unselected) + [data-testid="stButton"] > button p::first-line { color: #1c1c1e !important; }
+[data-testid="stMarkdownContainer"]:has(.doc-unselected) + [data-testid="stButton"] > button:hover {
+    border-color: rgba(28,28,30,0.4) !important;
     box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important;
     background: #fafafa !important;
-    color: #1c1c1e !important;
 }
-[data-testid="stMarkdownContainer"]:has(.doc-unselected) + [data-testid="stHorizontalBlock"] [data-testid="stButton"] > button p {
-    color: #1c1c1e !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    white-space: nowrap !important;
-    max-width: 100% !important;
-}
-/* 選択済みカード */
-[data-testid="stMarkdownContainer"]:has(.doc-selected) + [data-testid="stHorizontalBlock"] [data-testid="stButton"] > button {
+
+/* 選択済み */
+[data-testid="stMarkdownContainer"]:has(.doc-selected) + [data-testid="stButton"] > button {
     background: rgba(28,28,30,0.05) !important;
-    color: #1c1c1e !important;
     border: 2px solid #1c1c1e !important;
-    border-radius: 14px !important;
-    text-align: left !important;
-    font-weight: 600 !important;
-    height: auto !important;
-    min-height: 3rem !important;
-    padding: 0.75rem 1.1rem !important;
-    justify-content: flex-start !important;
+    box-shadow: none !important;
 }
-[data-testid="stMarkdownContainer"]:has(.doc-selected) + [data-testid="stHorizontalBlock"] [data-testid="stButton"] > button:hover {
+[data-testid="stMarkdownContainer"]:has(.doc-selected) + [data-testid="stButton"] > button p { color: #86868b !important; }
+[data-testid="stMarkdownContainer"]:has(.doc-selected) + [data-testid="stButton"] > button p::first-line { color: #1c1c1e !important; font-weight: 600 !important; }
+[data-testid="stMarkdownContainer"]:has(.doc-selected) + [data-testid="stButton"] > button:hover {
     background: rgba(28,28,30,0.08) !important;
-    color: #1c1c1e !important;
-}
-[data-testid="stMarkdownContainer"]:has(.doc-selected) + [data-testid="stHorizontalBlock"] [data-testid="stButton"] > button p {
-    color: #1c1c1e !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    white-space: nowrap !important;
-    max-width: 100% !important;
 }
 
 /* ── ログインカード ── */
@@ -480,7 +506,7 @@ div[data-testid="stTextInput"] input:focus {
 
 /* ── ブロックコンテナ ── */
 .block-container {
-    max-width: 900px !important;
+    max-width: 960px !important;
     padding-top: 3.5rem !important;
     padding-left: 2rem !important;
     padding-right: 2rem !important;
@@ -517,6 +543,16 @@ div[data-testid="stTextInput"] input:focus {
     background: #f5f5f7 !important;
     color: #1c1c1e !important;
     border-color: #1c1c1e !important;
+}
+
+/* ── ドキュメントカード間スペース ── */
+[data-testid="stMarkdownContainer"]:has(.doc-unselected),
+[data-testid="stMarkdownContainer"]:has(.doc-selected) {
+    margin-bottom: 0 !important;
+}
+[data-testid="stMarkdownContainer"]:has(.doc-unselected) + [data-testid="stButton"],
+[data-testid="stMarkdownContainer"]:has(.doc-selected)   + [data-testid="stButton"] {
+    margin-bottom: 0.5rem !important;
 }
 
 /* ── Press Enter to apply 非表示 ── */
@@ -1181,10 +1217,30 @@ except Exception:
 ADMIN_PASSWORD = get_secret("ADMIN_PASSWORD")
 
 # ---- メインエリア ----
-tab_search, tab_manage = st.tabs(["🔍　文書を検索", "📂　文書を管理"])
+
+# タブ状態の初期化
+if "active_tab" not in st.session_state:
+    st.session_state["active_tab"] = "search"
+
+_is_search = st.session_state.get("active_tab", "search") == "search"
+_is_manage = not _is_search
+
+# pill-style タブナビゲーション
+st.markdown('<span class="tabnav-container-marker" style="display:none;"></span>', unsafe_allow_html=True)
+_tn1, _tn2 = st.columns([1, 1])
+with _tn1:
+    st.markdown(f'<span class="{"tabnav-active" if _is_search else "tabnav-inactive"}" style="display:none;"></span>', unsafe_allow_html=True)
+    if st.button("🔍 文書を検索", key="nav_search", use_container_width=True):
+        st.session_state["active_tab"] = "search"
+        st.rerun()
+with _tn2:
+    st.markdown(f'<span class="{"tabnav-active" if _is_manage else "tabnav-inactive"}" style="display:none;"></span>', unsafe_allow_html=True)
+    if st.button("📂 文書を管理", key="nav_manage", use_container_width=True):
+        st.session_state["active_tab"] = "manage"
+        st.rerun()
 
 # ---- 検索タブ ----
-with tab_search:
+if _is_search:
     st.markdown("""
 <div style="text-align:center;padding:2rem 0 0.5rem 0;">
   <p class="search-hero-title">何をお探しですか？</p>
@@ -1218,13 +1274,25 @@ with tab_search:
         st.session_state["_search_input"] = ""
 
     with st.form("search_form", clear_on_submit=False):
-        query = st.text_input(
-            "質問",
-            key="_search_input",
-            placeholder="例：有給休暇の申請手続きを教えてください",
-            label_visibility="collapsed",
-        )
-        submitted = st.form_submit_button("検索", type="primary")
+        _fi, _fq, _fb = st.columns([0.6, 6, 1.6])
+        with _fi:
+            st.markdown(
+                '<div style="display:flex;align-items:center;justify-content:center;'
+                'height:100%;min-height:2.8rem;">'
+                '<svg width="20" height="20" fill="none" stroke="#86868b" stroke-width="1.5" viewBox="0 0 24 24">'
+                '<path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>'
+                '</svg></div>',
+                unsafe_allow_html=True,
+            )
+        with _fq:
+            query = st.text_input(
+                "質問",
+                key="_search_input",
+                placeholder="例：有給休暇の申請手続きを教えてください",
+                label_visibility="collapsed",
+            )
+        with _fb:
+            submitted = st.form_submit_button("検索", type="primary", use_container_width=True)
 
     if submitted and query:
         st.session_state["search_query"] = query
@@ -1416,7 +1484,7 @@ with tab_search:
                     st.button(f"🔍 {label}", key=f"top_{i}", on_click=_top_click, use_container_width=True)
 
 # ---- 文書管理タブ ----
-with tab_manage:
+if _is_manage:
     is_admin = check_admin_timeout()
 
     if not is_admin:
@@ -1531,34 +1599,17 @@ with tab_manage:
                 ]
                 selected = st.session_state["selected_docs"]
 
-                # ヘッダー行
-                _hc1, _hc2 = st.columns([4, 1])
-                with _hc1:
-                    st.markdown('<div style="font-size:0.78rem;font-weight:700;color:#86868b;padding:0 0 4px 4px;">ファイル名</div>', unsafe_allow_html=True)
-                with _hc2:
-                    st.markdown('<div style="font-size:0.78rem;font-weight:700;color:#86868b;padding:0 0 4px 4px;">登録日時</div>', unsafe_allow_html=True)
-
                 for name, date_str in docs_with_dates:
                     is_sel = name in selected
                     marker = "doc-selected" if is_sel else "doc-unselected"
-                    label = f"✓  {name}" if is_sel else f"📄  {name}"
+                    label = f"{'✓  ' if is_sel else '📄  '}{name}\n{date_str}"
                     st.markdown(f'<span class="{marker}" style="display:none;"></span>', unsafe_allow_html=True)
-                    _dc1, _dc2 = st.columns([4, 1])
-                    with _dc1:
-                        if st.button(label, key=f"doc_{name}", use_container_width=True):
-                            if is_sel:
-                                selected.remove(name)
-                            else:
-                                selected.append(name)
-                            st.rerun()
-                    with _dc2:
-                        st.markdown(
-                            f'<div style="font-size:0.78rem;color:#86868b;line-height:1.5;'
-                            f'display:flex;align-items:center;height:100%;padding-top:0.3rem;">'
-                            f'<span style="white-space:nowrap;">{date_str}</span>'
-                            f'</div>',
-                            unsafe_allow_html=True,
-                        )
+                    if st.button(label, key=f"doc_{name}", use_container_width=True):
+                        if is_sel:
+                            selected.remove(name)
+                        else:
+                            selected.append(name)
+                        st.rerun()
 
                 if selected:
                     st.warning(f"{len(selected)} 件選択中")
