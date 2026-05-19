@@ -258,7 +258,7 @@ div[data-testid="stTextInput"] input:focus {
     height: auto !important;
     min-height: 2.6rem !important;
     line-height: 1.4 !important;
-    white-space: normal !important;
+    white-space: nowrap !important;
 }
 .stButton > button:hover {
     background: #1765cc !important;
