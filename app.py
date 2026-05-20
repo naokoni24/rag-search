@@ -1564,17 +1564,7 @@ if _is_manage:
                     'a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>'
                 )
 
-                # ── 列ヘッダー ──
-                st.markdown(
-                    '<div style="display:flex;align-items:center;justify-content:space-between;'
-                    'padding:0 0.5rem 0.25rem;margin-bottom:0.25rem;">'
-                    '<span style="font-size:0.75rem;font-weight:600;color:#5f6368;letter-spacing:0.05em;text-transform:uppercase;">ファイル名</span>'
-                    '<span style="font-size:0.75rem;font-weight:600;color:#5f6368;letter-spacing:0.05em;text-transform:uppercase;">登録日時</span>'
-                    '</div>',
-                    unsafe_allow_html=True,
-                )
-
-                # ── すべて選択 ──
+                # ── すべて選択 + 列ヘッダー ──
                 _all_sel = len(selected) == len(docs) and len(docs) > 0
                 _all_chk = (
                     f'<div style="width:20px;height:20px;border-radius:50%;'
@@ -1585,12 +1575,18 @@ if _is_manage:
                     f'</div>'
                 )
                 _sel_count = f'<span style="font-size:0.875rem;color:#1a73e8;font-weight:500;margin-left:0.25rem;">{len(selected)}件選択中</span>' if selected else ""
+                _col_header_style = 'font-size:0.75rem;font-weight:600;color:#5f6368;letter-spacing:0.04em;'
                 _sel_all_html = (
                     f'<div class="sel-all-row" style="display:flex;align-items:center;gap:0.75rem;'
                     f'padding:0.5rem 0.5rem 0.75rem;cursor:pointer;">'
                     f'{_all_chk}'
                     f'<span style="font-size:0.875rem;color:#5f6368;">すべて選択</span>'
                     f'{_sel_count}'
+                    f'<div style="flex:1;display:flex;align-items:center;'
+                    f'justify-content:space-between;margin-left:0.5rem;">'
+                    f'<span style="{_col_header_style}">ファイル名</span>'
+                    f'<span style="{_col_header_style}">登録日時</span>'
+                    f'</div>'
                     f'</div>'
                 )
                 with st.container():
