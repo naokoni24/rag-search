@@ -63,26 +63,24 @@ html, body, [class*="css"], .stApp, p, div, label, textarea, button {
 }
 [data-baseweb="icon"] span,
 .stChatMessage [data-testid="chatAvatarIcon"] span {
-    font-family: inherit !important;
-    font-size: inherit !important;
-    color: inherit !important;
+    font-family: inherit !important; font-size: inherit !important; color: inherit !important;
 }
 [data-testid="stExpanderToggleIcon"] { overflow: hidden !important; font-size: 0 !important; }
 [data-testid="stExpanderToggleIcon"] svg { display: block !important; width: 1.1rem !important; height: 1.1rem !important; }
 
-/* ── Primary ボタン ── */
+/* ── Primary ボタン (Google Blue) ── */
 [data-testid="stFormSubmitButton"] button,
 [data-testid="stFormSubmitButton"] > button,
 [data-testid="stBaseButton-primaryFormSubmit"],
 [data-testid="stBaseButton-primary"] {
     color: #ffffff !important;
-    background-color: #1c1c1e !important;
+    background-color: #1a73e8 !important;
     border: none !important;
     border-radius: 0.75rem !important;
 }
 [data-testid="stFormSubmitButton"] button:hover,
 [data-testid="stFormSubmitButton"] > button:hover {
-    background-color: #3a3a3c !important;
+    background-color: #1557b0 !important;
     color: #ffffff !important;
 }
 [data-testid="stFormSubmitButton"] button p,
@@ -93,364 +91,309 @@ html, body, [class*="css"], .stApp, p, div, label, textarea, button {
 }
 
 /* ── アプリ全体 ── */
-.stApp { background: #ffffff !important; font-size: 16px !important; }
-p, li, label { font-size: 1rem !important; color: #1c1c1e !important; line-height: 1.8 !important; }
+.stApp { background: #f1f3f4 !important; font-size: 16px !important; }
+p, li, label { font-size: 1rem !important; color: #202124 !important; line-height: 1.8 !important; }
 
 /* ── ヘッダー ── */
 .header {
-    background: rgba(255,255,255,0.8);
+    background: rgba(255,255,255,0.85);
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
-    border-bottom: 1px solid rgba(0,0,0,0.08);
+    border-bottom: 1px solid rgba(0,0,0,0.1);
     padding: 0 1.5rem;
     position: sticky;
     top: 0;
     z-index: 100;
 }
 .header-inner {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    height: 5rem;
-    max-width: 72rem;
-    margin: 0 auto;
-    gap: 1rem;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 5rem; max-width: 72rem; margin: 0 auto; gap: 1rem;
 }
 .header-logo { display: flex; align-items: center; gap: 1rem; flex-shrink: 0; }
 .header-logo-icon {
-    width: 2.75rem;
-    height: 2.75rem;
-    background: #1c1c1e;
-    border-radius: 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 14px rgba(28,28,30,0.25);
+    width: 2.75rem; height: 2.75rem;
+    background: #1a73e8;
+    border-radius: 0.875rem;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 14px rgba(26,115,232,0.25);
 }
 .header-brand-label {
-    font-size: 0.7rem !important;
-    font-weight: 500 !important;
-    color: #86868b !important;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    line-height: 1.2 !important;
-    margin: 0 !important;
+    font-size: 0.7rem !important; font-weight: 500 !important;
+    color: #5f6368 !important; letter-spacing: 0.12em;
+    text-transform: uppercase; line-height: 1.2 !important; margin: 0 !important;
 }
 .header-brand-name {
-    font-size: 1.125rem !important;
-    font-weight: 600 !important;
-    color: #1c1c1e !important;
-    letter-spacing: -0.01em;
-    line-height: 1.2 !important;
-    margin: 0 !important;
+    font-size: 1.125rem !important; font-weight: 600 !important;
+    color: #1a73e8 !important; letter-spacing: -0.01em;
+    line-height: 1.2 !important; margin: 0 !important;
 }
 .header-title-block { text-align: center; flex: 1; }
 .header-title {
-    font-size: 1.5rem !important;
-    font-weight: 600 !important;
-    color: #1c1c1e !important;
-    letter-spacing: -0.02em;
-    white-space: nowrap;
-    margin: 0 !important;
+    font-size: 1.5rem !important; font-weight: 600 !important;
+    color: #202124 !important; letter-spacing: -0.02em;
+    white-space: nowrap; margin: 0 !important;
 }
 .header-subtitle {
-    font-size: 0.875rem !important;
-    color: #86868b !important;
-    margin: 2px 0 0 0 !important;
+    font-size: 0.875rem !important; color: #5f6368 !important; margin: 2px 0 0 0 !important;
 }
 .header-right { flex-shrink: 0; min-width: 2.75rem; }
 
 /* ── カスタムタブナビ ── */
-[data-testid="stMarkdownContainer"]:has(.tabnav-container-marker) + [data-testid="stHorizontalBlock"] {
-    background: rgba(248,249,250,0.8) !important;
+[data-testid="stElementContainer"]:has(.tabnav-container-marker) + [data-testid="stLayoutWrapper"] [data-testid="stHorizontalBlock"] {
+    background: rgba(241,245,249,0.9) !important;
     border-radius: 1rem !important;
     padding: 6px !important;
     border: 1px solid rgba(0,0,0,0.08) !important;
     width: fit-content !important;
     margin-bottom: 3rem !important;
     gap: 2px !important;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06) !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08) !important;
 }
-[data-testid="stMarkdownContainer"]:has(.tabnav-container-marker) + [data-testid="stHorizontalBlock"] [data-testid="stColumn"] {
-    flex: 0 0 auto !important;
-    width: auto !important;
-    min-width: fit-content !important;
-    padding: 0 !important;
+[data-testid="stElementContainer"]:has(.tabnav-container-marker) + [data-testid="stLayoutWrapper"] [data-testid="stColumn"] {
+    flex: 0 0 auto !important; width: auto !important;
+    min-width: fit-content !important; padding: 0 !important;
 }
 /* アクティブタブ */
-[data-testid="stMarkdownContainer"]:has(.tabnav-active) + [data-testid="stButton"] > button {
-    background: #1c1c1e !important;
+[data-testid="stElementContainer"]:has(.tabnav-active) + [data-testid="stElementContainer"] .stButton > button {
+    background: #1a73e8 !important;
     color: #ffffff !important;
     border: none !important;
     border-radius: 0.75rem !important;
-    font-size: 0.875rem !important;
-    font-weight: 500 !important;
-    padding: 0.75rem 1.5rem !important;
-    min-height: 2.5rem !important;
-    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.15), 0 2px 4px -2px rgba(0,0,0,0.1) !important;
+    font-size: 0.875rem !important; font-weight: 500 !important;
+    padding: 0.75rem 1.5rem !important; min-height: 2.5rem !important;
+    box-shadow: 0 4px 8px rgba(26,115,232,0.3) !important;
     transition: all 0.3s !important;
 }
-[data-testid="stMarkdownContainer"]:has(.tabnav-active) + [data-testid="stButton"] > button p,
-[data-testid="stMarkdownContainer"]:has(.tabnav-active) + [data-testid="stButton"] > button span {
+[data-testid="stElementContainer"]:has(.tabnav-active) + [data-testid="stElementContainer"] .stButton > button p,
+[data-testid="stElementContainer"]:has(.tabnav-active) + [data-testid="stElementContainer"] .stButton > button span {
     color: #ffffff !important;
 }
 /* 非アクティブタブ */
-[data-testid="stMarkdownContainer"]:has(.tabnav-inactive) + [data-testid="stButton"] > button {
-    background: transparent !important;
-    color: #86868b !important;
-    border: none !important;
-    box-shadow: none !important;
-    border-radius: 0.75rem !important;
-    font-size: 0.875rem !important;
-    font-weight: 500 !important;
-    padding: 0.75rem 1.5rem !important;
-    min-height: 2.5rem !important;
-    transition: all 0.3s !important;
+[data-testid="stElementContainer"]:has(.tabnav-inactive) + [data-testid="stElementContainer"] .stButton > button {
+    background: transparent !important; color: #5f6368 !important;
+    border: none !important; box-shadow: none !important;
+    border-radius: 0.75rem !important; font-size: 0.875rem !important;
+    font-weight: 500 !important; padding: 0.75rem 1.5rem !important;
+    min-height: 2.5rem !important; transition: all 0.3s !important;
 }
-[data-testid="stMarkdownContainer"]:has(.tabnav-inactive) + [data-testid="stButton"] > button p,
-[data-testid="stMarkdownContainer"]:has(.tabnav-inactive) + [data-testid="stButton"] > button span {
-    color: #86868b !important;
+[data-testid="stElementContainer"]:has(.tabnav-inactive) + [data-testid="stElementContainer"] .stButton > button p,
+[data-testid="stElementContainer"]:has(.tabnav-inactive) + [data-testid="stElementContainer"] .stButton > button span {
+    color: #5f6368 !important;
 }
-[data-testid="stMarkdownContainer"]:has(.tabnav-inactive) + [data-testid="stButton"] > button:hover {
-    color: #1c1c1e !important;
-    background: rgba(28,28,30,0.05) !important;
+[data-testid="stElementContainer"]:has(.tabnav-inactive) + [data-testid="stElementContainer"] .stButton > button:hover {
+    color: #202124 !important; background: rgba(26,115,232,0.06) !important;
 }
-[data-testid="stMarkdownContainer"]:has(.tabnav-inactive) + [data-testid="stButton"] > button:hover p,
-[data-testid="stMarkdownContainer"]:has(.tabnav-inactive) + [data-testid="stButton"] > button:hover span {
-    color: #1c1c1e !important;
+[data-testid="stElementContainer"]:has(.tabnav-inactive) + [data-testid="stElementContainer"] .stButton > button:hover p,
+[data-testid="stElementContainer"]:has(.tabnav-inactive) + [data-testid="stElementContainer"] .stButton > button:hover span {
+    color: #202124 !important;
 }
 
 /* ── 検索フォームカード ── */
 [data-testid="stForm"] {
     background: #ffffff !important;
-    border: 1px solid #e9eaeb !important;
+    border: 1px solid #dadce0 !important;
     border-radius: 1rem !important;
     padding: 8px !important;
-    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.07), 0 4px 6px -4px rgba(0,0,0,0.05) !important;
+    box-shadow: 0 10px 20px -4px rgba(0,0,0,0.08), 0 4px 8px -4px rgba(0,0,0,0.05) !important;
     transition: box-shadow 0.3s, border-color 0.3s !important;
 }
 [data-testid="stForm"]:focus-within,
 [data-testid="stForm"]:hover {
-    border-color: rgba(28,28,30,0.25) !important;
-    box-shadow: 0 20px 25px -5px rgba(0,0,0,0.08), 0 8px 10px -6px rgba(0,0,0,0.05) !important;
+    border-color: rgba(26,115,232,0.4) !important;
+    box-shadow: 0 20px 30px -6px rgba(0,0,0,0.1), 0 8px 12px -6px rgba(0,0,0,0.05) !important;
 }
 [data-testid="stForm"] div[data-testid="stTextInput"] input {
-    border: none !important;
-    box-shadow: none !important;
-    background: transparent !important;
-    padding: 0.75rem 0.5rem !important;
+    border: none !important; box-shadow: none !important;
+    background: transparent !important; padding: 0.75rem 0.5rem !important;
 }
 [data-testid="stForm"] div[data-testid="stTextInput"] input:focus {
-    border: none !important;
-    box-shadow: none !important;
+    border: none !important; box-shadow: none !important;
 }
-[data-testid="stForm"] [data-testid="stHorizontalBlock"] {
-    align-items: center !important;
-    gap: 4px !important;
+[data-testid="stForm"] [data-testid="stHorizontalBlock"],
+[data-testid="stForm"] [data-testid="stLayoutWrapper"] {
+    align-items: center !important; gap: 4px !important;
 }
 [data-testid="stForm"] [data-testid="stFormSubmitButton"] > button {
     border-radius: 0.75rem !important;
     padding: 0.75rem 1.5rem !important;
-    min-height: 2.4rem !important;
-    white-space: nowrap !important;
+    min-height: 2.4rem !important; white-space: nowrap !important;
 }
 
 /* ── 検索ヒーロー ── */
 .search-hero-title {
-    font-size: 3rem !important;
-    font-weight: 600 !important;
-    color: #1c1c1e !important;
-    letter-spacing: -0.03em;
-    text-align: center;
-    margin: 0 0 1rem 0 !important;
-    line-height: 1.1 !important;
+    font-size: 3rem !important; font-weight: 600 !important;
+    color: #1a73e8 !important;
+    letter-spacing: -0.03em; text-align: center;
+    margin: 0 0 1rem 0 !important; line-height: 1.1 !important;
 }
 .search-hero-sub {
-    font-size: 1.125rem !important;
-    color: #86868b !important;
-    text-align: center;
-    margin: 0 0 2rem 0 !important;
-    line-height: 1.6 !important;
+    font-size: 1.125rem !important; color: #5f6368 !important;
+    text-align: center; margin: 0 0 2rem 0 !important; line-height: 1.6 !important;
 }
 
 /* ── テキスト入力 ── */
 div[data-testid="stTextInput"] input {
-    border: 1px solid #e9eaeb !important;
-    border-radius: 0.75rem !important;
-    padding: 0.75rem 1rem !important;
-    font-size: 1rem !important;
+    border: 1px solid #dadce0 !important; border-radius: 0.75rem !important;
+    padding: 0.75rem 1rem !important; font-size: 1rem !important;
     font-family: 'Noto Sans JP', -apple-system, sans-serif !important;
     box-shadow: 0 1px 3px rgba(0,0,0,0.06) !important;
-    background: white !important;
-    color: #1c1c1e !important;
+    background: white !important; color: #202124 !important;
 }
 div[data-testid="stTextInput"] input:focus {
-    border-color: #1c1c1e !important;
-    box-shadow: 0 0 0 3px rgba(28,28,30,0.1) !important;
+    border-color: #1a73e8 !important;
+    box-shadow: 0 0 0 3px rgba(26,115,232,0.12) !important;
     outline: none !important;
 }
 
 /* ── ボタン（デフォルト） ── */
 .stButton > button {
-    background: #1c1c1e !important;
-    color: #ffffff !important;
-    border: none !important;
-    border-radius: 0.75rem !important;
-    font-size: 0.875rem !important;
-    font-weight: 500 !important;
+    background: #1a73e8 !important; color: #ffffff !important;
+    border: none !important; border-radius: 0.75rem !important;
+    font-size: 0.875rem !important; font-weight: 500 !important;
     font-family: 'Noto Sans JP', -apple-system, sans-serif !important;
-    padding: 0.6rem 1.4rem !important;
-    height: auto !important;
-    min-height: 2.5rem !important;
-    line-height: 1.4 !important;
-    white-space: nowrap !important;
-    transition: all 0.3s !important;
+    padding: 0.6rem 1.4rem !important; height: auto !important;
+    min-height: 2.5rem !important; line-height: 1.4 !important;
+    white-space: nowrap !important; transition: all 0.3s !important;
 }
 .stButton > button:hover {
-    background: #3a3a3c !important;
-    color: #ffffff !important;
-    box-shadow: 0 4px 12px rgba(28,28,30,0.2) !important;
+    background: #1557b0 !important; color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(26,115,232,0.3) !important;
 }
 .stButton > button,
-.stButton > button p,
-.stButton > button span,
+.stButton > button p, .stButton > button span,
 .stButton > button div,
 [data-testid="stBaseButton-secondary"],
 [data-testid="stBaseButton-primary"] {
     color: #ffffff !important;
 }
 
-/* ── Top3 サジェストpill コンテナ（flex-wrap中央揃え） ── */
-[data-testid="stMarkdownContainer"]:has(.pills-container-marker) + [data-testid="stHorizontalBlock"] {
-    display: flex !important;
-    flex-wrap: wrap !important;
-    justify-content: center !important;
-    gap: 0.75rem !important;
-    width: 100% !important;
+/* ── Top3 サジェスト pill コンテナ（flex-wrap 中央揃え） ── */
+[data-testid="stElementContainer"]:has(.pills-container-marker) + [data-testid="stLayoutWrapper"] [data-testid="stHorizontalBlock"] {
+    display: flex !important; flex-wrap: wrap !important;
+    justify-content: center !important; gap: 0.75rem !important; width: 100% !important;
 }
-[data-testid="stMarkdownContainer"]:has(.pills-container-marker) + [data-testid="stHorizontalBlock"] [data-testid="stColumn"] {
-    flex: 0 0 auto !important;
-    width: auto !important;
-    min-width: fit-content !important;
-    padding: 0 !important;
+[data-testid="stElementContainer"]:has(.pills-container-marker) + [data-testid="stLayoutWrapper"] [data-testid="stColumn"] {
+    flex: 0 0 auto !important; width: auto !important;
+    min-width: fit-content !important; padding: 0 !important;
 }
 /* pill ボタン */
-[data-testid="stMarkdownContainer"]:has(.top3-pill-marker) + [data-testid="stButton"] > button {
-    background: #ffffff !important;
-    color: #1c1c1e !important;
-    border: 1px solid #e9eaeb !important;
-    border-radius: 999px !important;
-    font-size: 0.875rem !important;
-    font-weight: 500 !important;
+[data-testid="stElementContainer"]:has(.top3-pill-marker) + [data-testid="stElementContainer"] .stButton > button {
+    background: #ffffff !important; color: #202124 !important;
+    border: 1px solid #dadce0 !important; border-radius: 999px !important;
+    font-size: 0.875rem !important; font-weight: 500 !important;
     padding: 0.75rem 1.25rem !important;
     box-shadow: 0 1px 3px rgba(0,0,0,0.08) !important;
-    white-space: nowrap !important;
-    transition: all 0.3s !important;
+    white-space: nowrap !important; transition: all 0.3s !important;
 }
-[data-testid="stMarkdownContainer"]:has(.top3-pill-marker) + [data-testid="stButton"] > button p {
-    color: #1c1c1e !important;
+[data-testid="stElementContainer"]:has(.top3-pill-marker) + [data-testid="stElementContainer"] .stButton > button p,
+[data-testid="stElementContainer"]:has(.top3-pill-marker) + [data-testid="stElementContainer"] .stButton > button span {
+    color: #202124 !important;
 }
-[data-testid="stMarkdownContainer"]:has(.top3-pill-marker) + [data-testid="stButton"] > button:hover {
-    border-color: rgba(28,28,30,0.4) !important;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1) !important;
-    background: rgba(28,28,30,0.04) !important;
-    color: #1c1c1e !important;
+[data-testid="stElementContainer"]:has(.top3-pill-marker) + [data-testid="stElementContainer"] .stButton > button:hover {
+    border-color: #1a73e8 !important;
+    box-shadow: 0 4px 8px rgba(26,115,232,0.15) !important;
+    background: rgba(26,115,232,0.04) !important; color: #202124 !important;
 }
 
 /* ── ファイルアップローダー ── */
+[data-testid="stFileUploaderDropzone"] {
+    border: 2px dashed #dadce0 !important;
+    border-radius: 1.5rem !important;
+    background: rgba(255,255,255,0.6) !important;
+    transition: all 0.3s !important;
+    padding: 2.5rem 2rem !important;
+    min-height: 220px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.5rem !important;
+}
+[data-testid="stFileUploaderDropzone"]:hover {
+    border-color: #1a73e8 !important;
+    background: rgba(26,115,232,0.03) !important;
+}
+/* アップロードアイコン（Streamlitネイティブ） */
+[data-testid="stFileUploaderDropzone"] svg {
+    width: 2.5rem !important; height: 2.5rem !important;
+    color: #1a73e8 !important; margin-bottom: 0.25rem !important;
+}
+/* アップロード指示テキスト */
+[data-testid="stFileUploaderDropzone"] > div {
+    display: flex !important; flex-direction: column !important;
+    align-items: center !important; gap: 0.5rem !important;
+    text-align: center !important;
+}
+[data-testid="stFileUploaderDropzone"] span {
+    font-size: 0.95rem !important; font-weight: 500 !important;
+    color: #202124 !important; text-align: center !important;
+}
+[data-testid="stFileUploaderDropzone"] small {
+    font-size: 0.8rem !important; color: #5f6368 !important;
+}
+/* Uploadボタン */
 [data-testid="stFileUploader"] button,
 [data-testid="stFileUploaderDropzone"] button {
-    background: #1c1c1e !important;
-    color: #ffffff !important;
-    border: none !important;
-    border-radius: 0.625rem !important;
+    background: #1a73e8 !important; color: #ffffff !important;
+    border: none !important; border-radius: 0.75rem !important;
+    padding: 0.625rem 1.5rem !important; font-weight: 500 !important;
+    margin-top: 0.5rem !important; transition: all 0.3s !important;
+    box-shadow: 0 2px 8px rgba(26,115,232,0.3) !important;
 }
 [data-testid="stFileUploader"] button:hover,
 [data-testid="stFileUploaderDropzone"] button:hover {
-    background: #3a3a3c !important;
-    color: #ffffff !important;
+    background: #1557b0 !important; color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(26,115,232,0.4) !important;
 }
 [data-testid="stFileUploader"] button p,
 [data-testid="stFileUploader"] button span,
 [data-testid="stFileUploaderDropzone"] button p,
-[data-testid="stFileUploaderDropzone"] button span {
-    color: #ffffff !important;
-}
-[data-testid="stFileUploaderDropzone"] {
-    border: 2px dashed #e9eaeb !important;
-    border-radius: 1.5rem !important;
-    background: rgba(255,255,255,0.5) !important;
-    transition: all 0.3s !important;
-}
-[data-testid="stFileUploaderDropzone"]:hover {
-    border-color: rgba(28,28,30,0.4) !important;
-    background: rgba(28,28,30,0.02) !important;
-}
+[data-testid="stFileUploaderDropzone"] button span { color: #ffffff !important; }
 
-/* ── ドキュメントカード（HTMLカード + 透明オーバーレイボタン） ── */
+/* ── ドキュメントカード（HTML card + 透明オーバーレイボタン） ── */
 [data-testid="stVerticalBlock"]:has(.doc-card-outer),
 [data-testid="stVerticalBlockBorderWrapper"]:has(.doc-card-outer) {
-    position: relative !important;
-    margin-bottom: 0.75rem !important;
+    position: relative !important; margin-bottom: 0.75rem !important;
 }
 [data-testid="stVerticalBlock"]:has(.doc-card-outer) [data-testid="stButton"],
 [data-testid="stVerticalBlockBorderWrapper"]:has(.doc-card-outer) [data-testid="stButton"] {
-    position: absolute !important;
-    inset: 0 !important;
-    z-index: 10 !important;
-    margin: 0 !important;
-    padding: 0 !important;
+    position: absolute !important; inset: 0 !important;
+    z-index: 10 !important; margin: 0 !important; padding: 0 !important;
 }
 [data-testid="stVerticalBlock"]:has(.doc-card-outer) [data-testid="stButton"] > button,
 [data-testid="stVerticalBlockBorderWrapper"]:has(.doc-card-outer) [data-testid="stButton"] > button {
-    opacity: 0 !important;
-    width: 100% !important;
-    height: 100% !important;
-    min-height: 0 !important;
-    cursor: pointer !important;
-    padding: 0 !important;
-    border: none !important;
-    background: transparent !important;
-    box-shadow: none !important;
+    opacity: 0 !important; width: 100% !important; height: 100% !important;
+    min-height: 0 !important; cursor: pointer !important; padding: 0 !important;
+    border: none !important; background: transparent !important; box-shadow: none !important;
 }
-/* ホバー時 card に border を反映（stVerticalBlock ホバー経由） */
+/* ホバー時 card スタイル変更 */
 [data-testid="stVerticalBlock"]:has(.doc-card-outer.doc-card-unselected):hover .doc-card-outer,
 [data-testid="stVerticalBlockBorderWrapper"]:has(.doc-card-outer.doc-card-unselected):hover .doc-card-outer {
-    border-color: rgba(28,28,30,0.3) !important;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.08), 0 4px 6px rgba(0,0,0,0.04) !important;
+    border-color: rgba(26,115,232,0.4) !important;
+    box-shadow: 0 8px 20px rgba(26,115,232,0.1), 0 4px 6px rgba(0,0,0,0.04) !important;
 }
 
 /* ── ログインカード ── */
 [data-testid="stColumn"]:has(.login-card-inner) {
-    background: #ffffff !important;
-    border: 1px solid #e9eaeb !important;
-    border-radius: 1.25rem !important;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.08) !important;
+    background: #ffffff !important; border: 1px solid #dadce0 !important;
+    border-radius: 1.25rem !important; box-shadow: 0 8px 30px rgba(0,0,0,0.08) !important;
     padding: 1.5rem 1.6rem 2rem !important;
 }
 
 /* ── チャットメッセージ ── */
 [data-testid="stChatMessage"] {
-    background: #ffffff !important;
-    border: 1px solid #e9eaeb !important;
-    border-radius: 1rem !important;
-    font-size: 1rem !important;
-    padding-right: 1.2rem !important;
+    background: #ffffff !important; border: 1px solid #dadce0 !important;
+    border-radius: 1rem !important; font-size: 1rem !important; padding-right: 1.2rem !important;
 }
 
 /* ── 参照元 expander ── */
 [data-testid="stExpander"] {
-    border: 1px solid #e9eaeb !important;
-    border-radius: 0.875rem !important;
-    background: #ffffff !important;
-    margin-top: 0.8rem !important;
-    overflow: hidden !important;
+    border: 1px solid #dadce0 !important; border-radius: 0.875rem !important;
+    background: #ffffff !important; margin-top: 0.8rem !important; overflow: hidden !important;
 }
 [data-testid="stExpander"] summary {
-    padding: 0.65rem 1rem !important;
-    font-size: 0.9rem !important;
-    font-weight: 600 !important;
-    color: #86868b !important;
+    padding: 0.65rem 1rem !important; font-size: 0.9rem !important;
+    font-weight: 600 !important; color: #5f6368 !important;
 }
 [data-testid="stExpander"] [data-testid="stExpanderDetails"] {
     padding: 0.4rem 0.8rem 0.6rem 0.8rem !important;
@@ -458,58 +401,45 @@ div[data-testid="stTextInput"] input:focus {
 
 /* ── セクションタイトル ── */
 .section-title {
-    font-size: 1.5rem !important;
-    font-weight: 600 !important;
-    color: #1c1c1e !important;
-    letter-spacing: -0.02em;
-    margin-bottom: 0.375rem !important;
+    font-size: 1.5rem !important; font-weight: 600 !important;
+    color: #1a73e8 !important; letter-spacing: -0.02em; margin-bottom: 0.375rem !important;
 }
 
 /* ── キャプション ── */
 .stCaptionContainer, [data-testid="stCaptionContainer"] {
-    font-size: 0.85rem !important;
-    color: #86868b !important;
+    font-size: 0.85rem !important; color: #5f6368 !important;
 }
 
 /* ── ブロックコンテナ ── */
 .block-container {
-    max-width: 72rem !important;
-    padding-top: 2rem !important;
-    padding-left: 1.5rem !important;
-    padding-right: 1.5rem !important;
+    max-width: 72rem !important; padding-top: 2rem !important;
+    padding-left: 1.5rem !important; padding-right: 1.5rem !important;
 }
 
-/* ── マーカー＆ログアウト行 ── */
-[data-testid="stMarkdownContainer"]:has(.logout-row-marker) {
-    height: 0 !important;
-    margin: 0 !important;
+/* ── ヘッダー右ログアウトボタン（常時表示） ── */
+[data-testid="stElementContainer"]:has(.header-right-marker) {
+    height: 0 !important; margin: 0 !important; padding: 0 !important; overflow: visible !important;
+}
+[data-testid="stElementContainer"]:has(.header-right-marker) + [data-testid="stLayoutWrapper"] {
+    margin-top: -4.5rem !important; position: relative !important;
+    z-index: 200 !important;
+}
+[data-testid="stElementContainer"]:has(.header-right-marker) + [data-testid="stLayoutWrapper"] [data-testid="stColumn"] {
     padding: 0 !important;
-    overflow: visible !important;
 }
-[data-testid="stMarkdownContainer"]:has(.logout-row-marker) + [data-testid="stHorizontalBlock"] {
-    margin-top: -52px !important;
-    position: relative !important;
-    z-index: 10 !important;
+[data-testid="stElementContainer"]:has(.header-right-marker) + [data-testid="stLayoutWrapper"] .stButton > button {
+    background: transparent !important; color: #5f6368 !important;
+    border: none !important; border-radius: 999px !important;
+    font-size: 0.875rem !important; font-weight: 500 !important;
+    padding: 0.625rem 1.25rem !important; min-height: 2.5rem !important;
+    box-shadow: none !important; transition: all 0.3s !important;
 }
-
-/* ── ログアウトボタン ── */
-[data-testid="stMarkdownContainer"]:has(.logout-row-marker) + [data-testid="stHorizontalBlock"] [data-testid="stButton"] > button {
-    background: transparent !important;
-    color: #86868b !important;
-    border: 1px solid #e9eaeb !important;
-    border-radius: 999px !important;
-    font-size: 0.85rem !important;
-    padding: 0.4rem 1rem !important;
-    min-height: 2rem !important;
+[data-testid="stElementContainer"]:has(.header-right-marker) + [data-testid="stLayoutWrapper"] .stButton > button:hover {
+    background: rgba(0,0,0,0.04) !important; color: #202124 !important;
 }
-[data-testid="stMarkdownContainer"]:has(.logout-row-marker) + [data-testid="stHorizontalBlock"] [data-testid="stButton"] > button p,
-[data-testid="stMarkdownContainer"]:has(.logout-row-marker) + [data-testid="stHorizontalBlock"] [data-testid="stButton"] > button span {
-    color: #86868b !important;
-}
-[data-testid="stMarkdownContainer"]:has(.logout-row-marker) + [data-testid="stHorizontalBlock"] [data-testid="stButton"] > button:hover {
-    background: #f8f9fa !important;
-    color: #1c1c1e !important;
-    border-color: #1c1c1e !important;
+[data-testid="stElementContainer"]:has(.header-right-marker) + [data-testid="stLayoutWrapper"] .stButton > button p,
+[data-testid="stElementContainer"]:has(.header-right-marker) + [data-testid="stLayoutWrapper"] .stButton > button span {
+    color: inherit !important;
 }
 
 /* ── Press Enter to apply 非表示 ── */
@@ -521,10 +451,7 @@ footer { display: none !important; }
 /* ── スマホ対応 ── */
 @media (max-width: 768px) {
     .header-title-block { display: none; }
-    .block-container {
-        padding-left: 1rem !important;
-        padding-right: 1rem !important;
-    }
+    .block-container { padding-left: 1rem !important; padding-right: 1rem !important; }
     .search-hero-title { font-size: 2.2rem !important; }
 }
 </style>
@@ -1167,6 +1094,19 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
+# ヘッダー右ログアウトボタン（常時表示）
+st.markdown('<span class="header-right-marker" style="display:none;"></span>', unsafe_allow_html=True)
+_, _hr_col = st.columns([5, 1])
+with _hr_col:
+    _admin_logged_in = st.session_state.get("admin_authenticated", False)
+    if st.button("👤 ログアウト", key="header_logout_btn", use_container_width=True):
+        if _admin_logged_in:
+            st.session_state["admin_authenticated"] = False
+            st.session_state.pop("admin_last_active", None)
+            st.session_state["_show_logout_msg"] = True
+        st.session_state["active_tab"] = "manage"
+        st.rerun()
+
 try:
     docs = get_registered_docs()
 except Exception:
@@ -1187,12 +1127,12 @@ st.markdown('<span class="tabnav-container-marker" style="display:none;"></span>
 _tn1, _tn2 = st.columns([1, 1])
 with _tn1:
     st.markdown(f'<span class="{"tabnav-active" if _is_search else "tabnav-inactive"}" style="display:none;"></span>', unsafe_allow_html=True)
-    if st.button("🔍 文書を検索", key="nav_search", use_container_width=True):
+    if st.button("文書を検索", key="nav_search", use_container_width=True):
         st.session_state["active_tab"] = "search"
         st.rerun()
 with _tn2:
     st.markdown(f'<span class="{"tabnav-active" if _is_manage else "tabnav-inactive"}" style="display:none;"></span>', unsafe_allow_html=True)
-    if st.button("📂 文書を管理", key="nav_manage", use_container_width=True):
+    if st.button("文書を管理", key="nav_manage", use_container_width=True):
         st.session_state["active_tab"] = "manage"
         st.rerun()
 
@@ -1409,37 +1349,44 @@ if _is_search:
 
 
     # よく検索されるキーワード（結果の下・常時表示・APIなし）
-    if docs:
-        top_queries = get_top_queries(3)
-        if top_queries:
-            # Top3 の参照 PDF をセッション内で一度だけプリウォーム
-            # → クリック時に get_pdf_b64 がキャッシュから即時返るようにする
-            if "_top3_pdf_prewarmed" not in st.session_state:
-                # 表示部が使うのと同じ tuple で呼ぶことでキャッシュヒットさせる
-                for _tq, _ in top_queries:
-                    _tc = get_cached_result(_tq)
-                    if _tc:
-                        _t_ans, _t_chks = _tc
-                        _t_fnames = tuple(sorted({
-                            *[m.group(1) for m in _CITATION_RE.finditer(_t_ans)],
-                            *[c["filename"] for c in _t_chks],
-                        }))
-                        if _t_fnames:
-                            get_pdf_b64_batch(_t_fnames)
-                st.session_state["_top3_pdf_prewarmed"] = True
+    _STATIC_SUGGESTIONS = [
+        "勤務体系について",
+        "見積もりルールについて",
+        "経費申請の手続き",
+        "有給休暇の申請方法",
+    ]
+    top_queries = get_top_queries(3) if docs else []
+    # Top3がなければ静的サジェストをフォールバック表示
+    _use_static = not top_queries
+    display_pills = top_queries if top_queries else [(q, q) for q in _STATIC_SUGGESTIONS]
 
-            st.markdown('<p style="font-size:0.875rem;color:#86868b;text-align:center;margin:2rem 0 1rem 0;">よく検索されています</p>', unsafe_allow_html=True)
-            st.markdown('<span class="pills-container-marker" style="display:none;"></span>', unsafe_allow_html=True)
-            _pill_cols = st.columns(len(top_queries))
-            for i, (tq, label) in enumerate(top_queries):
-                def _top_click(q=tq):
-                    st.session_state["search_query"] = q
-                    st.session_state["search_submitted"] = True
-                    st.session_state["_search_result"] = None
-                    st.session_state["_search_input"] = ""  # フォームをクリア
-                with _pill_cols[i]:
-                    st.markdown('<span class="top3-pill-marker" style="display:none;"></span>', unsafe_allow_html=True)
-                    st.button(f"🔍 {label}", key=f"top_{i}", on_click=_top_click, use_container_width=True)
+    if display_pills:
+        # Top3（動的）の場合のみ PDFキャッシュをプリウォーム
+        if top_queries and "_top3_pdf_prewarmed" not in st.session_state:
+            for _tq, _ in top_queries:
+                _tc = get_cached_result(_tq)
+                if _tc:
+                    _t_ans, _t_chks = _tc
+                    _t_fnames = tuple(sorted({
+                        *[m.group(1) for m in _CITATION_RE.finditer(_t_ans)],
+                        *[c["filename"] for c in _t_chks],
+                    }))
+                    if _t_fnames:
+                        get_pdf_b64_batch(_t_fnames)
+            st.session_state["_top3_pdf_prewarmed"] = True
+
+        st.markdown('<p style="font-size:0.875rem;color:#5f6368;text-align:center;margin:2rem 0 1rem 0;">よく検索されています</p>', unsafe_allow_html=True)
+        st.markdown('<span class="pills-container-marker" style="display:none;"></span>', unsafe_allow_html=True)
+        _pill_cols = st.columns(len(display_pills))
+        for i, (tq, label) in enumerate(display_pills):
+            def _top_click(q=tq):
+                st.session_state["search_query"] = q
+                st.session_state["search_submitted"] = True
+                st.session_state["_search_result"] = None
+                st.session_state["_search_input"] = ""  # フォームをクリア
+            with _pill_cols[i]:
+                st.markdown('<span class="top3-pill-marker" style="display:none;"></span>', unsafe_allow_html=True)
+                st.button(f"🔍 {label}", key=f"top_{i}", on_click=_top_click, use_container_width=True)
 
 # ---- 文書管理タブ ----
 if _is_manage:
@@ -1479,15 +1426,6 @@ if _is_manage:
     else:
         touch_admin_session()
 
-        st.markdown('<div class="logout-row-marker"></div>', unsafe_allow_html=True)
-        _, _lc = st.columns([5, 1])
-        with _lc:
-            if st.button("ログアウト", key="manage_logout", use_container_width=True):
-                st.session_state["admin_authenticated"] = False
-                st.session_state.pop("admin_last_active", None)
-                st.session_state["_show_logout_msg"] = True
-                st.rerun()
-
         col_left, col_right = st.columns(2, gap="large")
 
         with col_left:
@@ -1503,7 +1441,6 @@ if _is_manage:
                 st.success(st.session_state["_upload_success"])
                 st.session_state["_upload_success"] = None
 
-            st.markdown('<div style="font-size:0.88rem;color:#86868b;margin-bottom:0.5rem;">📎 ファイルを選択、またはここにドラッグ＆ドロップ（複数可）</div>', unsafe_allow_html=True)
             uploaded_files = st.file_uploader(
                 "PDFファイルを選択",
                 type="pdf",
@@ -1514,7 +1451,23 @@ if _is_manage:
             MAX_DOCS = 50
             current_count = len(docs)
             remaining = MAX_DOCS - current_count
-            st.caption(f"登録済み: {current_count} / {MAX_DOCS} 件")
+            # 情報バー（Next.js デザインに合わせた横並びレイアウト）
+            st.markdown(
+                f'<div style="display:flex;align-items:center;justify-content:space-between;'
+                f'padding:0.25rem 0.5rem;margin-top:0.25rem;">'
+                f'<div style="display:flex;align-items:center;gap:0.4rem;'
+                f'font-size:0.8rem;color:#5f6368;">'
+                f'<svg width="14" height="14" fill="none" stroke="#1a73e8" viewBox="0 0 24 24">'
+                f'<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" '
+                f'd="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>'
+                f'10MB per file • PDF形式のみ</div>'
+                f'<div style="font-size:0.8rem;">'
+                f'<span style="color:#5f6368;">登録済み: </span>'
+                f'<span style="font-weight:600;color:#1a73e8;">{current_count}</span>'
+                f'<span style="color:#5f6368;"> / {MAX_DOCS} 件</span>'
+                f'</div></div>',
+                unsafe_allow_html=True,
+            )
 
             if uploaded_files:
                 already = [f.name for f in uploaded_files if f.name in docs]
@@ -1546,57 +1499,107 @@ if _is_manage:
                             st.rerun()
 
         with col_right:
-            st.markdown('<div class="section-title">登録済みドキュメント</div>', unsafe_allow_html=True)
-            st.markdown('<p style="font-size:0.875rem;color:#86868b;margin:-0.25rem 0 0.75rem 0 !important;">ナレッジベースに登録されている文書一覧</p>', unsafe_allow_html=True)
             docs_with_dates = get_registered_docs_with_dates()
             docs = [fname for fname, _ in docs_with_dates]
-            if docs_with_dates:
-                if "selected_docs" not in st.session_state:
-                    st.session_state["selected_docs"] = []
-                # 削除済みのものをリストから除外
-                st.session_state["selected_docs"] = [
-                    d for d in st.session_state["selected_docs"] if d in docs
-                ]
-                selected = st.session_state["selected_docs"]
+            if "selected_docs" not in st.session_state:
+                st.session_state["selected_docs"] = []
+            st.session_state["selected_docs"] = [
+                d for d in st.session_state["selected_docs"] if d in docs
+            ]
+            selected = st.session_state["selected_docs"]
 
+            # ── セクションヘッダー（タイトル + 削除ボタン） ──
+            _TRASH_SVG = (
+                '<svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">'
+                '<path stroke-linecap="round" stroke-linejoin="round" '
+                'd="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>'
+            )
+            _del_btn_html = ""
+            if selected:
+                _del_btn_html = (
+                    f'<div class="doc-del-btn-visual" style="display:flex;align-items:center;gap:0.4rem;'
+                    f'padding:0.5rem 1rem;background:rgba(220,53,69,0.1);color:#dc3545;'
+                    f'border-radius:0.75rem;font-size:0.875rem;font-weight:500;cursor:pointer;">'
+                    f'{_TRASH_SVG}&nbsp;{len(selected)}件を削除'
+                    f'</div>'
+                )
+            st.markdown(
+                f'<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:0.5rem;">'
+                f'<div><div class="section-title">登録済みドキュメント</div>'
+                f'<p style="font-size:0.875rem;color:#5f6368;margin:-0.25rem 0 0.75rem 0 !important;">'
+                f'ナレッジベースに登録されている文書一覧</p></div>'
+                f'{_del_btn_html}</div>',
+                unsafe_allow_html=True,
+            )
+
+            if docs_with_dates:
                 _CHECK_SVG = (
-                    '<svg width="12" height="12" fill="none" stroke="currentColor" '
+                    '<svg width="10" height="10" fill="none" stroke="currentColor" '
                     'viewBox="0 0 24 24" stroke-width="3">'
                     '<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>'
                 )
                 _PDF_SVG = (
-                    '<svg width="20" height="20" fill="none" stroke="#1c1c1e" '
+                    '<svg width="20" height="20" fill="none" stroke="#1a73e8" '
                     'viewBox="0 0 24 24" stroke-width="1.5">'
                     '<path stroke-linecap="round" stroke-linejoin="round" '
                     'd="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586'
                     'a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>'
                 )
 
+                # ── すべて選択 ──
+                _all_sel = len(selected) == len(docs) and len(docs) > 0
+                _all_chk = (
+                    f'<div style="width:20px;height:20px;border-radius:50%;'
+                    f'border:2px solid {"#1a73e8" if _all_sel else "#dadce0"};'
+                    f'background:{"#1a73e8" if _all_sel else "transparent"};flex-shrink:0;'
+                    f'display:flex;align-items:center;justify-content:center;">'
+                    f'{"<span style=\'color:#fff;display:flex;\'>" + _CHECK_SVG + "</span>" if _all_sel else ""}'
+                    f'</div>'
+                )
+                _sel_count = f'<span style="font-size:0.875rem;color:#1a73e8;font-weight:500;margin-left:0.25rem;">{len(selected)}件選択中</span>' if selected else ""
+                _sel_all_html = (
+                    f'<div class="sel-all-row" style="display:flex;align-items:center;gap:0.75rem;'
+                    f'padding:0.5rem 0.5rem 0.75rem;cursor:pointer;">'
+                    f'{_all_chk}'
+                    f'<span style="font-size:0.875rem;color:#5f6368;">すべて選択</span>'
+                    f'{_sel_count}'
+                    f'</div>'
+                )
+                with st.container():
+                    st.markdown(_sel_all_html, unsafe_allow_html=True)
+                    if st.button("​", key="select_all_docs"):
+                        if _all_sel:
+                            st.session_state["selected_docs"] = []
+                        else:
+                            st.session_state["selected_docs"] = list(docs)
+                        st.rerun()
+
+                # ── ドキュメントカード ──
                 for name, date_str in docs_with_dates:
                     is_sel = name in selected
 
                     if is_sel:
                         chk_html = (
-                            f'<div style="width:20px;height:20px;border-radius:6px;'
-                            f'border:2px solid #1c1c1e;background:#1c1c1e;flex-shrink:0;'
+                            f'<div style="width:20px;height:20px;border-radius:50%;'
+                            f'border:2px solid #1a73e8;background:#1a73e8;flex-shrink:0;'
                             f'display:flex;align-items:center;justify-content:center;">'
                             f'<span style="color:#fff;display:flex;align-items:center;">{_CHECK_SVG}</span>'
                             f'</div>'
                         )
-                        card_border  = '2px solid #1c1c1e'
-                        card_bg      = 'rgba(28,28,30,0.04)'
-                        card_shadow  = '0 4px 8px rgba(0,0,0,0.08)'
-                        icon_bg      = 'rgba(28,28,30,0.12)'
+                        card_border  = '2px solid #1a73e8'
+                        card_bg      = 'rgba(26,115,232,0.05)'
+                        card_shadow  = '0 4px 12px rgba(26,115,232,0.12)'
+                        icon_bg      = 'rgba(26,115,232,0.15)'
                         card_cls     = 'doc-card-outer doc-card-selected'
                     else:
                         chk_html = (
-                            '<div style="width:20px;height:20px;border-radius:6px;'
-                            'border:2px solid #e9eaeb;background:transparent;flex-shrink:0;"></div>'
+                            '<div style="width:20px;height:20px;border-radius:50%;'
+                            'border:2px solid #dadce0;background:transparent;flex-shrink:0;"></div>'
                         )
                         card_border  = '1px solid #e9eaeb'
                         card_bg      = '#ffffff'
                         card_shadow  = '0 1px 3px rgba(0,0,0,0.06)'
-                        icon_bg      = 'rgba(28,28,30,0.06)'
+                        icon_bg      = 'rgba(26,115,232,0.08)'
                         card_cls     = 'doc-card-outer doc-card-unselected'
 
                     card_html = (
@@ -1610,10 +1613,10 @@ if _is_manage:
                         f'background:{icon_bg};display:flex;align-items:center;'
                         f'justify-content:center;flex-shrink:0;">{_PDF_SVG}</div>'
                         f'<div style="flex:1;min-width:0;">'
-                        f'<p style="font-size:0.875rem;font-weight:500;color:#1c1c1e;'
+                        f'<p style="font-size:0.875rem;font-weight:500;color:#202124;'
                         f'margin:0 !important;line-height:1.4;'
                         f'overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{name}</p>'
-                        f'<p style="font-size:0.75rem;color:#86868b;'
+                        f'<p style="font-size:0.75rem;color:#5f6368;'
                         f'margin:2px 0 0 0 !important;line-height:1.3;">{date_str}</p>'
                         f'</div></div>'
                     )
@@ -1626,19 +1629,24 @@ if _is_manage:
                                 selected.append(name)
                             st.rerun()
 
+                # ── 削除ボタン（選択時） ──
                 if selected:
-                    st.warning(f"{len(selected)} 件選択中")
-                    c1, c2 = st.columns(2)
-                    with c1:
-                        if st.button("選択したPDFを削除", type="primary", use_container_width=True):
+                    st.markdown('<div style="height:0.5rem;"></div>', unsafe_allow_html=True)
+                    _dc1, _dc2 = st.columns([3, 2])
+                    with _dc1:
+                        if st.button(f"🗑 {len(selected)}件を削除", type="primary", use_container_width=True):
                             for name in selected:
                                 delete_document(name)
                             st.session_state["selected_docs"] = []
                             st.success(f"{len(selected)} 件削除しました")
                             st.rerun()
-                    with c2:
+                    with _dc2:
                         if st.button("選択を解除", use_container_width=True):
                             st.session_state["selected_docs"] = []
                             st.rerun()
             else:
-                st.caption("まだドキュメントが登録されていません。")
+                st.markdown(
+                    '<div style="padding:3rem 1rem;text-align:center;color:#5f6368;font-size:0.9rem;">'
+                    'まだドキュメントが登録されていません。</div>',
+                    unsafe_allow_html=True,
+                )
