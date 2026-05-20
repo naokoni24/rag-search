@@ -442,19 +442,24 @@ div[data-testid="stTextInput"] input:focus {
 [data-testid="stElementContainer"]:has(.header-right-marker) + [data-testid="stLayoutWrapper"] [data-testid="stColumn"] {
     padding: 0 !important;
 }
-[data-testid="stElementContainer"]:has(.header-right-marker) + [data-testid="stLayoutWrapper"] .stButton > button {
+/* 検索タブではログアウトボタンを非表示（manage-tab-active がないとき） */
+[data-testid="stElementContainer"]:has(.header-right-marker):not(:has(.manage-tab-active)) + [data-testid="stLayoutWrapper"] .stButton > button {
+    visibility: hidden !important; pointer-events: none !important;
+}
+/* 管理タブではログアウトボタンを表示 */
+[data-testid="stElementContainer"]:has(.manage-tab-active) + [data-testid="stLayoutWrapper"] .stButton > button {
     background: rgba(0,0,0,0.05) !important; color: #202124 !important;
     border: 1px solid rgba(0,0,0,0.1) !important; border-radius: 999px !important;
     font-size: 0.875rem !important; font-weight: 500 !important;
     padding: 0.625rem 1.25rem !important; min-height: 2.5rem !important;
     box-shadow: none !important; transition: all 0.3s !important;
 }
-[data-testid="stElementContainer"]:has(.header-right-marker) + [data-testid="stLayoutWrapper"] .stButton > button:hover {
+[data-testid="stElementContainer"]:has(.manage-tab-active) + [data-testid="stLayoutWrapper"] .stButton > button:hover {
     background: rgba(0,0,0,0.09) !important; color: #202124 !important;
 }
-[data-testid="stElementContainer"]:has(.header-right-marker) + [data-testid="stLayoutWrapper"] .stButton > button p,
-[data-testid="stElementContainer"]:has(.header-right-marker) + [data-testid="stLayoutWrapper"] .stButton > button span,
-[data-testid="stElementContainer"]:has(.header-right-marker) + [data-testid="stLayoutWrapper"] .stButton > button div {
+[data-testid="stElementContainer"]:has(.manage-tab-active) + [data-testid="stLayoutWrapper"] .stButton > button p,
+[data-testid="stElementContainer"]:has(.manage-tab-active) + [data-testid="stLayoutWrapper"] .stButton > button span,
+[data-testid="stElementContainer"]:has(.manage-tab-active) + [data-testid="stLayoutWrapper"] .stButton > button div {
     color: #202124 !important;
 }
 
@@ -1111,14 +1116,19 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# ヘッダー右ログアウトボタン（文書管理タブのみ表示）
+# ヘッダー右ログアウトボタン（常にレンダリング・CSSで文書管理タブのみ表示）
 _is_manage_tab = st.session_state.get("active_tab", "search") == "manage"
-st.markdown('<span class="header-right-marker" style="display:none;"></span>', unsafe_allow_html=True)
+# タブ状態を CSS に伝えるマーカー（columns の高さを一定に保つために常にレンダリング）
+if _is_manage_tab:
+    st.markdown('<span class="header-right-marker manage-tab-active" style="display:none;"></span>', unsafe_allow_html=True)
+else:
+    st.markdown('<span class="header-right-marker" style="display:none;"></span>', unsafe_allow_html=True)
 _, _hr_col = st.columns([5, 1])
 with _hr_col:
-    if _is_manage_tab:
-        _admin_logged_in = st.session_state.get("admin_authenticated", False)
-        if st.button("👤 ログアウト", key="header_logout_btn", use_container_width=True):
+    # 常にボタンをレンダリング（columns の高さを一定に保つため）
+    _admin_logged_in = st.session_state.get("admin_authenticated", False)
+    if st.button("👤 ログアウト", key="header_logout_btn", use_container_width=True):
+        if _is_manage_tab:
             if _admin_logged_in:
                 st.session_state["admin_authenticated"] = False
                 st.session_state.pop("admin_last_active", None)
