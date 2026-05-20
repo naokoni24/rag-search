@@ -1701,10 +1701,11 @@ if _is_manage:
                         f'<p style="font-size:0.875rem;font-weight:500;color:#202124;'
                         f'margin:0 !important;flex:1;min-width:0;'
                         f'overflow:hidden;text-overflow:ellipsis;white-space:nowrap;'
-                        f'line-height:44px;">{name}</p>'
+                        f'display:flex;align-items:center;height:100%;">{name}</p>'
                         f'<p style="font-size:0.75rem;color:#5f6368;'
                         f'margin:0 !important;white-space:nowrap;flex-shrink:0;'
-                        f'width:8rem;text-align:right;line-height:44px;">{date_str}</p>'
+                        f'width:8rem;text-align:right;'
+                        f'display:flex;align-items:center;justify-content:flex-end;height:100%;">{date_str}</p>'
                         f'</div></div>'
                     )
                     with st.container():
