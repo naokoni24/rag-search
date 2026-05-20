@@ -1630,12 +1630,13 @@ if _is_manage:
                         f'<div style="width:44px;height:44px;border-radius:12px;'
                         f'background:{icon_bg};display:flex;align-items:center;'
                         f'justify-content:center;flex-shrink:0;">{_PDF_SVG}</div>'
-                        f'<div style="flex:1;min-width:0;">'
+                        f'<div style="flex:1;min-width:0;display:flex;align-items:center;'
+                        f'justify-content:space-between;gap:0.75rem;">'
                         f'<p style="font-size:0.875rem;font-weight:500;color:#202124;'
-                        f'margin:0 !important;line-height:1.4;'
+                        f'margin:0 !important;line-height:1.4;flex:1;min-width:0;'
                         f'overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{name}</p>'
                         f'<p style="font-size:0.75rem;color:#5f6368;'
-                        f'margin:2px 0 0 0 !important;line-height:1.3;">{date_str}</p>'
+                        f'margin:0 !important;line-height:1.4;white-space:nowrap;flex-shrink:0;">{date_str}</p>'
                         f'</div></div>'
                     )
                     with st.container():
