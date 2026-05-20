@@ -349,29 +349,43 @@ div[data-testid="stTextInput"] input:focus {
 [data-testid="stFileUploaderDropzone"] button span { color: #ffffff !important; }
 
 /* ── ドキュメントカード（HTML card + 透明オーバーレイボタン） ── */
-/* :has(> stElementContainer > stMarkdownContainer ...) で直接コンテナのみ対象 */
-[data-testid="stVerticalBlock"]:has(> [data-testid="stElementContainer"] > [data-testid="stMarkdownContainer"] .doc-card-outer) {
+/* stMarkdown が stElementContainer の直接子 → さらに深く .doc-card-outer を持つコンテナのみ対象 */
+[data-testid="stVerticalBlock"]:has(> [data-testid="stElementContainer"] > [data-testid="stMarkdown"] .doc-card-outer) {
     position: relative !important; margin-bottom: 0.75rem !important;
 }
 /* ボタンを包む stElementContainer（最後の子）を絶対配置でカード全体に被せる */
-[data-testid="stVerticalBlock"]:has(> [data-testid="stElementContainer"] > [data-testid="stMarkdownContainer"] .doc-card-outer) > [data-testid="stElementContainer"]:last-child {
+[data-testid="stVerticalBlock"]:has(> [data-testid="stElementContainer"] > [data-testid="stMarkdown"] .doc-card-outer) > [data-testid="stElementContainer"]:last-child {
     position: absolute !important; inset: 0 !important;
     z-index: 10 !important; margin: 0 !important; padding: 0 !important;
     width: 100% !important; height: 100% !important;
 }
-[data-testid="stVerticalBlock"]:has(> [data-testid="stElementContainer"] > [data-testid="stMarkdownContainer"] .doc-card-outer) > [data-testid="stElementContainer"]:last-child [data-testid="stButton"] {
+[data-testid="stVerticalBlock"]:has(> [data-testid="stElementContainer"] > [data-testid="stMarkdown"] .doc-card-outer) > [data-testid="stElementContainer"]:last-child [data-testid="stButton"] {
     width: 100% !important; height: 100% !important;
     margin: 0 !important; padding: 0 !important;
 }
-[data-testid="stVerticalBlock"]:has(> [data-testid="stElementContainer"] > [data-testid="stMarkdownContainer"] .doc-card-outer) > [data-testid="stElementContainer"]:last-child [data-testid="stButton"] > button {
+[data-testid="stVerticalBlock"]:has(> [data-testid="stElementContainer"] > [data-testid="stMarkdown"] .doc-card-outer) > [data-testid="stElementContainer"]:last-child [data-testid="stButton"] > button {
     opacity: 0 !important; width: 100% !important; height: 100% !important;
     min-height: 0 !important; cursor: pointer !important; padding: 0 !important;
     border: none !important; background: transparent !important; box-shadow: none !important;
 }
 /* ホバー時 card スタイル変更 */
-[data-testid="stVerticalBlock"]:has(> [data-testid="stElementContainer"] > [data-testid="stMarkdownContainer"] .doc-card-outer.doc-card-unselected):hover .doc-card-outer {
+[data-testid="stVerticalBlock"]:has(> [data-testid="stElementContainer"] > [data-testid="stMarkdown"] .doc-card-outer.doc-card-unselected):hover .doc-card-outer {
     border-color: rgba(26,115,232,0.4) !important;
     box-shadow: 0 8px 20px rgba(26,115,232,0.1), 0 4px 6px rgba(0,0,0,0.04) !important;
+}
+/* ── すべて選択 row（同じ overlay 構造） ── */
+[data-testid="stVerticalBlock"]:has(> [data-testid="stElementContainer"] > [data-testid="stMarkdown"] .sel-all-row) {
+    position: relative !important;
+}
+[data-testid="stVerticalBlock"]:has(> [data-testid="stElementContainer"] > [data-testid="stMarkdown"] .sel-all-row) > [data-testid="stElementContainer"]:last-child {
+    position: absolute !important; inset: 0 !important;
+    z-index: 10 !important; margin: 0 !important; padding: 0 !important;
+    width: 100% !important; height: 100% !important;
+}
+[data-testid="stVerticalBlock"]:has(> [data-testid="stElementContainer"] > [data-testid="stMarkdown"] .sel-all-row) > [data-testid="stElementContainer"]:last-child [data-testid="stButton"] > button {
+    opacity: 0 !important; width: 100% !important; height: 100% !important;
+    min-height: 0 !important; cursor: pointer !important; padding: 0 !important;
+    border: none !important; background: transparent !important; box-shadow: none !important;
 }
 
 /* ── ログインカード ── */
