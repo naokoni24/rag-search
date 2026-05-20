@@ -1698,13 +1698,11 @@ if _is_manage:
                         f'justify-content:center;flex-shrink:0;">{_PDF_SVG}</div>'
                         f'<div style="flex:1;min-width:0;height:44px;display:flex;'
                         f'align-items:center;justify-content:space-between;gap:0.75rem;">'
-                        f'<p style="font-size:0.875rem !important;font-weight:500;color:#202124 !important;'
-                        f'margin:0 !important;padding:0 !important;line-height:1 !important;'
+                        f'<div style="font-size:0.875rem;font-weight:500;color:#202124;'
                         f'flex:1;min-width:0;'
-                        f'overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{name}</p>'
-                        f'<p style="font-size:0.75rem !important;color:#5f6368 !important;'
-                        f'margin:0 !important;padding:0 !important;line-height:1 !important;'
-                        f'white-space:nowrap;flex-shrink:0;width:8rem;text-align:right;">{date_str}</p>'
+                        f'overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{name}</div>'
+                        f'<div style="font-size:0.75rem;color:#5f6368;'
+                        f'white-space:nowrap;flex-shrink:0;width:8rem;text-align:right;">{date_str}</div>'
                         f'</div></div>'
                     )
                     with st.container():
