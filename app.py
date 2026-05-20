@@ -62,7 +62,10 @@ STYLE = """
 [data-testid="stDecoration"],
 [data-testid="stStatusWidget"],
 [data-testid="stAppDeployButton"],
-#MainMenu { visibility: hidden !important; height: 0 !important; }
+[data-testid="stBottom"],
+.stDeployButton,
+#MainMenu,
+header[data-testid="stHeader"] { display: none !important; }
 
 /* ── フォント ── */
 html, body, [class*="css"], .stApp, p, div, label, textarea, button {
