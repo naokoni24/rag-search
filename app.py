@@ -330,7 +330,7 @@ div[data-testid="stTextInput"] input:focus {
     font-size: 0.8rem !important; color: #5f6368 !important;
 }
 /* ── ファイルアップローダー ── */
-/* Uploadボタン・全ボタン共通 */
+/* Uploadボタン（Browse files / secondary）を大きくBlue */
 [data-testid="stFileUploader"] button,
 [data-testid="stFileUploaderDropzone"] button {
     background: #1a73e8 !important; color: #ffffff !important;
@@ -339,7 +339,6 @@ div[data-testid="stTextInput"] input:focus {
     margin-top: 0.5rem !important; transition: all 0.3s !important;
     box-shadow: 0 2px 8px rgba(26,115,232,0.3) !important;
     width: auto !important; height: auto !important;
-    min-height: 0 !important;
 }
 [data-testid="stFileUploader"] button:hover,
 [data-testid="stFileUploaderDropzone"] button:hover {
@@ -350,6 +349,32 @@ div[data-testid="stTextInput"] input:focus {
 [data-testid="stFileUploader"] button span,
 [data-testid="stFileUploaderDropzone"] button p,
 [data-testid="stFileUploaderDropzone"] button span { color: #ffffff !important; }
+/* 削除・追加ボタン（icon/minimal種別）を小さく */
+[data-testid="stFileUploader"] [data-testid="stBaseButton-minimal"],
+[data-testid="stFileUploader"] [data-testid="baseButton-minimal"],
+[data-testid="stFileUploader"] [data-testid="stBaseButton-icon"],
+[data-testid="stFileUploader"] [data-testid="baseButton-icon"],
+[data-testid="stFileUploader"] [data-testid="stFileUploaderDeleteBtn"] {
+    background: transparent !important; color: #5f6368 !important;
+    border: 1px solid #dadce0 !important; border-radius: 50% !important;
+    padding: 0 !important; min-height: 0 !important;
+    width: 1.75rem !important; height: 1.75rem !important;
+    box-shadow: none !important; margin-top: 0 !important;
+}
+[data-testid="stFileUploader"] [data-testid="stBaseButton-minimal"]:hover,
+[data-testid="stFileUploader"] [data-testid="baseButton-minimal"]:hover,
+[data-testid="stFileUploader"] [data-testid="stBaseButton-icon"]:hover,
+[data-testid="stFileUploader"] [data-testid="baseButton-icon"]:hover,
+[data-testid="stFileUploader"] [data-testid="stFileUploaderDeleteBtn"]:hover {
+    background: #fce8e6 !important; color: #d93025 !important;
+    border-color: #d93025 !important;
+}
+[data-testid="stFileUploader"] [data-testid="stBaseButton-minimal"] p,
+[data-testid="stFileUploader"] [data-testid="stBaseButton-minimal"] span,
+[data-testid="stFileUploader"] [data-testid="stBaseButton-icon"] p,
+[data-testid="stFileUploader"] [data-testid="stBaseButton-icon"] span {
+    color: inherit !important;
+}
 
 /* ── ドキュメントカード（HTML card + 透明オーバーレイボタン） ── */
 /* stMarkdown が stElementContainer の直接子 → さらに深く .doc-card-outer を持つコンテナのみ対象 */
