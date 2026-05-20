@@ -466,25 +466,30 @@ div[data-testid="stTextInput"] input:focus {
 [data-testid="stElementContainer"]:has(.header-right-marker) {
     display: none !important;
 }
-/* fixed でフローから外してタブ位置に影響させない */
-[data-testid="stElementContainer"]:has(.header-right-marker) + [data-testid="stLayoutWrapper"] {
+/* fixed でフローから外してタブ位置に影響させない（stLayoutWrapper / stHorizontalBlock 両対応） */
+[data-testid="stElementContainer"]:has(.header-right-marker) + [data-testid="stLayoutWrapper"],
+[data-testid="stElementContainer"]:has(.header-right-marker) + [data-testid="stHorizontalBlock"] {
     position: fixed !important; top: 1.25rem !important; right: 1.5rem !important;
     z-index: 200 !important; width: auto !important; margin: 0 !important;
 }
-[data-testid="stElementContainer"]:has(.header-right-marker) + [data-testid="stLayoutWrapper"] [data-testid="stColumn"] {
+[data-testid="stElementContainer"]:has(.header-right-marker) + [data-testid="stLayoutWrapper"] [data-testid="stColumn"],
+[data-testid="stElementContainer"]:has(.header-right-marker) + [data-testid="stHorizontalBlock"] [data-testid="stColumn"] {
     padding: 0 !important;
 }
-/* デフォルト：ログアウトボタン非表示（高さを管理タブと揃えて列高さを一定に保つ） */
-[data-testid="stElementContainer"]:has(.header-right-marker) + [data-testid="stLayoutWrapper"] .stButton > button {
+/* デフォルト：ログアウトボタン非表示 */
+[data-testid="stElementContainer"]:has(.header-right-marker) + [data-testid="stLayoutWrapper"] .stButton > button,
+[data-testid="stElementContainer"]:has(.header-right-marker) + [data-testid="stHorizontalBlock"] .stButton > button {
     visibility: hidden !important; pointer-events: none !important;
     min-height: 0 !important; height: auto !important;
     padding: 0.2rem 0.65rem !important; font-size: 0.7rem !important;
 }
 /* 管理タブ＋ログイン中のみ表示 */
-[data-testid="stElementContainer"]:has(.manage-tab-active.admin-logged-in) + [data-testid="stLayoutWrapper"] .stButton {
+[data-testid="stElementContainer"]:has(.manage-tab-active.admin-logged-in) + [data-testid="stLayoutWrapper"] .stButton,
+[data-testid="stElementContainer"]:has(.manage-tab-active.admin-logged-in) + [data-testid="stHorizontalBlock"] .stButton {
     display: flex !important; justify-content: flex-end !important;
 }
-[data-testid="stElementContainer"]:has(.manage-tab-active.admin-logged-in) + [data-testid="stLayoutWrapper"] .stButton > button {
+[data-testid="stElementContainer"]:has(.manage-tab-active.admin-logged-in) + [data-testid="stLayoutWrapper"] .stButton > button,
+[data-testid="stElementContainer"]:has(.manage-tab-active.admin-logged-in) + [data-testid="stHorizontalBlock"] .stButton > button {
     visibility: visible !important; pointer-events: auto !important;
     background: #1a73e8 !important; color: #ffffff !important;
     border: none !important; border-radius: 999px !important;
@@ -493,11 +498,14 @@ div[data-testid="stTextInput"] input:focus {
     box-shadow: 0 2px 6px rgba(26,115,232,0.3) !important; transition: all 0.3s !important;
     white-space: nowrap !important; width: fit-content !important; margin-left: auto !important;
 }
-[data-testid="stElementContainer"]:has(.manage-tab-active.admin-logged-in) + [data-testid="stLayoutWrapper"] .stButton > button:hover {
+[data-testid="stElementContainer"]:has(.manage-tab-active.admin-logged-in) + [data-testid="stLayoutWrapper"] .stButton > button:hover,
+[data-testid="stElementContainer"]:has(.manage-tab-active.admin-logged-in) + [data-testid="stHorizontalBlock"] .stButton > button:hover {
     background: #1557b0 !important;
 }
 [data-testid="stElementContainer"]:has(.manage-tab-active.admin-logged-in) + [data-testid="stLayoutWrapper"] .stButton > button p,
-[data-testid="stElementContainer"]:has(.manage-tab-active.admin-logged-in) + [data-testid="stLayoutWrapper"] .stButton > button span {
+[data-testid="stElementContainer"]:has(.manage-tab-active.admin-logged-in) + [data-testid="stLayoutWrapper"] .stButton > button span,
+[data-testid="stElementContainer"]:has(.manage-tab-active.admin-logged-in) + [data-testid="stHorizontalBlock"] .stButton > button p,
+[data-testid="stElementContainer"]:has(.manage-tab-active.admin-logged-in) + [data-testid="stHorizontalBlock"] .stButton > button span {
     color: #ffffff !important;
 }
 
