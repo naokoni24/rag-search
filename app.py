@@ -1104,7 +1104,6 @@ if st.query_params.get("logout") == "1":
     st.session_state["_show_logout_msg"] = True
     st.session_state["active_tab"] = "manage"
     st.query_params.clear()
-    st.rerun()
 
 st.markdown(STYLE, unsafe_allow_html=True)
 
