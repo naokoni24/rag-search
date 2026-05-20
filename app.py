@@ -100,7 +100,7 @@ p, li, label { font-size: 1rem !important; color: #202124 !important; line-heigh
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
     border-bottom: 1px solid rgba(0,0,0,0.1);
-    padding: 0 1.5rem;
+    padding: 0.75rem 1.5rem;
     position: sticky;
     top: 0;
     z-index: 100;
@@ -421,7 +421,7 @@ div[data-testid="stTextInput"] input:focus {
     height: 0 !important; margin: 0 !important; padding: 0 !important; overflow: visible !important;
 }
 [data-testid="stElementContainer"]:has(.header-right-marker) + [data-testid="stLayoutWrapper"] {
-    margin-top: -4.5rem !important; position: relative !important;
+    margin-top: -5.75rem !important; position: relative !important;
     z-index: 200 !important;
 }
 [data-testid="stElementContainer"]:has(.header-right-marker) + [data-testid="stLayoutWrapper"] [data-testid="stColumn"] {
