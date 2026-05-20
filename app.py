@@ -349,38 +349,7 @@ div[data-testid="stTextInput"] input:focus {
 [data-testid="stFileUploader"] button span,
 [data-testid="stFileUploaderDropzone"] button p,
 [data-testid="stFileUploaderDropzone"] button span { color: #ffffff !important; }
-/* 削除・追加ボタン（icon/minimal/secondary種別）を小さく */
-[data-testid="stFileUploader"] [data-testid="stBaseButton-minimal"],
-[data-testid="stFileUploader"] [data-testid="baseButton-minimal"],
-[data-testid="stFileUploader"] [data-testid="stBaseButton-icon"],
-[data-testid="stFileUploader"] [data-testid="baseButton-icon"],
-[data-testid="stFileUploader"] [data-testid="stBaseButton-secondary"],
-[data-testid="stFileUploader"] [data-testid="baseButton-secondary"],
-[data-testid="stFileUploader"] [data-testid="stFileUploaderDeleteBtn"] {
-    background: transparent !important; color: #202124 !important;
-    border: 1px solid #9aa0a6 !important; border-radius: 50% !important;
-    padding: 0 !important; min-height: 0 !important;
-    width: 1.25rem !important; height: 1.25rem !important;
-    box-shadow: none !important; margin-top: 0 !important;
-}
-[data-testid="stFileUploader"] [data-testid="stBaseButton-minimal"]:hover,
-[data-testid="stFileUploader"] [data-testid="baseButton-minimal"]:hover,
-[data-testid="stFileUploader"] [data-testid="stBaseButton-icon"]:hover,
-[data-testid="stFileUploader"] [data-testid="baseButton-icon"]:hover,
-[data-testid="stFileUploader"] [data-testid="stBaseButton-secondary"]:hover,
-[data-testid="stFileUploader"] [data-testid="baseButton-secondary"]:hover,
-[data-testid="stFileUploader"] [data-testid="stFileUploaderDeleteBtn"]:hover {
-    background: #fce8e6 !important; color: #d93025 !important;
-    border-color: #d93025 !important;
-}
-[data-testid="stFileUploader"] [data-testid="stBaseButton-minimal"] p,
-[data-testid="stFileUploader"] [data-testid="stBaseButton-minimal"] span,
-[data-testid="stFileUploader"] [data-testid="stBaseButton-icon"] p,
-[data-testid="stFileUploader"] [data-testid="stBaseButton-icon"] span,
-[data-testid="stFileUploader"] [data-testid="stBaseButton-secondary"] p,
-[data-testid="stFileUploader"] [data-testid="stBaseButton-secondary"] span {
-    color: inherit !important;
-}
+/* 削除・追加ボタン CSS は一時無効化 */
 
 /* ── ドキュメントカード（HTML card + 透明オーバーレイボタン） ── */
 /* stMarkdown が stElementContainer の直接子 → さらに深く .doc-card-outer を持つコンテナのみ対象 */
