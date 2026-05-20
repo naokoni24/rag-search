@@ -1058,7 +1058,7 @@ def linkify_answer(answer: str, pdf_cache=None) -> str:
             link = f'<span style="color:#1a73e8;font-weight:600;">📄 {fname}</span>'
         return (
             f'<br>{link}'
-            f'<span style="color:#1a73e8;font-weight:400;"> p.{page}</span>'
+            f'<span style="color:#86868b;font-weight:400;"> p.{page}</span>'
         )
 
     result = _CITATION_RE.sub(_replace, answer)
@@ -1345,7 +1345,7 @@ if _is_search:
       <span style="background:#1a73e8;color:#fff;border-radius:6px;padding:2px 10px;
                    font-size:0.78rem;font-weight:700;">{i}</span>
       {_fname_html}
-      <span style="color:#1a73e8;font-size:0.85rem;">p.{c['page']}</span>
+      <span style="color:#86868b;font-size:0.85rem;">p.{c['page']}</span>
     </div>
     <span style="background:#1a73e8;color:#fff;border-radius:999px;padding:2px 10px;
                  font-size:0.78rem;font-weight:600;white-space:nowrap;">関連度 {score_pct}%</span>
