@@ -1335,7 +1335,7 @@ if _is_search:
                             )
                         else:
                             _fname_html = (
-                                f'<span style="font-weight:700;color:#1a73e8;font-size:0.95rem;">'
+                                f'<span style="font-weight:700;color:#202124;font-size:0.95rem;">'
                                 f'📄 {c["filename"]}</span>'
                             )
                         _excerpt = c['text'][:200] + '...' if len(c['text']) > 200 else c['text']
