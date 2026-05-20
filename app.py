@@ -277,21 +277,20 @@ div[data-testid="stTextInput"] input:focus {
 }
 /* pill ボタン */
 [data-testid="stElementContainer"]:has(.top3-pill-marker) + [data-testid="stElementContainer"] .stButton > button {
-    background: #ffffff !important; color: #202124 !important;
-    border: 1px solid #dadce0 !important; border-radius: 999px !important;
+    background: #1a73e8 !important; color: #ffffff !important;
+    border: none !important; border-radius: 999px !important;
     font-size: 0.875rem !important; font-weight: 500 !important;
     padding: 0.75rem 1.25rem !important;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.08) !important;
+    box-shadow: 0 2px 8px rgba(26,115,232,0.3) !important;
     white-space: nowrap !important; transition: all 0.3s !important;
 }
 [data-testid="stElementContainer"]:has(.top3-pill-marker) + [data-testid="stElementContainer"] .stButton > button p,
 [data-testid="stElementContainer"]:has(.top3-pill-marker) + [data-testid="stElementContainer"] .stButton > button span {
-    color: #202124 !important;
+    color: #ffffff !important;
 }
 [data-testid="stElementContainer"]:has(.top3-pill-marker) + [data-testid="stElementContainer"] .stButton > button:hover {
-    border-color: #1a73e8 !important;
-    box-shadow: 0 4px 8px rgba(26,115,232,0.15) !important;
-    background: rgba(26,115,232,0.04) !important; color: #202124 !important;
+    background: #1557b0 !important; color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(26,115,232,0.4) !important;
 }
 
 /* ── ファイルアップローダー ── */
@@ -854,6 +853,7 @@ def check_admin_timeout():
         if time.time() - last > ADMIN_TIMEOUT_SEC:
             st.session_state["admin_authenticated"] = False
             st.session_state.pop("admin_last_active", None)
+            st.session_state["_was_timed_out"] = True  # タイムアウト時のみフラグを立てる
             return False
     return st.session_state.get("admin_authenticated", False)
 
@@ -1400,9 +1400,7 @@ if _is_manage:
     if not is_admin:
         if st.session_state.pop("_show_logout_msg", False):
             st.success("ログアウトしました")
-        elif st.session_state.get("admin_authenticated") is False and st.session_state.get("admin_last_active") is None:
-            pass  # 初回表示（タイムアウトではない）
-        elif not st.session_state.get("admin_authenticated"):
+        elif st.session_state.pop("_was_timed_out", False):
             st.info("セッションがタイムアウトしました。再度ログインしてください。")
 
         _, _mid, _ = st.columns([1, 2, 1])
