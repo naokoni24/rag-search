@@ -349,13 +349,11 @@ div[data-testid="stTextInput"] input:focus {
 [data-testid="stFileUploader"] button span,
 [data-testid="stFileUploaderDropzone"] button p,
 [data-testid="stFileUploaderDropzone"] button span { color: #ffffff !important; }
-/* 削除・追加ボタン（icon/minimal/secondary種別）を小さく */
+/* 削除・追加ボタン（icon/minimal種別）を小さく ※secondaryはUploadボタンと重複するため除外 */
 [data-testid="stFileUploader"] [data-testid="stBaseButton-minimal"],
 [data-testid="stFileUploader"] [data-testid="baseButton-minimal"],
 [data-testid="stFileUploader"] [data-testid="stBaseButton-icon"],
 [data-testid="stFileUploader"] [data-testid="baseButton-icon"],
-[data-testid="stFileUploader"] [data-testid="stBaseButton-secondary"],
-[data-testid="stFileUploader"] [data-testid="baseButton-secondary"],
 [data-testid="stFileUploader"] [data-testid="stFileUploaderDeleteBtn"] {
     background: transparent !important; color: #5f6368 !important;
     border: 1px solid #dadce0 !important; border-radius: 50% !important;
@@ -370,8 +368,6 @@ div[data-testid="stTextInput"] input:focus {
 [data-testid="stFileUploader"] [data-testid="baseButton-minimal"]:hover,
 [data-testid="stFileUploader"] [data-testid="stBaseButton-icon"]:hover,
 [data-testid="stFileUploader"] [data-testid="baseButton-icon"]:hover,
-[data-testid="stFileUploader"] [data-testid="stBaseButton-secondary"]:hover,
-[data-testid="stFileUploader"] [data-testid="baseButton-secondary"]:hover,
 [data-testid="stFileUploader"] [data-testid="stFileUploaderDeleteBtn"]:hover {
     background: #fce8e6 !important; color: #d93025 !important;
     border-color: #d93025 !important;
@@ -379,9 +375,7 @@ div[data-testid="stTextInput"] input:focus {
 [data-testid="stFileUploader"] [data-testid="stBaseButton-minimal"] p,
 [data-testid="stFileUploader"] [data-testid="stBaseButton-minimal"] span,
 [data-testid="stFileUploader"] [data-testid="stBaseButton-icon"] p,
-[data-testid="stFileUploader"] [data-testid="stBaseButton-icon"] span,
-[data-testid="stFileUploader"] [data-testid="stBaseButton-secondary"] p,
-[data-testid="stFileUploader"] [data-testid="stBaseButton-secondary"] span {
+[data-testid="stFileUploader"] [data-testid="stBaseButton-icon"] span {
     color: inherit !important;
 }
 
