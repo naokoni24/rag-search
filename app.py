@@ -185,8 +185,7 @@ p, li, label { font-size: 1rem !important; color: #202124 !important; line-heigh
     color: #202124 !important;
     background: rgba(26,115,232,0.06) !important;
 }
-/* ラベル非表示 */
-[data-testid="stButtonGroup"] > label { display: none !important; }
+/* ラベル非表示（label_visibility="collapsed"で制御） */
 
 /* ── 検索フォームカード ── */
 [data-testid="stForm"] {
