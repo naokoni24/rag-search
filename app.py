@@ -454,7 +454,7 @@ div[data-testid="stTextInput"] input:focus {
     font-size: 0.7rem !important; font-weight: 500 !important;
     padding: 0.2rem 0.65rem !important; min-height: 0 !important; height: auto !important;
     box-shadow: 0 2px 6px rgba(26,115,232,0.3) !important; transition: all 0.3s !important;
-    white-space: nowrap !important;
+    white-space: nowrap !important; width: fit-content !important;
 }
 [data-testid="stElementContainer"]:has(.manage-tab-active):has(.admin-logged-in) + [data-testid="stLayoutWrapper"] .stButton > button:hover {
     background: #1557b0 !important;
@@ -1131,7 +1131,7 @@ st.markdown(f'<span class="{_marker_classes}" style="display:none;"></span>', un
 _, _hr_col = st.columns([5, 1])
 with _hr_col:
     # 常にボタンをレンダリング（columns の高さを一定に保つため）
-    if st.button("👤 ログアウト", key="header_logout_btn", use_container_width=True):
+    if st.button("👤 ログアウト", key="header_logout_btn"):
         if _is_manage_tab and _admin_logged_in:
             st.session_state["admin_authenticated"] = False
             st.session_state.pop("admin_last_active", None)
