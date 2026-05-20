@@ -151,12 +151,27 @@ p, li, label { font-size: 1rem !important; color: #202124 !important; line-heigh
     transition: background 0.2s;
 }
 .logout-link:hover { background: #1557b0 !important; color: #ffffff !important; }
-/* ── 隠しログアウトボタン（ヘッダーリンクからJSで呼ばれる） ── */
-[data-testid="stElementContainer"]:has(.logout-hidden-marker) {
-    position: fixed !important; top: -9999px !important; left: -9999px !important;
+/* ── ログアウトボタン（ヘッダー右端に固定配置） ── */
+[data-testid="stElementContainer"]:has(.logout-anchor) {
+    display: none !important;
 }
-[data-testid="stElementContainer"]:has(.logout-hidden-marker) + [data-testid="stElementContainer"] {
-    position: fixed !important; top: -9999px !important; left: -9999px !important;
+[data-testid="stElementContainer"]:has(.logout-anchor) + [data-testid="stElementContainer"] {
+    position: fixed !important; top: 1.5rem !important; right: 1.5rem !important;
+    z-index: 300 !important; width: auto !important; margin: 0 !important;
+}
+[data-testid="stElementContainer"]:has(.logout-anchor) + [data-testid="stElementContainer"] .stButton > button {
+    background: #1a73e8 !important; color: #ffffff !important;
+    border: none !important; border-radius: 999px !important;
+    font-size: 0.75rem !important; font-weight: 500 !important;
+    padding: 0.3rem 0.9rem !important; min-height: 0 !important; height: auto !important;
+    box-shadow: 0 2px 6px rgba(26,115,232,0.3) !important; white-space: nowrap !important;
+}
+[data-testid="stElementContainer"]:has(.logout-anchor) + [data-testid="stElementContainer"] .stButton > button:hover {
+    background: #1557b0 !important;
+}
+[data-testid="stElementContainer"]:has(.logout-anchor) + [data-testid="stElementContainer"] .stButton > button p,
+[data-testid="stElementContainer"]:has(.logout-anchor) + [data-testid="stElementContainer"] .stButton > button span {
+    color: #ffffff !important;
 }
 
 /* ── segmented_control タブナビ ── */
@@ -1110,18 +1125,22 @@ st.markdown(STYLE, unsafe_allow_html=True)
 setup_genai()
 
 # ヘッダー
+# ログアウトボタン（ヘッダーより前にレンダリング・CSSでヘッダー内に固定配置）
 _hdr_is_admin = (
     st.session_state.get("active_tab", "search") == "manage"
     and st.session_state.get("admin_authenticated", False)
 )
-_logout_html = (
-    '<script>function doLogout(){var btns=document.querySelectorAll("[data-testid=\'stButton\'] button");'
-    'for(var i=0;i<btns.length;i++){if((btns[i].innerText||"").indexOf("ログアウト")>=0)'
-    '{btns[i].dispatchEvent(new MouseEvent("click",{bubbles:true,cancelable:true,view:window}));break;}}}</script>'
-    '<a href="#" class="logout-link" onclick="event.preventDefault();doLogout();">👤 ログアウト</a>'
-    if _hdr_is_admin else ''
-)
-st.markdown(f"""
+if _hdr_is_admin:
+    st.markdown('<span class="logout-anchor"></span>', unsafe_allow_html=True)
+    if st.button("👤 ログアウト", key="manage_logout_btn"):
+        st.session_state["admin_authenticated"] = False
+        st.session_state.pop("admin_last_active", None)
+        st.session_state["_show_logout_msg"] = True
+        st.session_state["active_tab"] = "manage"
+        st.rerun()
+
+# ヘッダー
+st.markdown("""
 <div class="header">
   <div class="header-inner">
     <div class="header-logo">
@@ -1140,7 +1159,7 @@ st.markdown(f"""
       <p class="header-title">社内ナレッジ検索システム</p>
       <p class="header-subtitle">社内文書をAIで即座に検索・回答</p>
     </div>
-    <div class="header-right">{_logout_html}</div>
+    <div class="header-right"></div>
   </div>
 </div>
 """, unsafe_allow_html=True)
@@ -1466,14 +1485,7 @@ if _is_manage:
     else:
         touch_admin_session()
 
-        # 隠しログアウトボタン（ヘッダーのリンクからJSでクリックされる）
-        st.markdown('<span class="logout-hidden-marker"></span>', unsafe_allow_html=True)
-        if st.button("👤 ログアウト", key="manage_logout_btn"):
-            st.session_state["admin_authenticated"] = False
-            st.session_state.pop("admin_last_active", None)
-            st.session_state["_show_logout_msg"] = True
-            st.session_state["active_tab"] = "manage"
-            st.rerun()
+
 
         col_left, col_right = st.columns(2, gap="large")
 
