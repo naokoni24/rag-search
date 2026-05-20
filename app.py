@@ -141,16 +141,22 @@ p, li, label { font-size: 1rem !important; color: #202124 !important; line-heigh
     font-size: 0.875rem !important; color: #5f6368 !important; margin: 2px 0 0 0 !important;
 }
 .header-right { flex-shrink: 0; min-width: 2.75rem; display: flex; align-items: center; justify-content: flex-end; }
-.logout-link {
-    display: inline-flex; align-items: center; gap: 0.3rem;
-    padding: 0.3rem 0.9rem;
-    background: #1a73e8; color: #ffffff !important;
-    border-radius: 999px; font-size: 0.75rem; font-weight: 500;
-    text-decoration: none !important; white-space: nowrap;
-    box-shadow: 0 2px 6px rgba(26,115,232,0.3);
-    transition: background 0.2s;
+/* ── ログアウトボタン（st.button ヘッダー右端固定） ── */
+[data-testid="stElementContainer"]:has(.logout-top-marker) { display: none !important; }
+[data-testid="stElementContainer"]:has(.logout-top-marker) + [data-testid="stElementContainer"] {
+    position: fixed !important; top: 1.4rem !important; right: 1.5rem !important;
+    z-index: 999999 !important; width: auto !important; margin: 0 !important;
 }
-.logout-link:hover { background: #1557b0 !important; color: #ffffff !important; }
+[data-testid="stElementContainer"]:has(.logout-top-marker) + [data-testid="stElementContainer"] .stButton > button {
+    background: #1a73e8 !important; color: #ffffff !important;
+    border: none !important; border-radius: 999px !important;
+    font-size: 0.75rem !important; font-weight: 500 !important;
+    padding: 0.3rem 0.9rem !important; min-height: 0 !important; height: auto !important;
+    box-shadow: 0 2px 6px rgba(26,115,232,0.3) !important; white-space: nowrap !important;
+}
+[data-testid="stElementContainer"]:has(.logout-top-marker) + [data-testid="stElementContainer"] .stButton > button:hover { background: #1557b0 !important; }
+[data-testid="stElementContainer"]:has(.logout-top-marker) + [data-testid="stElementContainer"] .stButton > button p,
+[data-testid="stElementContainer"]:has(.logout-top-marker) + [data-testid="stElementContainer"] .stButton > button span { color: #ffffff !important; }
 
 /* ── segmented_control タブナビ ── */
 [data-testid="stButtonGroup"] {
@@ -1097,35 +1103,26 @@ st.set_page_config(
     layout="centered",
 )
 
-# ログアウト処理（URLパラメータ経由）
-if st.query_params.get("logout") == "1":
-    st.session_state["admin_authenticated"] = False
-    st.session_state.pop("admin_last_active", None)
-    st.session_state["_show_logout_msg"] = True
-    st.session_state["active_tab"] = "manage"
-    st.query_params.clear()
-
 st.markdown(STYLE, unsafe_allow_html=True)
 
 setup_genai()
 
-# ヘッダー
-# ヘッダー
+# ログアウトボタン（ヘッダー右端に固定表示）
 _hdr_is_admin = (
     st.session_state.get("active_tab", "search") == "manage"
     and st.session_state.get("admin_authenticated", False)
 )
-_logout_html = (
-    '<a href="?logout=1" class="logout-link"'
-    ' onclick="event.preventDefault();'
-    'var o=document.createElement(\'div\');'
-    'o.style.cssText=\'position:fixed;inset:0;background:#f8f9fa;z-index:9999;\';'
-    'document.body.appendChild(o);'
-    'requestAnimationFrame(function(){location.href=\'?logout=1\';});"'
-    '>👤 ログアウト</a>'
-    if _hdr_is_admin else ''
-)
-st.markdown(f"""
+if _hdr_is_admin:
+    st.markdown('<span class="logout-top-marker"></span>', unsafe_allow_html=True)
+    if st.button("👤 ログアウト", key="manage_logout_btn"):
+        st.session_state["admin_authenticated"] = False
+        st.session_state.pop("admin_last_active", None)
+        st.session_state["_show_logout_msg"] = True
+        st.session_state["active_tab"] = "manage"
+        st.rerun()
+
+# ヘッダー
+st.markdown("""
 <div class="header">
   <div class="header-inner">
     <div class="header-logo">
@@ -1144,7 +1141,7 @@ st.markdown(f"""
       <p class="header-title">社内ナレッジ検索システム</p>
       <p class="header-subtitle">社内文書をAIで即座に検索・回答</p>
     </div>
-    <div class="header-right">{_logout_html}</div>
+    <div class="header-right"></div>
   </div>
 </div>
 """, unsafe_allow_html=True)
