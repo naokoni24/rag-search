@@ -146,7 +146,7 @@ p, li, label { font-size: 1rem !important; color: #202124 !important; line-heigh
     padding: 0.3rem 0.9rem;
     background: #1a73e8; color: #ffffff !important;
     border: none; border-radius: 999px; font-size: 0.75rem; font-weight: 500;
-    text-decoration: none !important; white-space: nowrap; cursor: pointer;
+    text-decoration: none !important; white-space: nowrap;
     box-shadow: 0 2px 6px rgba(26,115,232,0.3);
     transition: background 0.2s;
 }
@@ -1116,9 +1116,9 @@ _hdr_is_admin = (
     and st.session_state.get("admin_authenticated", False)
 )
 _logout_html = (
-    '<button class="logout-link"'
-    ' onclick="window.location.replace(\'?logout=1\');"'
-    '>👤 ログアウト</button>'
+    '<a href="?logout=1" target="_self" class="logout-link"'
+    ' onclick="event.preventDefault();window.location.replace(\'?logout=1\');"'
+    '>👤 ログアウト</a>'
     if _hdr_is_admin else ''
 )
 st.markdown(f"""
