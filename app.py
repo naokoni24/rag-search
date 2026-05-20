@@ -343,7 +343,22 @@ div[data-testid="stTextInput"] input:focus {
     background: #fce8e6 !important; color: #d93025 !important;
     border-color: #d93025 !important;
 }
-/* ブラウズ/追加ボタンも同じ丸小ボタン形式 */
+/* Uploadボタン（Instructions内）は元のスタイルに戻す */
+[data-testid="stFileUploaderDropzoneInstructions"] button {
+    background: transparent !important; color: #202124 !important;
+    border: none !important; border-radius: 0.5rem !important;
+    padding: 0.375rem 0.75rem !important; font-weight: 500 !important;
+    width: auto !important; height: auto !important;
+    box-shadow: none !important; margin-top: 0 !important;
+}
+[data-testid="stFileUploaderDropzoneInstructions"] button:hover {
+    background: rgba(0,0,0,0.05) !important; color: #202124 !important;
+    border: none !important;
+}
+[data-testid="stFileUploaderDropzoneInstructions"] button p,
+[data-testid="stFileUploaderDropzoneInstructions"] button span {
+    color: #202124 !important;
+}
 
 /* ── ドキュメントカード（HTML card + 透明オーバーレイボタン） ── */
 /* stMarkdown が stElementContainer の直接子 → さらに深く .doc-card-outer を持つコンテナのみ対象 */
