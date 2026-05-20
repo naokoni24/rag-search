@@ -338,6 +338,26 @@ div[data-testid="stTextInput"] input:focus {
     margin-top: 0.5rem !important; transition: all 0.3s !important;
     box-shadow: 0 2px 8px rgba(26,115,232,0.3) !important;
 }
+/* ファイル削除ボタンを小さく */
+[data-testid="stFileUploaderDeleteBtn"] button,
+[data-testid="stFileUploaderDeleteBtn"] {
+    background: transparent !important; color: #5f6368 !important;
+    border: 1px solid #dadce0 !important; border-radius: 50% !important;
+    padding: 0.15rem !important; min-height: 0 !important;
+    width: 1.5rem !important; height: 1.5rem !important;
+    box-shadow: none !important; margin-top: 0 !important;
+    display: flex !important; align-items: center !important; justify-content: center !important;
+}
+[data-testid="stFileUploaderDeleteBtn"] button:hover,
+[data-testid="stFileUploaderDeleteBtn"]:hover {
+    background: #f1f3f4 !important; color: #d93025 !important;
+    border-color: #d93025 !important;
+}
+[data-testid="stFileUploaderDeleteBtn"] button p,
+[data-testid="stFileUploaderDeleteBtn"] button span,
+[data-testid="stFileUploaderDeleteBtn"] button svg {
+    color: inherit !important; width: 0.875rem !important; height: 0.875rem !important;
+}
 [data-testid="stFileUploader"] button:hover,
 [data-testid="stFileUploaderDropzone"] button:hover {
     background: #1557b0 !important; color: #ffffff !important;
