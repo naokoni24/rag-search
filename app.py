@@ -447,6 +447,9 @@ div[data-testid="stTextInput"] input:focus {
     visibility: hidden !important; pointer-events: none !important;
 }
 /* 管理タブ＋ログイン中のみ表示 */
+[data-testid="stElementContainer"]:has(.manage-tab-active):has(.admin-logged-in) + [data-testid="stLayoutWrapper"] .stButton {
+    display: flex !important; justify-content: flex-end !important;
+}
 [data-testid="stElementContainer"]:has(.manage-tab-active):has(.admin-logged-in) + [data-testid="stLayoutWrapper"] .stButton > button {
     visibility: visible !important; pointer-events: auto !important;
     background: #1a73e8 !important; color: #ffffff !important;
@@ -454,7 +457,7 @@ div[data-testid="stTextInput"] input:focus {
     font-size: 0.7rem !important; font-weight: 500 !important;
     padding: 0.2rem 0.65rem !important; min-height: 0 !important; height: auto !important;
     box-shadow: 0 2px 6px rgba(26,115,232,0.3) !important; transition: all 0.3s !important;
-    white-space: nowrap !important; width: fit-content !important;
+    white-space: nowrap !important; width: fit-content !important; margin-left: auto !important;
 }
 [data-testid="stElementContainer"]:has(.manage-tab-active):has(.admin-logged-in) + [data-testid="stLayoutWrapper"] .stButton > button:hover {
     background: #1557b0 !important;
