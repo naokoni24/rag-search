@@ -61,6 +61,7 @@ STYLE = """
 [data-testid="stToolbar"],
 [data-testid="stDecoration"],
 [data-testid="stStatusWidget"],
+[data-testid="stAppDeployButton"],
 #MainMenu { visibility: hidden !important; height: 0 !important; }
 
 /* ── フォント ── */
