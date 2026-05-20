@@ -1564,6 +1564,16 @@ if _is_manage:
                     'a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>'
                 )
 
+                # ── 列ヘッダー ──
+                st.markdown(
+                    '<div style="display:flex;align-items:center;justify-content:space-between;'
+                    'padding:0 0.5rem 0.25rem;margin-bottom:0.25rem;">'
+                    '<span style="font-size:0.75rem;font-weight:600;color:#5f6368;letter-spacing:0.05em;text-transform:uppercase;">ファイル名</span>'
+                    '<span style="font-size:0.75rem;font-weight:600;color:#5f6368;letter-spacing:0.05em;text-transform:uppercase;">登録日時</span>'
+                    '</div>',
+                    unsafe_allow_html=True,
+                )
+
                 # ── すべて選択 ──
                 _all_sel = len(selected) == len(docs) and len(docs) > 0
                 _all_chk = (
@@ -1630,12 +1640,13 @@ if _is_manage:
                         f'<div style="width:44px;height:44px;border-radius:12px;'
                         f'background:{icon_bg};display:flex;align-items:center;'
                         f'justify-content:center;flex-shrink:0;">{_PDF_SVG}</div>'
-                        f'<div style="flex:1;min-width:0;">'
-                        f'<p style="font-size:0.75rem;color:#5f6368;'
-                        f'margin:0 0 2px 0 !important;line-height:1.3;">{date_str}</p>'
+                        f'<div style="flex:1;min-width:0;display:flex;align-items:center;'
+                        f'justify-content:space-between;gap:0.75rem;">'
                         f'<p style="font-size:0.875rem;font-weight:500;color:#202124;'
-                        f'margin:0 !important;line-height:1.4;'
+                        f'margin:0 !important;line-height:1.4;flex:1;min-width:0;'
                         f'overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{name}</p>'
+                        f'<p style="font-size:0.75rem;color:#5f6368;'
+                        f'margin:0 !important;line-height:1.4;white-space:nowrap;flex-shrink:0;">{date_str}</p>'
                         f'</div></div>'
                     )
                     with st.container():
