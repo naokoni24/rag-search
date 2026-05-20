@@ -1585,7 +1585,7 @@ if _is_manage:
                     f'<div style="flex:1;display:flex;align-items:center;'
                     f'justify-content:space-between;margin-left:0.5rem;">'
                     f'<span style="{_col_header_style}">ファイル名</span>'
-                    f'<span style="{_col_header_style}">登録日時</span>'
+                    f'<span style="{_col_header_style};margin-right:1.5rem;">登録日時</span>'
                     f'</div>'
                     f'</div>'
                 )
