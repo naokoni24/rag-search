@@ -496,6 +496,30 @@ footer { display: none !important; }
     .search-hero-title { font-size: 2.2rem !important; }
 }
 </style>
+<script>
+(function() {
+  const HIDE = [
+    '[data-testid="stToolbar"]',
+    '[data-testid="stDecoration"]',
+    '[data-testid="stStatusWidget"]',
+    '[data-testid="stAppDeployButton"]',
+    '[data-testid="stDeployButton"]',
+    '[data-testid="stBottom"]',
+    '[data-testid="stBottomBlockContainer"]',
+    '#MainMenu',
+    'header[data-testid="stHeader"]',
+  ];
+  function hideAll() {
+    HIDE.forEach(function(sel) {
+      document.querySelectorAll(sel).forEach(function(el) {
+        el.style.setProperty('display', 'none', 'important');
+      });
+    });
+  }
+  hideAll();
+  new MutationObserver(hideAll).observe(document.body, { childList: true, subtree: true });
+})();
+</script>
 """
 
 
