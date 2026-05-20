@@ -338,27 +338,22 @@ div[data-testid="stTextInput"] input:focus {
     margin-top: 0.5rem !important; transition: all 0.3s !important;
     box-shadow: 0 2px 8px rgba(26,115,232,0.3) !important;
 }
-/* ファイル削除ボタンを小さく（stFileUploaderFile 内のボタン） */
-[data-testid="stFileUploaderFile"] button,
-[data-testid="stFileUploaderDeleteBtn"],
-[data-testid="stFileUploaderDeleteBtn"] button {
+/* ファイル削除ボタンを小さく（ボタン自体に testid が付いている） */
+[data-testid="stFileUploader"] [data-testid="stFileUploaderDeleteBtn"] {
     background: transparent !important; color: #5f6368 !important;
     border: 1px solid #dadce0 !important; border-radius: 50% !important;
-    padding: 0.1rem !important; min-height: 0 !important;
-    width: 1.6rem !important; height: 1.6rem !important;
+    padding: 0 !important; min-height: 0 !important;
+    width: 1.75rem !important; height: 1.75rem !important;
     box-shadow: none !important; margin-top: 0 !important;
-    font-size: 0.75rem !important;
+    display: inline-flex !important; align-items: center !important;
+    justify-content: center !important;
 }
-[data-testid="stFileUploaderFile"] button:hover,
-[data-testid="stFileUploaderDeleteBtn"]:hover,
-[data-testid="stFileUploaderDeleteBtn"] button:hover {
+[data-testid="stFileUploader"] [data-testid="stFileUploaderDeleteBtn"]:hover {
     background: #fce8e6 !important; color: #d93025 !important;
     border-color: #d93025 !important;
 }
-[data-testid="stFileUploaderFile"] button p,
-[data-testid="stFileUploaderFile"] button span,
-[data-testid="stFileUploaderFile"] button svg {
-    color: inherit !important; width: 1rem !important; height: 1rem !important;
+[data-testid="stFileUploader"] [data-testid="stFileUploaderDeleteBtn"] svg {
+    width: 1rem !important; height: 1rem !important;
 }
 [data-testid="stFileUploader"] button:hover,
 [data-testid="stFileUploaderDropzone"] button:hover {
