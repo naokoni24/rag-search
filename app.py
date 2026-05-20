@@ -330,35 +330,26 @@ div[data-testid="stTextInput"] input:focus {
     font-size: 0.8rem !important; color: #5f6368 !important;
 }
 /* ── ファイルアップローダー ── */
-/* まず全ボタンを小さく透明に（削除ボタン対策） */
+/* Uploadボタン・全ボタン共通 */
+[data-testid="stFileUploader"] button,
 [data-testid="stFileUploaderDropzone"] button {
-    background: transparent !important; color: #5f6368 !important;
-    border: 1px solid #dadce0 !important; border-radius: 50% !important;
-    padding: 0 !important; min-height: 0 !important;
-    width: 1.75rem !important; height: 1.75rem !important;
-    box-shadow: none !important; margin-top: 0 !important;
-    transition: all 0.2s !important;
-}
-[data-testid="stFileUploaderDropzone"] button:hover {
-    background: #fce8e6 !important; color: #d93025 !important;
-    border-color: #d93025 !important;
-}
-/* Uploadボタン（Instructions内）は元のスタイルに戻す */
-[data-testid="stFileUploaderDropzoneInstructions"] button {
-    background: transparent !important; color: #202124 !important;
-    border: none !important; border-radius: 0.5rem !important;
-    padding: 0.375rem 0.75rem !important; font-weight: 500 !important;
+    background: #1a73e8 !important; color: #ffffff !important;
+    border: none !important; border-radius: 0.75rem !important;
+    padding: 0.625rem 1.5rem !important; font-weight: 500 !important;
+    margin-top: 0.5rem !important; transition: all 0.3s !important;
+    box-shadow: 0 2px 8px rgba(26,115,232,0.3) !important;
     width: auto !important; height: auto !important;
-    box-shadow: none !important; margin-top: 0 !important;
+    min-height: 0 !important;
 }
-[data-testid="stFileUploaderDropzoneInstructions"] button:hover {
-    background: rgba(0,0,0,0.05) !important; color: #202124 !important;
-    border: none !important;
+[data-testid="stFileUploader"] button:hover,
+[data-testid="stFileUploaderDropzone"] button:hover {
+    background: #1557b0 !important;
+    box-shadow: 0 4px 12px rgba(26,115,232,0.4) !important;
 }
-[data-testid="stFileUploaderDropzoneInstructions"] button p,
-[data-testid="stFileUploaderDropzoneInstructions"] button span {
-    color: #202124 !important;
-}
+[data-testid="stFileUploader"] button p,
+[data-testid="stFileUploader"] button span,
+[data-testid="stFileUploaderDropzone"] button p,
+[data-testid="stFileUploaderDropzone"] button span { color: #ffffff !important; }
 
 /* ── ドキュメントカード（HTML card + 透明オーバーレイボタン） ── */
 /* stMarkdown が stElementContainer の直接子 → さらに深く .doc-card-outer を持つコンテナのみ対象 */
