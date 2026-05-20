@@ -152,10 +152,11 @@ p, li, label { font-size: 1rem !important; color: #202124 !important; line-heigh
 }
 .logout-link:hover { background: #1557b0 !important; color: #ffffff !important; }
 /* ── 隠しログアウトボタン（ヘッダーリンクからJSで呼ばれる） ── */
-[data-testid="stElementContainer"]:has(.logout-hidden-marker),
+[data-testid="stElementContainer"]:has(.logout-hidden-marker) {
+    position: fixed !important; top: -9999px !important; left: -9999px !important;
+}
 [data-testid="stElementContainer"]:has(.logout-hidden-marker) + [data-testid="stElementContainer"] {
-    position: absolute !important; opacity: 0 !important; pointer-events: none !important;
-    width: 1px !important; height: 1px !important; overflow: hidden !important;
+    position: fixed !important; top: -9999px !important; left: -9999px !important;
 }
 
 /* ── segmented_control タブナビ ── */
@@ -1118,7 +1119,10 @@ _logout_html = (
     'event.preventDefault();'
     'var btns=document.querySelectorAll(\'[data-testid=\\\"stButton\\\"] button\');'
     'for(var i=0;i<btns.length;i++){'
-    '  if(btns[i].textContent.includes(\'ログアウト\')){btns[i].click();break;}'
+    '  if((btns[i].innerText||btns[i].textContent).indexOf(\'ログアウト\')>=0){'
+    '    btns[i].dispatchEvent(new MouseEvent(\'click\',{bubbles:true,cancelable:true,view:window}));'
+    '    break;'
+    '  }'
     '}">'
     '👤 ログアウト</a>'
     if _hdr_is_admin else ''
