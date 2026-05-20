@@ -1687,7 +1687,7 @@ if _is_manage:
                     card_html = (
                         f'<div class="{card_cls}" style="'
                         f'display:flex;align-items:center;gap:1rem;'
-                        f'padding:1.25rem;border-radius:1rem;'
+                        f'padding:0.75rem 1.25rem;border-radius:1rem;'
                         f'border:{card_border};background:{card_bg};'
                         f'box-shadow:{card_shadow};cursor:pointer;transition:all 0.3s;">'
                         f'{chk_html}'
@@ -1697,11 +1697,11 @@ if _is_manage:
                         f'<div style="flex:1;min-width:0;display:flex;align-items:center;'
                         f'justify-content:space-between;gap:0.75rem;">'
                         f'<p style="font-size:0.875rem;font-weight:500;color:#202124;'
-                        f'margin:0 !important;line-height:1.4;flex:1;min-width:0;'
+                        f'margin:0 !important;line-height:1;flex:1;min-width:0;'
                         f'overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{name}</p>'
                         f'<p style="font-size:0.75rem;color:#5f6368;'
-                        f'margin:0 !important;line-height:1.4;white-space:nowrap;flex-shrink:0;'
-                        f'width:8rem;text-align:center;">{date_str}</p>'
+                        f'margin:0 !important;line-height:1;white-space:nowrap;flex-shrink:0;'
+                        f'width:8rem;text-align:right;">{date_str}</p>'
                         f'</div></div>'
                     )
                     with st.container():
