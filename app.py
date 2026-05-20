@@ -57,6 +57,12 @@ STYLE = """
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&display=swap');
 
+/* ── Streamlit ツールバー非表示 ── */
+[data-testid="stToolbar"],
+[data-testid="stDecoration"],
+[data-testid="stStatusWidget"],
+#MainMenu { visibility: hidden !important; height: 0 !important; }
+
 /* ── フォント ── */
 html, body, [class*="css"], .stApp, p, div, label, textarea, button {
     font-family: 'Noto Sans JP', -apple-system, BlinkMacSystemFont, 'Hiragino Kaku Gothic ProN', sans-serif !important;
