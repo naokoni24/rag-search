@@ -1101,6 +1101,8 @@ st.set_page_config(
 if st.query_params.get("logout") == "1":
     st.session_state["admin_authenticated"] = False
     st.session_state.pop("admin_last_active", None)
+    st.session_state["_show_logout_msg"] = True
+    st.session_state["active_tab"] = "manage"
     st.query_params.clear()
     st.rerun()
 
