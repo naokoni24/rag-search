@@ -150,7 +150,7 @@ p, li, label { font-size: 1rem !important; color: #202124 !important; line-heigh
     border: 1px solid rgba(0,0,0,0.08) !important;
     box-shadow: 0 1px 3px rgba(0,0,0,0.08) !important;
     gap: 4px !important;
-    margin-top: 0.75rem !important;
+    margin-top: 0.5rem !important;
     margin-bottom: 2.5rem !important;
     width: fit-content !important;
 }
@@ -427,7 +427,7 @@ div[data-testid="stTextInput"] input:focus {
 
 /* ── ブロックコンテナ ── */
 .block-container {
-    max-width: 72rem !important; padding-top: 2rem !important;
+    max-width: 72rem !important; padding-top: 0 !important;
     padding-left: 1.5rem !important; padding-right: 1.5rem !important;
 }
 
