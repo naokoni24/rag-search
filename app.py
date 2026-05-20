@@ -1115,16 +1115,10 @@ _hdr_is_admin = (
     and st.session_state.get("admin_authenticated", False)
 )
 _logout_html = (
-    '<a href="#" class="logout-link" onclick="'
-    'event.preventDefault();'
-    'var btns=document.querySelectorAll(\'[data-testid=\\\"stButton\\\"] button\');'
-    'for(var i=0;i<btns.length;i++){'
-    '  if((btns[i].innerText||btns[i].textContent).indexOf(\'ログアウト\')>=0){'
-    '    btns[i].dispatchEvent(new MouseEvent(\'click\',{bubbles:true,cancelable:true,view:window}));'
-    '    break;'
-    '  }'
-    '}">'
-    '👤 ログアウト</a>'
+    '<script>function doLogout(){var btns=document.querySelectorAll("[data-testid=\'stButton\'] button");'
+    'for(var i=0;i<btns.length;i++){if((btns[i].innerText||"").indexOf("ログアウト")>=0)'
+    '{btns[i].dispatchEvent(new MouseEvent("click",{bubbles:true,cancelable:true,view:window}));break;}}}</script>'
+    '<a href="#" class="logout-link" onclick="event.preventDefault();doLogout();">👤 ログアウト</a>'
     if _hdr_is_admin else ''
 )
 st.markdown(f"""
