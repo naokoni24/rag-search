@@ -1111,18 +1111,20 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# ヘッダー右ログアウトボタン（常時表示）
+# ヘッダー右ログアウトボタン（文書管理タブのみ表示）
+_is_manage_tab = st.session_state.get("active_tab", "search") == "manage"
 st.markdown('<span class="header-right-marker" style="display:none;"></span>', unsafe_allow_html=True)
 _, _hr_col = st.columns([5, 1])
 with _hr_col:
-    _admin_logged_in = st.session_state.get("admin_authenticated", False)
-    if st.button("👤 ログアウト", key="header_logout_btn", use_container_width=True):
-        if _admin_logged_in:
-            st.session_state["admin_authenticated"] = False
-            st.session_state.pop("admin_last_active", None)
-            st.session_state["_show_logout_msg"] = True
-        st.session_state["active_tab"] = "manage"
-        st.rerun()
+    if _is_manage_tab:
+        _admin_logged_in = st.session_state.get("admin_authenticated", False)
+        if st.button("👤 ログアウト", key="header_logout_btn", use_container_width=True):
+            if _admin_logged_in:
+                st.session_state["admin_authenticated"] = False
+                st.session_state.pop("admin_last_active", None)
+                st.session_state["_show_logout_msg"] = True
+            st.session_state["active_tab"] = "manage"
+            st.rerun()
 
 try:
     docs = get_registered_docs()
