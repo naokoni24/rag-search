@@ -151,6 +151,23 @@ p, li, label { font-size: 1rem !important; color: #202124 !important; line-heigh
     transition: background 0.2s;
 }
 .logout-link:hover { background: #1557b0 !important; color: #ffffff !important; }
+/* ── ログアウトボタン（st.button → ヘッダー右端固定） ── */
+[data-testid="stElementContainer"]:has(.logout-pos-marker) { display: none !important; }
+[data-testid="stElementContainer"]:has(.logout-pos-marker) + [data-testid="stElementContainer"] {
+    position: fixed !important; top: 2.5rem !important; right: 1.5rem !important;
+    z-index: 300 !important; width: auto !important; margin: 0 !important; padding: 0 !important;
+}
+[data-testid="stElementContainer"]:has(.logout-pos-marker) + [data-testid="stElementContainer"] [data-testid="stColumn"] { padding: 0 !important; }
+[data-testid="stElementContainer"]:has(.logout-pos-marker) + [data-testid="stElementContainer"] .stButton > button {
+    background: #1a73e8 !important; color: #ffffff !important;
+    border: none !important; border-radius: 999px !important;
+    font-size: 0.75rem !important; font-weight: 500 !important;
+    padding: 0.3rem 0.9rem !important; min-height: 0 !important; height: auto !important;
+    box-shadow: 0 2px 6px rgba(26,115,232,0.3) !important; white-space: nowrap !important; width: fit-content !important;
+}
+[data-testid="stElementContainer"]:has(.logout-pos-marker) + [data-testid="stElementContainer"] .stButton > button:hover { background: #1557b0 !important; }
+[data-testid="stElementContainer"]:has(.logout-pos-marker) + [data-testid="stElementContainer"] .stButton > button p,
+[data-testid="stElementContainer"]:has(.logout-pos-marker) + [data-testid="stElementContainer"] .stButton > button span { color: #ffffff !important; }
 
 /* ── segmented_control タブナビ ── */
 [data-testid="stButtonGroup"] {
@@ -1097,29 +1114,13 @@ st.set_page_config(
     layout="centered",
 )
 
-# ログアウト処理（URLパラメータ経由）
-if st.query_params.get("logout") == "1":
-    st.session_state["admin_authenticated"] = False
-    st.session_state.pop("admin_last_active", None)
-    st.session_state["_show_logout_msg"] = True
-    st.session_state["active_tab"] = "manage"
-    st.query_params.clear()
-    st.rerun()
 
 st.markdown(STYLE, unsafe_allow_html=True)
 
 setup_genai()
 
 # ヘッダー
-_hdr_is_admin = (
-    st.session_state.get("active_tab", "search") == "manage"
-    and st.session_state.get("admin_authenticated", False)
-)
-_logout_html = (
-    '<a href="?logout=1" class="logout-link">👤 ログアウト</a>'
-    if _hdr_is_admin else ''
-)
-st.markdown(f"""
+st.markdown("""
 <div class="header">
   <div class="header-inner">
     <div class="header-logo">
@@ -1138,7 +1139,7 @@ st.markdown(f"""
       <p class="header-title">社内ナレッジ検索システム</p>
       <p class="header-subtitle">社内文書をAIで即座に検索・回答</p>
     </div>
-    <div class="header-right">{_logout_html}</div>
+    <div class="header-right"></div>
   </div>
 </div>
 """, unsafe_allow_html=True)
@@ -1463,6 +1464,17 @@ if _is_manage:
                     st.error("パスワードが違います")
     else:
         touch_admin_session()
+
+        # ログアウトボタン（マーカー経由でヘッダー右端に固定表示）
+        st.markdown('<span class="logout-pos-marker"></span>', unsafe_allow_html=True)
+        _, _lo_col = st.columns([10, 1])
+        with _lo_col:
+            if st.button("👤 ログアウト", key="manage_logout_btn"):
+                st.session_state["admin_authenticated"] = False
+                st.session_state.pop("admin_last_active", None)
+                st.session_state["_show_logout_msg"] = True
+                st.session_state["active_tab"] = "manage"
+                st.rerun()
 
         col_left, col_right = st.columns(2, gap="large")
 
