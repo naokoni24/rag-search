@@ -444,18 +444,19 @@ div[data-testid="stTextInput"] input:focus {
     padding: 0 !important;
 }
 [data-testid="stElementContainer"]:has(.header-right-marker) + [data-testid="stLayoutWrapper"] .stButton > button {
-    background: transparent !important; color: #5f6368 !important;
-    border: none !important; border-radius: 999px !important;
+    background: rgba(0,0,0,0.05) !important; color: #202124 !important;
+    border: 1px solid rgba(0,0,0,0.1) !important; border-radius: 999px !important;
     font-size: 0.875rem !important; font-weight: 500 !important;
     padding: 0.625rem 1.25rem !important; min-height: 2.5rem !important;
     box-shadow: none !important; transition: all 0.3s !important;
 }
 [data-testid="stElementContainer"]:has(.header-right-marker) + [data-testid="stLayoutWrapper"] .stButton > button:hover {
-    background: rgba(0,0,0,0.04) !important; color: #202124 !important;
+    background: rgba(0,0,0,0.09) !important; color: #202124 !important;
 }
 [data-testid="stElementContainer"]:has(.header-right-marker) + [data-testid="stLayoutWrapper"] .stButton > button p,
-[data-testid="stElementContainer"]:has(.header-right-marker) + [data-testid="stLayoutWrapper"] .stButton > button span {
-    color: inherit !important;
+[data-testid="stElementContainer"]:has(.header-right-marker) + [data-testid="stLayoutWrapper"] .stButton > button span,
+[data-testid="stElementContainer"]:has(.header-right-marker) + [data-testid="stLayoutWrapper"] .stButton > button div {
+    color: #202124 !important;
 }
 
 /* ── Press Enter to apply 非表示 ── */
