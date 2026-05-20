@@ -1097,6 +1097,14 @@ st.set_page_config(
     layout="centered",
 )
 
+# ログアウト処理（URLパラメータ経由）
+if st.query_params.get("logout") == "1":
+    st.session_state["admin_authenticated"] = False
+    st.session_state.pop("admin_last_active", None)
+    st.session_state["_show_logout_msg"] = True
+    st.session_state["active_tab"] = "manage"
+    st.query_params.clear()
+    st.rerun()
 
 st.markdown(STYLE, unsafe_allow_html=True)
 
@@ -1104,7 +1112,15 @@ setup_genai()
 
 # ヘッダー
 # ヘッダー
-st.markdown("""
+_hdr_is_admin = (
+    st.session_state.get("active_tab", "search") == "manage"
+    and st.session_state.get("admin_authenticated", False)
+)
+_logout_html = (
+    '<a href="?logout=1" class="logout-link">👤 ログアウト</a>'
+    if _hdr_is_admin else ''
+)
+st.markdown(f"""
 <div class="header">
   <div class="header-inner">
     <div class="header-logo">
@@ -1123,7 +1139,7 @@ st.markdown("""
       <p class="header-title">社内ナレッジ検索システム</p>
       <p class="header-subtitle">社内文書をAIで即座に検索・回答</p>
     </div>
-    <div class="header-right"></div>
+    <div class="header-right">{_logout_html}</div>
   </div>
 </div>
 """, unsafe_allow_html=True)
@@ -1448,15 +1464,6 @@ if _is_manage:
                     st.error("パスワードが違います")
     else:
         touch_admin_session()
-
-        _, _lo_col = st.columns([5, 1])
-        with _lo_col:
-            if st.button("👤 ログアウト", key="manage_logout_btn"):
-                st.session_state["admin_authenticated"] = False
-                st.session_state.pop("admin_last_active", None)
-                st.session_state["_show_logout_msg"] = True
-                st.session_state["active_tab"] = "manage"
-                st.rerun()
 
         col_left, col_right = st.columns(2, gap="large")
 
