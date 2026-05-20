@@ -1175,6 +1175,10 @@ _tab_selected = st.segmented_control(
 )
 if _tab_selected == _TAB_SEARCH and not _is_search:
     st.session_state["active_tab"] = "search"
+    st.session_state["search_query"]   = ""
+    st.session_state["search_submitted"] = False
+    st.session_state["_search_input"]  = ""
+    st.session_state["_search_result"] = None
     st.rerun()
 elif _tab_selected == _TAB_MANAGE and not _is_manage:
     st.session_state["active_tab"] = "manage"
