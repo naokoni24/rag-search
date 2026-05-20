@@ -1051,14 +1051,14 @@ def linkify_answer(answer: str, pdf_cache=None) -> str:
             href = f'data:application/pdf;base64,{b64}'
             link = (
                 f'<a href="{href}" download="{safe}" '
-                f'style="color:#1c1c1e;font-weight:600;text-decoration:underline;cursor:pointer;">'
+                f'style="color:#1a73e8;font-weight:600;text-decoration:underline;cursor:pointer;">'
                 f'📄 {fname}</a>'
             )
         else:
-            link = f'<span style="color:#1c1c1e;font-weight:600;">📄 {fname}</span>'
+            link = f'<span style="color:#1a73e8;font-weight:600;">📄 {fname}</span>'
         return (
             f'<br>{link}'
-            f'<span style="color:#86868b;font-weight:400;"> p.{page}</span>'
+            f'<span style="color:#1a73e8;font-weight:400;"> p.{page}</span>'
         )
 
     result = _CITATION_RE.sub(_replace, answer)
@@ -1327,30 +1327,30 @@ if _is_search:
                             _linked_in_cards.add(c["filename"])
                             _fname_html = (
                                 f'<a href="data:application/pdf;base64,{_b64}" download="{_safe_fname}" '
-                                f'style="font-weight:700;color:#1c1c1e;font-size:0.95rem;'
+                                f'style="font-weight:700;color:#1a73e8;font-size:0.95rem;'
                                 f'text-decoration:underline;cursor:pointer;">'
                                 f'📄 {c["filename"]}</a>'
                             )
                         else:
                             _fname_html = (
-                                f'<span style="font-weight:700;color:#1c1c1e;font-size:0.95rem;">'
+                                f'<span style="font-weight:700;color:#1a73e8;font-size:0.95rem;">'
                                 f'📄 {c["filename"]}</span>'
                             )
                         _excerpt = c['text'][:200] + '...' if len(c['text']) > 200 else c['text']
                         _cards_html += f"""
-<div style="background:#fafafa;border-left:4px solid #1c1c1e;border-radius:12px;
-            padding:0.8rem 1rem;margin-bottom:0.6rem;border:1px solid #e5e5e5;">
+<div style="background:#fafafa;border-left:4px solid #1a73e8;border-radius:12px;
+            padding:0.8rem 1rem;margin-bottom:0.6rem;border:1px solid #e0eaf8;">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.4rem;">
     <div style="display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;">
-      <span style="background:#1c1c1e;color:#fff;border-radius:6px;padding:2px 10px;
+      <span style="background:#1a73e8;color:#fff;border-radius:6px;padding:2px 10px;
                    font-size:0.78rem;font-weight:700;">{i}</span>
       {_fname_html}
-      <span style="color:#86868b;font-size:0.85rem;">p.{c['page']}</span>
+      <span style="color:#1a73e8;font-size:0.85rem;">p.{c['page']}</span>
     </div>
-    <span style="background:#f5f5f7;color:#1c1c1e;border-radius:999px;padding:2px 10px;
-                 font-size:0.78rem;font-weight:600;white-space:nowrap;border:1px solid #e5e5e5;">関連度 {score_pct}%</span>
+    <span style="background:#1a73e8;color:#fff;border-radius:999px;padding:2px 10px;
+                 font-size:0.78rem;font-weight:600;white-space:nowrap;">関連度 {score_pct}%</span>
   </div>
-  <div style="color:#86868b;font-size:0.88rem;line-height:1.7;">{_excerpt}</div>
+  <div style="color:#5f6368;font-size:0.88rem;line-height:1.7;">{_excerpt}</div>
 </div>
 """
                     st.markdown(_cards_html, unsafe_allow_html=True)
