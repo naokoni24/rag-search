@@ -338,25 +338,27 @@ div[data-testid="stTextInput"] input:focus {
     margin-top: 0.5rem !important; transition: all 0.3s !important;
     box-shadow: 0 2px 8px rgba(26,115,232,0.3) !important;
 }
-/* ファイル削除ボタンを小さく */
-[data-testid="stFileUploaderDeleteBtn"] button,
-[data-testid="stFileUploaderDeleteBtn"] {
+/* ファイル削除ボタンを小さく（stFileUploaderFile 内のボタン） */
+[data-testid="stFileUploaderFile"] button,
+[data-testid="stFileUploaderDeleteBtn"],
+[data-testid="stFileUploaderDeleteBtn"] button {
     background: transparent !important; color: #5f6368 !important;
     border: 1px solid #dadce0 !important; border-radius: 50% !important;
-    padding: 0.15rem !important; min-height: 0 !important;
-    width: 1.5rem !important; height: 1.5rem !important;
+    padding: 0.1rem !important; min-height: 0 !important;
+    width: 1.6rem !important; height: 1.6rem !important;
     box-shadow: none !important; margin-top: 0 !important;
-    display: flex !important; align-items: center !important; justify-content: center !important;
+    font-size: 0.75rem !important;
 }
-[data-testid="stFileUploaderDeleteBtn"] button:hover,
-[data-testid="stFileUploaderDeleteBtn"]:hover {
-    background: #f1f3f4 !important; color: #d93025 !important;
+[data-testid="stFileUploaderFile"] button:hover,
+[data-testid="stFileUploaderDeleteBtn"]:hover,
+[data-testid="stFileUploaderDeleteBtn"] button:hover {
+    background: #fce8e6 !important; color: #d93025 !important;
     border-color: #d93025 !important;
 }
-[data-testid="stFileUploaderDeleteBtn"] button p,
-[data-testid="stFileUploaderDeleteBtn"] button span,
-[data-testid="stFileUploaderDeleteBtn"] button svg {
-    color: inherit !important; width: 0.875rem !important; height: 0.875rem !important;
+[data-testid="stFileUploaderFile"] button p,
+[data-testid="stFileUploaderFile"] button span,
+[data-testid="stFileUploaderFile"] button svg {
+    color: inherit !important; width: 1rem !important; height: 1rem !important;
 }
 [data-testid="stFileUploader"] button:hover,
 [data-testid="stFileUploaderDropzone"] button:hover {
