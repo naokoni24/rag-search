@@ -442,25 +442,27 @@ div[data-testid="stTextInput"] input:focus {
 [data-testid="stElementContainer"]:has(.header-right-marker) + [data-testid="stLayoutWrapper"] [data-testid="stColumn"] {
     padding: 0 !important;
 }
-/* 検索タブではログアウトボタンを非表示（manage-tab-active がないとき） */
-[data-testid="stElementContainer"]:has(.header-right-marker):not(:has(.manage-tab-active)) + [data-testid="stLayoutWrapper"] .stButton > button {
+/* デフォルト：ログアウトボタン非表示 */
+[data-testid="stElementContainer"]:has(.header-right-marker) + [data-testid="stLayoutWrapper"] .stButton > button {
     visibility: hidden !important; pointer-events: none !important;
 }
-/* 管理タブではログアウトボタンを表示 */
-[data-testid="stElementContainer"]:has(.manage-tab-active) + [data-testid="stLayoutWrapper"] .stButton > button {
-    background: rgba(0,0,0,0.05) !important; color: #202124 !important;
-    border: 1px solid rgba(0,0,0,0.1) !important; border-radius: 999px !important;
-    font-size: 0.875rem !important; font-weight: 500 !important;
-    padding: 0.625rem 1.25rem !important; min-height: 2.5rem !important;
-    box-shadow: none !important; transition: all 0.3s !important;
+/* 管理タブ＋ログイン中のみ表示 */
+[data-testid="stElementContainer"]:has(.manage-tab-active):has(.admin-logged-in) + [data-testid="stLayoutWrapper"] .stButton > button {
+    visibility: visible !important; pointer-events: auto !important;
+    background: #1a73e8 !important; color: #ffffff !important;
+    border: none !important; border-radius: 999px !important;
+    font-size: 0.78rem !important; font-weight: 500 !important;
+    padding: 0.35rem 0.9rem !important; min-height: 0 !important; height: auto !important;
+    box-shadow: 0 2px 6px rgba(26,115,232,0.3) !important; transition: all 0.3s !important;
+    white-space: nowrap !important;
 }
-[data-testid="stElementContainer"]:has(.manage-tab-active) + [data-testid="stLayoutWrapper"] .stButton > button:hover {
-    background: rgba(0,0,0,0.09) !important; color: #202124 !important;
+[data-testid="stElementContainer"]:has(.manage-tab-active):has(.admin-logged-in) + [data-testid="stLayoutWrapper"] .stButton > button:hover {
+    background: #1557b0 !important;
 }
-[data-testid="stElementContainer"]:has(.manage-tab-active) + [data-testid="stLayoutWrapper"] .stButton > button p,
-[data-testid="stElementContainer"]:has(.manage-tab-active) + [data-testid="stLayoutWrapper"] .stButton > button span,
-[data-testid="stElementContainer"]:has(.manage-tab-active) + [data-testid="stLayoutWrapper"] .stButton > button div {
-    color: #202124 !important;
+[data-testid="stElementContainer"]:has(.manage-tab-active):has(.admin-logged-in) + [data-testid="stLayoutWrapper"] .stButton > button p,
+[data-testid="stElementContainer"]:has(.manage-tab-active):has(.admin-logged-in) + [data-testid="stLayoutWrapper"] .stButton > button span,
+[data-testid="stElementContainer"]:has(.manage-tab-active):has(.admin-logged-in) + [data-testid="stLayoutWrapper"] .stButton > button div {
+    color: #ffffff !important;
 }
 
 /* ── Press Enter to apply 非表示 ── */
@@ -1116,23 +1118,24 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# ヘッダー右ログアウトボタン（常にレンダリング・CSSで文書管理タブのみ表示）
+# ヘッダー右ログアウトボタン（常にレンダリング・CSSで表示制御）
 _is_manage_tab = st.session_state.get("active_tab", "search") == "manage"
-# タブ状態を CSS に伝えるマーカー（columns の高さを一定に保つために常にレンダリング）
+_admin_logged_in = st.session_state.get("admin_authenticated", False)
+# マーカーにタブ状態・ログイン状態を反映（columns の高さを一定に保つために常にレンダリング）
+_marker_classes = "header-right-marker"
 if _is_manage_tab:
-    st.markdown('<span class="header-right-marker manage-tab-active" style="display:none;"></span>', unsafe_allow_html=True)
-else:
-    st.markdown('<span class="header-right-marker" style="display:none;"></span>', unsafe_allow_html=True)
+    _marker_classes += " manage-tab-active"
+if _admin_logged_in:
+    _marker_classes += " admin-logged-in"
+st.markdown(f'<span class="{_marker_classes}" style="display:none;"></span>', unsafe_allow_html=True)
 _, _hr_col = st.columns([5, 1])
 with _hr_col:
     # 常にボタンをレンダリング（columns の高さを一定に保つため）
-    _admin_logged_in = st.session_state.get("admin_authenticated", False)
     if st.button("👤 ログアウト", key="header_logout_btn", use_container_width=True):
-        if _is_manage_tab:
-            if _admin_logged_in:
-                st.session_state["admin_authenticated"] = False
-                st.session_state.pop("admin_last_active", None)
-                st.session_state["_show_logout_msg"] = True
+        if _is_manage_tab and _admin_logged_in:
+            st.session_state["admin_authenticated"] = False
+            st.session_state.pop("admin_last_active", None)
+            st.session_state["_show_logout_msg"] = True
             st.session_state["active_tab"] = "manage"
             st.rerun()
 
