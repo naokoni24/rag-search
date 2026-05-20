@@ -138,55 +138,50 @@ p, li, label { font-size: 1rem !important; color: #202124 !important; line-heigh
 }
 .header-right { flex-shrink: 0; min-width: 2.75rem; }
 
-/* ── カスタムタブナビ ── */
-[data-testid="stElementContainer"]:has(.tabnav-container-marker) + [data-testid="stLayoutWrapper"] [data-testid="stHorizontalBlock"] {
+/* ── segmented_control タブナビ ── */
+[data-testid="stButtonGroup"] {
     background: rgba(241,245,249,0.9) !important;
     border-radius: 1rem !important;
     padding: 6px !important;
     border: 1px solid rgba(0,0,0,0.08) !important;
-    width: fit-content !important;
-    margin-bottom: 3rem !important;
-    gap: 2px !important;
     box-shadow: 0 1px 3px rgba(0,0,0,0.08) !important;
+    gap: 4px !important;
+    margin-bottom: 2.5rem !important;
+    width: fit-content !important;
 }
-[data-testid="stElementContainer"]:has(.tabnav-container-marker) + [data-testid="stLayoutWrapper"] [data-testid="stColumn"] {
-    flex: 0 0 auto !important; width: auto !important;
-    min-width: fit-content !important; padding: 0 !important;
+/* 各セグメントボタン共通 */
+[data-testid="stBaseButton-segmented_control"],
+[data-testid="stBaseButton-segmented_controlActive"] {
+    border-radius: 0.75rem !important;
+    font-size: 0.875rem !important;
+    font-weight: 500 !important;
+    padding: 0.625rem 1.5rem !important;
+    min-height: 2.5rem !important;
+    border: none !important;
+    transition: all 0.3s !important;
+    color: #5f6368 !important;
+    background: transparent !important;
+    box-shadow: none !important;
 }
-/* アクティブタブ */
-[data-testid="stElementContainer"]:has(.tabnav-active) + [data-testid="stElementContainer"] .stButton > button {
+[data-testid="stBaseButton-segmented_control"] p,
+[data-testid="stBaseButton-segmented_control"] span,
+[data-testid="stBaseButton-segmented_controlActive"] p,
+[data-testid="stBaseButton-segmented_controlActive"] span {
+    color: inherit !important;
+}
+/* アクティブ（選択中）ボタン */
+[data-testid="stBaseButton-segmented_controlActive"] {
     background: #1a73e8 !important;
     color: #ffffff !important;
-    border: none !important;
-    border-radius: 0.75rem !important;
-    font-size: 0.875rem !important; font-weight: 500 !important;
-    padding: 0.75rem 1.5rem !important; min-height: 2.5rem !important;
     box-shadow: 0 4px 8px rgba(26,115,232,0.3) !important;
-    transition: all 0.3s !important;
 }
-[data-testid="stElementContainer"]:has(.tabnav-active) + [data-testid="stElementContainer"] .stButton > button p,
-[data-testid="stElementContainer"]:has(.tabnav-active) + [data-testid="stElementContainer"] .stButton > button span {
-    color: #ffffff !important;
-}
-/* 非アクティブタブ */
-[data-testid="stElementContainer"]:has(.tabnav-inactive) + [data-testid="stElementContainer"] .stButton > button {
-    background: transparent !important; color: #5f6368 !important;
-    border: none !important; box-shadow: none !important;
-    border-radius: 0.75rem !important; font-size: 0.875rem !important;
-    font-weight: 500 !important; padding: 0.75rem 1.5rem !important;
-    min-height: 2.5rem !important; transition: all 0.3s !important;
-}
-[data-testid="stElementContainer"]:has(.tabnav-inactive) + [data-testid="stElementContainer"] .stButton > button p,
-[data-testid="stElementContainer"]:has(.tabnav-inactive) + [data-testid="stElementContainer"] .stButton > button span {
-    color: #5f6368 !important;
-}
-[data-testid="stElementContainer"]:has(.tabnav-inactive) + [data-testid="stElementContainer"] .stButton > button:hover {
-    color: #202124 !important; background: rgba(26,115,232,0.06) !important;
-}
-[data-testid="stElementContainer"]:has(.tabnav-inactive) + [data-testid="stElementContainer"] .stButton > button:hover p,
-[data-testid="stElementContainer"]:has(.tabnav-inactive) + [data-testid="stElementContainer"] .stButton > button:hover span {
+/* ホバー（非アクティブ） */
+[data-testid="stBaseButton-segmented_control"]:hover {
     color: #202124 !important;
+    background: rgba(26,115,232,0.06) !important;
 }
+/* ラベル非表示 */
+[data-testid="stButtonGroup"] > label { display: none !important; }
 
 /* ── 検索フォームカード ── */
 [data-testid="stForm"] {
@@ -1122,19 +1117,22 @@ if "active_tab" not in st.session_state:
 _is_search = st.session_state.get("active_tab", "search") == "search"
 _is_manage = not _is_search
 
-# pill-style タブナビゲーション
-st.markdown('<span class="tabnav-container-marker" style="display:none;"></span>', unsafe_allow_html=True)
-_tn1, _tn2 = st.columns([1, 1])
-with _tn1:
-    st.markdown(f'<span class="{"tabnav-active" if _is_search else "tabnav-inactive"}" style="display:none;"></span>', unsafe_allow_html=True)
-    if st.button("文書を検索", key="nav_search", use_container_width=True):
-        st.session_state["active_tab"] = "search"
-        st.rerun()
-with _tn2:
-    st.markdown(f'<span class="{"tabnav-active" if _is_manage else "tabnav-inactive"}" style="display:none;"></span>', unsafe_allow_html=True)
-    if st.button("文書を管理", key="nav_manage", use_container_width=True):
-        st.session_state["active_tab"] = "manage"
-        st.rerun()
+# pill-style タブナビゲーション（segmented_control）
+_TAB_SEARCH = "文書を検索"
+_TAB_MANAGE = "文書を管理"
+_tab_selected = st.segmented_control(
+    "ナビ",
+    options=[_TAB_SEARCH, _TAB_MANAGE],
+    default=_TAB_SEARCH if _is_search else _TAB_MANAGE,
+    label_visibility="collapsed",
+    key="main_tab_ctrl",
+)
+if _tab_selected == _TAB_SEARCH and not _is_search:
+    st.session_state["active_tab"] = "search"
+    st.rerun()
+elif _tab_selected == _TAB_MANAGE and not _is_manage:
+    st.session_state["active_tab"] = "manage"
+    st.rerun()
 
 # ---- 検索タブ ----
 if _is_search:
