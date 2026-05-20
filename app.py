@@ -451,8 +451,8 @@ div[data-testid="stTextInput"] input:focus {
     visibility: visible !important; pointer-events: auto !important;
     background: #1a73e8 !important; color: #ffffff !important;
     border: none !important; border-radius: 999px !important;
-    font-size: 0.78rem !important; font-weight: 500 !important;
-    padding: 0.35rem 0.9rem !important; min-height: 0 !important; height: auto !important;
+    font-size: 0.7rem !important; font-weight: 500 !important;
+    padding: 0.2rem 0.65rem !important; min-height: 0 !important; height: auto !important;
     box-shadow: 0 2px 6px rgba(26,115,232,0.3) !important; transition: all 0.3s !important;
     white-space: nowrap !important;
 }
