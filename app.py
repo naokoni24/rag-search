@@ -1585,7 +1585,7 @@ if _is_manage:
                     f'<div style="flex:1;display:flex;align-items:center;'
                     f'justify-content:space-between;margin-left:0.5rem;">'
                     f'<span style="{_col_header_style}">ファイル名</span>'
-                    f'<span style="{_col_header_style};margin-right:1.5rem;">登録日時</span>'
+                    f'<span style="{_col_header_style};width:8rem;text-align:center;flex-shrink:0;">登録日時</span>'
                     f'</div>'
                     f'</div>'
                 )
@@ -1642,7 +1642,8 @@ if _is_manage:
                         f'margin:0 !important;line-height:1.4;flex:1;min-width:0;'
                         f'overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{name}</p>'
                         f'<p style="font-size:0.75rem;color:#5f6368;'
-                        f'margin:0 !important;line-height:1.4;white-space:nowrap;flex-shrink:0;">{date_str}</p>'
+                        f'margin:0 !important;line-height:1.4;white-space:nowrap;flex-shrink:0;'
+                        f'width:8rem;text-align:center;">{date_str}</p>'
                         f'</div></div>'
                     )
                     with st.container():
