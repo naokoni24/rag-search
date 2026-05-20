@@ -108,6 +108,7 @@ p, li, label { font-size: 1rem !important; color: #202124 !important; line-heigh
 .header-inner {
     display: flex; align-items: center; justify-content: space-between;
     height: 5rem; max-width: 72rem; margin: 0 auto; gap: 1rem;
+    position: relative;
 }
 .header-logo { display: flex; align-items: center; gap: 1rem; flex-shrink: 0; }
 .header-logo-icon {
@@ -127,7 +128,10 @@ p, li, label { font-size: 1rem !important; color: #202124 !important; line-heigh
     color: #1a73e8 !important; letter-spacing: -0.01em;
     line-height: 1.2 !important; margin: 0 !important;
 }
-.header-title-block { text-align: center; flex: 1; }
+.header-title-block {
+    position: absolute; left: 50%; transform: translateX(-50%);
+    text-align: center; pointer-events: none; white-space: nowrap;
+}
 .header-title {
     font-size: 1.5rem !important; font-weight: 600 !important;
     color: #202124 !important; letter-spacing: -0.02em;
@@ -346,24 +350,27 @@ div[data-testid="stTextInput"] input:focus {
 [data-testid="stFileUploaderDropzone"] button span { color: #ffffff !important; }
 
 /* ── ドキュメントカード（HTML card + 透明オーバーレイボタン） ── */
-[data-testid="stVerticalBlock"]:has(.doc-card-outer),
-[data-testid="stVerticalBlockBorderWrapper"]:has(.doc-card-outer) {
+/* :has(> stElementContainer > stMarkdownContainer ...) で直接コンテナのみ対象 */
+[data-testid="stVerticalBlock"]:has(> [data-testid="stElementContainer"] > [data-testid="stMarkdownContainer"] .doc-card-outer) {
     position: relative !important; margin-bottom: 0.75rem !important;
 }
-[data-testid="stVerticalBlock"]:has(.doc-card-outer) [data-testid="stButton"],
-[data-testid="stVerticalBlockBorderWrapper"]:has(.doc-card-outer) [data-testid="stButton"] {
+/* ボタンを包む stElementContainer（最後の子）を絶対配置でカード全体に被せる */
+[data-testid="stVerticalBlock"]:has(> [data-testid="stElementContainer"] > [data-testid="stMarkdownContainer"] .doc-card-outer) > [data-testid="stElementContainer"]:last-child {
     position: absolute !important; inset: 0 !important;
     z-index: 10 !important; margin: 0 !important; padding: 0 !important;
+    width: 100% !important; height: 100% !important;
 }
-[data-testid="stVerticalBlock"]:has(.doc-card-outer) [data-testid="stButton"] > button,
-[data-testid="stVerticalBlockBorderWrapper"]:has(.doc-card-outer) [data-testid="stButton"] > button {
+[data-testid="stVerticalBlock"]:has(> [data-testid="stElementContainer"] > [data-testid="stMarkdownContainer"] .doc-card-outer) > [data-testid="stElementContainer"]:last-child [data-testid="stButton"] {
+    width: 100% !important; height: 100% !important;
+    margin: 0 !important; padding: 0 !important;
+}
+[data-testid="stVerticalBlock"]:has(> [data-testid="stElementContainer"] > [data-testid="stMarkdownContainer"] .doc-card-outer) > [data-testid="stElementContainer"]:last-child [data-testid="stButton"] > button {
     opacity: 0 !important; width: 100% !important; height: 100% !important;
     min-height: 0 !important; cursor: pointer !important; padding: 0 !important;
     border: none !important; background: transparent !important; box-shadow: none !important;
 }
 /* ホバー時 card スタイル変更 */
-[data-testid="stVerticalBlock"]:has(.doc-card-outer.doc-card-unselected):hover .doc-card-outer,
-[data-testid="stVerticalBlockBorderWrapper"]:has(.doc-card-outer.doc-card-unselected):hover .doc-card-outer {
+[data-testid="stVerticalBlock"]:has(> [data-testid="stElementContainer"] > [data-testid="stMarkdownContainer"] .doc-card-outer.doc-card-unselected):hover .doc-card-outer {
     border-color: rgba(26,115,232,0.4) !important;
     box-shadow: 0 8px 20px rgba(26,115,232,0.1), 0 4px 6px rgba(0,0,0,0.04) !important;
 }
