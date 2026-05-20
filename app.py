@@ -360,11 +360,11 @@ div[data-testid="stTextInput"] input:focus {
     background: transparent !important; color: #5f6368 !important;
     border: 1px solid #dadce0 !important; border-radius: 50% !important;
     padding: 0 !important; min-height: 0 !important;
-    width: 0.9rem !important; height: 0.9rem !important;
+    width: 1.2rem !important; height: 1.2rem !important;
     box-shadow: none !important; margin-top: 0 !important;
     display: inline-flex !important; align-items: center !important;
     justify-content: center !important; align-self: center !important;
-    font-size: 0.55rem !important; line-height: 1 !important;
+    font-size: 0.7rem !important; line-height: 1 !important;
 }
 [data-testid="stFileUploader"] [data-testid="stBaseButton-minimal"]:hover,
 [data-testid="stFileUploader"] [data-testid="baseButton-minimal"]:hover,
