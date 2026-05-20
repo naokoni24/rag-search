@@ -462,18 +462,31 @@ div[data-testid="stTextInput"] input:focus {
     padding-left: 1.5rem !important; padding-right: 1.5rem !important;
 }
 
-/* ── ログアウトボタン（管理タブ内 右寄せ） ── */
-button[kind="secondary"]:has(+ [data-testid="manage_logout_btn"]) { display: none; }
-[data-testid="stButton"]:has(> button[key="manage_logout_btn"]) {
-    display: flex !important; justify-content: flex-end !important;
+/* ── ログアウトボタン（ヘッダー右端 固定表示） ── */
+[data-testid="stElementContainer"]:has(.logout-pos-marker) {
+    display: none !important;
 }
-[data-testid="stButton"]:has(> button[key="manage_logout_btn"]) > button {
+[data-testid="stElementContainer"]:has(.logout-pos-marker) + [data-testid="stHorizontalBlock"] {
+    position: fixed !important; top: 2rem !important; right: 1.5rem !important;
+    z-index: 300 !important; width: auto !important; margin: 0 !important;
+}
+[data-testid="stElementContainer"]:has(.logout-pos-marker) + [data-testid="stHorizontalBlock"] [data-testid="stColumn"] {
+    padding: 0 !important; min-width: 0 !important;
+}
+[data-testid="stElementContainer"]:has(.logout-pos-marker) + [data-testid="stHorizontalBlock"] .stButton > button {
     background: #1a73e8 !important; color: #ffffff !important;
     border: none !important; border-radius: 999px !important;
-    font-size: 0.7rem !important; font-weight: 500 !important;
-    padding: 0.2rem 0.65rem !important; min-height: 0 !important; height: auto !important;
+    font-size: 0.75rem !important; font-weight: 500 !important;
+    padding: 0.3rem 0.9rem !important; min-height: 0 !important; height: auto !important;
     box-shadow: 0 2px 6px rgba(26,115,232,0.3) !important;
     white-space: nowrap !important; width: fit-content !important;
+}
+[data-testid="stElementContainer"]:has(.logout-pos-marker) + [data-testid="stHorizontalBlock"] .stButton > button:hover {
+    background: #1557b0 !important;
+}
+[data-testid="stElementContainer"]:has(.logout-pos-marker) + [data-testid="stHorizontalBlock"] .stButton > button p,
+[data-testid="stElementContainer"]:has(.logout-pos-marker) + [data-testid="stHorizontalBlock"] .stButton > button span {
+    color: #ffffff !important;
 }
 
 /* ── Press Enter to apply 非表示 ── */
@@ -1450,9 +1463,10 @@ if _is_manage:
     else:
         touch_admin_session()
 
-        # ログアウトボタン（右寄せ）
-        _lo_spacer, _lo_btn_col = st.columns([5, 1])
-        with _lo_btn_col:
+        # ログアウトボタン（ヘッダー右端に固定表示）
+        st.markdown('<span class="logout-pos-marker"></span>', unsafe_allow_html=True)
+        _, _lo_col = st.columns([10, 1])
+        with _lo_col:
             if st.button("👤 ログアウト", key="manage_logout_btn"):
                 st.session_state["admin_authenticated"] = False
                 st.session_state.pop("admin_last_active", None)
