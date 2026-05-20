@@ -435,9 +435,10 @@ div[data-testid="stTextInput"] input:focus {
 [data-testid="stElementContainer"]:has(.header-right-marker) {
     height: 0 !important; margin: 0 !important; padding: 0 !important; overflow: visible !important;
 }
+/* fixed でフローから外してタブ位置に影響させない */
 [data-testid="stElementContainer"]:has(.header-right-marker) + [data-testid="stLayoutWrapper"] {
-    transform: translateY(-5.75rem) !important; position: relative !important;
-    z-index: 200 !important;
+    position: fixed !important; top: 1.25rem !important; right: 1.5rem !important;
+    z-index: 200 !important; width: auto !important; margin: 0 !important;
 }
 [data-testid="stElementContainer"]:has(.header-right-marker) + [data-testid="stLayoutWrapper"] [data-testid="stColumn"] {
     padding: 0 !important;
