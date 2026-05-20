@@ -442,9 +442,11 @@ div[data-testid="stTextInput"] input:focus {
 [data-testid="stElementContainer"]:has(.header-right-marker) + [data-testid="stLayoutWrapper"] [data-testid="stColumn"] {
     padding: 0 !important;
 }
-/* デフォルト：ログアウトボタン非表示 */
+/* デフォルト：ログアウトボタン非表示（高さを管理タブと揃えて列高さを一定に保つ） */
 [data-testid="stElementContainer"]:has(.header-right-marker) + [data-testid="stLayoutWrapper"] .stButton > button {
     visibility: hidden !important; pointer-events: none !important;
+    min-height: 0 !important; height: auto !important;
+    padding: 0.2rem 0.65rem !important; font-size: 0.7rem !important;
 }
 /* 管理タブ＋ログイン中のみ表示 */
 [data-testid="stElementContainer"]:has(.manage-tab-active):has(.admin-logged-in) + [data-testid="stLayoutWrapper"] .stButton {
