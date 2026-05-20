@@ -106,7 +106,6 @@ p, li, label { font-size: 1rem !important; color: #202124 !important; line-heigh
     z-index: 100;
 }
 .header-inner {
-    position: relative;
     display: flex; align-items: center; justify-content: space-between;
     height: 5rem; max-width: 72rem; margin: 0 auto; gap: 1rem;
 }
@@ -128,10 +127,7 @@ p, li, label { font-size: 1rem !important; color: #202124 !important; line-heigh
     color: #1a73e8 !important; letter-spacing: -0.01em;
     line-height: 1.2 !important; margin: 0 !important;
 }
-.header-title-block {
-    position: absolute; left: 50%; transform: translateX(-50%);
-    text-align: center; pointer-events: none; white-space: nowrap;
-}
+.header-title-block { text-align: center; flex: 1; }
 .header-title {
     font-size: 1.5rem !important; font-weight: 600 !important;
     color: #202124 !important; letter-spacing: -0.02em;
@@ -349,73 +345,27 @@ div[data-testid="stTextInput"] input:focus {
 [data-testid="stFileUploaderDropzone"] button p,
 [data-testid="stFileUploaderDropzone"] button span { color: #ffffff !important; }
 
-/* ── ドキュメントカード（st.checkbox ベース） ── */
-/* すべて選択 行 */
-[data-testid="stVerticalBlock"]:has(.sel-all-marker),
-[data-testid="stVerticalBlockBorderWrapper"]:has(.sel-all-marker) {
-    padding: 0.25rem 0.5rem 0.75rem !important;
+/* ── ドキュメントカード（HTML card + 透明オーバーレイボタン） ── */
+[data-testid="stVerticalBlock"]:has(.doc-card-outer),
+[data-testid="stVerticalBlockBorderWrapper"]:has(.doc-card-outer) {
+    position: relative !important; margin-bottom: 0.75rem !important;
 }
-/* ドキュメントカード コンテナ = カード外枠 */
-[data-testid="stVerticalBlock"]:has(.doc-chk-marker),
-[data-testid="stVerticalBlockBorderWrapper"]:has(.doc-chk-marker) {
-    padding: 1.125rem 1.25rem !important;
-    border-radius: 1rem !important;
-    border: 1px solid #e8eaed !important;
-    background: #ffffff !important;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.06) !important;
-    transition: all 0.25s !important;
-    margin-bottom: 0.75rem !important;
-    cursor: pointer !important;
+[data-testid="stVerticalBlock"]:has(.doc-card-outer) [data-testid="stButton"],
+[data-testid="stVerticalBlockBorderWrapper"]:has(.doc-card-outer) [data-testid="stButton"] {
+    position: absolute !important; inset: 0 !important;
+    z-index: 10 !important; margin: 0 !important; padding: 0 !important;
 }
-[data-testid="stVerticalBlock"]:has(.doc-chk-marker):has(input[type="checkbox"]:checked),
-[data-testid="stVerticalBlockBorderWrapper"]:has(.doc-chk-marker):has(input[type="checkbox"]:checked) {
-    border: 2px solid #1a73e8 !important;
-    background: rgba(26,115,232,0.04) !important;
-    box-shadow: 0 4px 14px rgba(26,115,232,0.14) !important;
+[data-testid="stVerticalBlock"]:has(.doc-card-outer) [data-testid="stButton"] > button,
+[data-testid="stVerticalBlockBorderWrapper"]:has(.doc-card-outer) [data-testid="stButton"] > button {
+    opacity: 0 !important; width: 100% !important; height: 100% !important;
+    min-height: 0 !important; cursor: pointer !important; padding: 0 !important;
+    border: none !important; background: transparent !important; box-shadow: none !important;
 }
-[data-testid="stVerticalBlock"]:has(.doc-chk-marker):not(:has(input:checked)):hover,
-[data-testid="stVerticalBlockBorderWrapper"]:has(.doc-chk-marker):not(:has(input:checked)):hover {
-    border-color: rgba(26,115,232,0.35) !important;
-    box-shadow: 0 4px 12px rgba(26,115,232,0.08) !important;
-}
-/* チェックボックス label をフレックス行に */
-[data-testid="stVerticalBlock"]:has(.doc-chk-marker) [data-testid="stCheckbox"] > label,
-[data-testid="stVerticalBlockBorderWrapper"]:has(.doc-chk-marker) [data-testid="stCheckbox"] > label {
-    display: flex !important; align-items: center !important; gap: 0.875rem !important;
-    cursor: pointer !important; width: 100% !important; padding: 0 !important; margin: 0 !important;
-}
-/* 丸チェックインジケーター */
-[data-testid="stVerticalBlock"]:has(.doc-chk-marker) [data-testid="stCheckbox"] > label > span,
-[data-testid="stVerticalBlockBorderWrapper"]:has(.doc-chk-marker) [data-testid="stCheckbox"] > label > span {
-    width: 20px !important; height: 20px !important;
-    border-radius: 50% !important;
-    border: 2px solid #dadce0 !important; background: transparent !important;
-    flex-shrink: 0 !important;
-    display: flex !important; align-items: center !important; justify-content: center !important;
-    transition: all 0.2s !important;
-}
-[data-testid="stVerticalBlock"]:has(.doc-chk-marker):has(input:checked) [data-testid="stCheckbox"] > label > span,
-[data-testid="stVerticalBlockBorderWrapper"]:has(.doc-chk-marker):has(input:checked) [data-testid="stCheckbox"] > label > span {
-    background: #1a73e8 !important; border-color: #1a73e8 !important;
-}
-[data-testid="stVerticalBlock"]:has(.doc-chk-marker) [data-testid="stCheckbox"] > label > span > svg,
-[data-testid="stVerticalBlockBorderWrapper"]:has(.doc-chk-marker) [data-testid="stCheckbox"] > label > span > svg {
-    width: 11px !important; height: 11px !important; stroke: #ffffff !important; color: #ffffff !important;
-}
-/* ラベルテキスト */
-[data-testid="stVerticalBlock"]:has(.doc-chk-marker) [data-testid="stCheckbox"] > label > div,
-[data-testid="stVerticalBlockBorderWrapper"]:has(.doc-chk-marker) [data-testid="stCheckbox"] > label > div {
-    flex: 1 !important; min-width: 0 !important;
-}
-[data-testid="stVerticalBlock"]:has(.doc-chk-marker) [data-testid="stCheckbox"] > label > div p,
-[data-testid="stVerticalBlockBorderWrapper"]:has(.doc-chk-marker) [data-testid="stCheckbox"] > label > div p {
-    font-size: 0.875rem !important; font-weight: 500 !important; color: #202124 !important;
-    margin: 0 !important; overflow: hidden !important; text-overflow: ellipsis !important; white-space: nowrap !important;
-}
-/* 日付テキスト */
-.doc-card-date {
-    font-size: 0.72rem !important; color: #5f6368 !important;
-    margin: 3px 0 0 2.625rem !important; line-height: 1.3 !important;
+/* ホバー時 card スタイル変更 */
+[data-testid="stVerticalBlock"]:has(.doc-card-outer.doc-card-unselected):hover .doc-card-outer,
+[data-testid="stVerticalBlockBorderWrapper"]:has(.doc-card-outer.doc-card-unselected):hover .doc-card-outer {
+    border-color: rgba(26,115,232,0.4) !important;
+    box-shadow: 0 8px 20px rgba(26,115,232,0.1), 0 4px 6px rgba(0,0,0,0.04) !important;
 }
 
 /* ── ログインカード ── */
@@ -1581,46 +1531,112 @@ if _is_manage:
             )
 
             if docs_with_dates:
-                # ── すべて選択（st.checkbox） ──
-                _all_sel = len(selected) == len(docs) and len(docs) > 0
-                with st.container():
-                    st.markdown('<span class="sel-all-marker" style="display:none"></span>', unsafe_allow_html=True)
-                    _all_chk_val = st.checkbox(
-                        "すべて選択" + (f"　　**{len(selected)}件選択中**" if selected else ""),
-                        value=_all_sel,
-                        key="select_all_docs",
-                    )
-                if _all_chk_val != _all_sel:
-                    st.session_state["selected_docs"] = list(docs) if _all_chk_val else []
-                    st.rerun()
+                _CHECK_SVG = (
+                    '<svg width="10" height="10" fill="none" stroke="currentColor" '
+                    'viewBox="0 0 24 24" stroke-width="3">'
+                    '<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>'
+                )
+                _PDF_SVG = (
+                    '<svg width="20" height="20" fill="none" stroke="#1a73e8" '
+                    'viewBox="0 0 24 24" stroke-width="1.5">'
+                    '<path stroke-linecap="round" stroke-linejoin="round" '
+                    'd="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586'
+                    'a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>'
+                )
 
-                # ── ドキュメントカード（st.checkbox） ──
+                # ── すべて選択 ──
+                _all_sel = len(selected) == len(docs) and len(docs) > 0
+                _all_chk = (
+                    f'<div style="width:20px;height:20px;border-radius:50%;'
+                    f'border:2px solid {"#1a73e8" if _all_sel else "#dadce0"};'
+                    f'background:{"#1a73e8" if _all_sel else "transparent"};flex-shrink:0;'
+                    f'display:flex;align-items:center;justify-content:center;">'
+                    f'{"<span style=\'color:#fff;display:flex;\'>" + _CHECK_SVG + "</span>" if _all_sel else ""}'
+                    f'</div>'
+                )
+                _sel_count = f'<span style="font-size:0.875rem;color:#1a73e8;font-weight:500;margin-left:0.25rem;">{len(selected)}件選択中</span>' if selected else ""
+                _sel_all_html = (
+                    f'<div class="sel-all-row" style="display:flex;align-items:center;gap:0.75rem;'
+                    f'padding:0.5rem 0.5rem 0.75rem;cursor:pointer;">'
+                    f'{_all_chk}'
+                    f'<span style="font-size:0.875rem;color:#5f6368;">すべて選択</span>'
+                    f'{_sel_count}'
+                    f'</div>'
+                )
+                with st.container():
+                    st.markdown(_sel_all_html, unsafe_allow_html=True)
+                    if st.button("​", key="select_all_docs"):
+                        if _all_sel:
+                            st.session_state["selected_docs"] = []
+                        else:
+                            st.session_state["selected_docs"] = list(docs)
+                        st.rerun()
+
+                # ── ドキュメントカード ──
                 for name, date_str in docs_with_dates:
                     is_sel = name in selected
-                    with st.container():
-                        st.markdown('<span class="doc-chk-marker" style="display:none"></span>', unsafe_allow_html=True)
-                        _chk_val = st.checkbox(
-                            name,
-                            value=is_sel,
-                            key=f"doc_chk_{name}",
+
+                    if is_sel:
+                        chk_html = (
+                            f'<div style="width:20px;height:20px;border-radius:50%;'
+                            f'border:2px solid #1a73e8;background:#1a73e8;flex-shrink:0;'
+                            f'display:flex;align-items:center;justify-content:center;">'
+                            f'<span style="color:#fff;display:flex;align-items:center;">{_CHECK_SVG}</span>'
+                            f'</div>'
                         )
-                        st.markdown(f'<p class="doc-card-date">{date_str}</p>', unsafe_allow_html=True)
-                    if _chk_val != is_sel:
-                        if _chk_val:
-                            st.session_state["selected_docs"].append(name)
-                        else:
-                            st.session_state["selected_docs"].remove(name)
-                        st.rerun()
+                        card_border  = '2px solid #1a73e8'
+                        card_bg      = 'rgba(26,115,232,0.05)'
+                        card_shadow  = '0 4px 12px rgba(26,115,232,0.12)'
+                        icon_bg      = 'rgba(26,115,232,0.15)'
+                        card_cls     = 'doc-card-outer doc-card-selected'
+                    else:
+                        chk_html = (
+                            '<div style="width:20px;height:20px;border-radius:50%;'
+                            'border:2px solid #dadce0;background:transparent;flex-shrink:0;"></div>'
+                        )
+                        card_border  = '1px solid #e9eaeb'
+                        card_bg      = '#ffffff'
+                        card_shadow  = '0 1px 3px rgba(0,0,0,0.06)'
+                        icon_bg      = 'rgba(26,115,232,0.08)'
+                        card_cls     = 'doc-card-outer doc-card-unselected'
+
+                    card_html = (
+                        f'<div class="{card_cls}" style="'
+                        f'display:flex;align-items:center;gap:1rem;'
+                        f'padding:1.25rem;border-radius:1rem;'
+                        f'border:{card_border};background:{card_bg};'
+                        f'box-shadow:{card_shadow};cursor:pointer;transition:all 0.3s;">'
+                        f'{chk_html}'
+                        f'<div style="width:44px;height:44px;border-radius:12px;'
+                        f'background:{icon_bg};display:flex;align-items:center;'
+                        f'justify-content:center;flex-shrink:0;">{_PDF_SVG}</div>'
+                        f'<div style="flex:1;min-width:0;">'
+                        f'<p style="font-size:0.875rem;font-weight:500;color:#202124;'
+                        f'margin:0 !important;line-height:1.4;'
+                        f'overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{name}</p>'
+                        f'<p style="font-size:0.75rem;color:#5f6368;'
+                        f'margin:2px 0 0 0 !important;line-height:1.3;">{date_str}</p>'
+                        f'</div></div>'
+                    )
+                    with st.container():
+                        st.markdown(card_html, unsafe_allow_html=True)
+                        if st.button("​", key=f"doc_{name}"):
+                            if is_sel:
+                                selected.remove(name)
+                            else:
+                                selected.append(name)
+                            st.rerun()
 
                 # ── 削除ボタン（選択時） ──
                 if selected:
                     st.markdown('<div style="height:0.5rem;"></div>', unsafe_allow_html=True)
                     _dc1, _dc2 = st.columns([3, 2])
                     with _dc1:
-                        if st.button(f"🗑️  {len(selected)}件を削除", type="primary", use_container_width=True):
-                            for _del_name in list(selected):
-                                delete_document(_del_name)
+                        if st.button(f"🗑 {len(selected)}件を削除", type="primary", use_container_width=True):
+                            for name in selected:
+                                delete_document(name)
                             st.session_state["selected_docs"] = []
+                            st.success(f"{len(selected)} 件削除しました")
                             st.rerun()
                     with _dc2:
                         if st.button("選択を解除", use_container_width=True):
