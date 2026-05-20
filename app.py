@@ -1118,7 +1118,9 @@ _hdr_is_admin = (
 _logout_html = (
     '<a href="?logout=1" class="logout-link"'
     ' onclick="event.preventDefault();'
-    'document.body.style.opacity=\'0\';'
+    'var o=document.createElement(\'div\');'
+    'o.style.cssText=\'position:fixed;inset:0;background:#f8f9fa;z-index:9999;\';'
+    'document.body.appendChild(o);'
     'requestAnimationFrame(function(){location.href=\'?logout=1\';});"'
     '>👤 ログアウト</a>'
     if _hdr_is_admin else ''
