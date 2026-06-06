@@ -13,6 +13,7 @@ import time
 import json
 import re
 import base64
+import html as _html
 from pathlib import Path
 
 import fitz  # PyMuPDF
@@ -554,11 +555,14 @@ def ensure_collection(client: QdrantClient):
 
 def extract_pages(pdf_path: str):
     doc = fitz.open(pdf_path)
-    return [
-        {"page": i + 1, "text": page.get_text().strip()}
-        for i, page in enumerate(doc)
-        if page.get_text().strip()
-    ]
+    try:
+        return [
+            {"page": i + 1, "text": page.get_text().strip()}
+            for i, page in enumerate(doc)
+            if page.get_text().strip()
+        ]
+    finally:
+        doc.close()
 
 
 def split_chunks(text: str):
@@ -579,9 +583,32 @@ def embed_texts(texts, task_type: str):
     return [e.values for e in result.embeddings]
 
 
+def _delete_chunks_for_file(client: QdrantClient, filename: str):
+    """同名ファイルの既存チャンクをすべて削除（ページネーション対応）"""
+    from qdrant_client.models import PointIdsList
+    all_ids = []
+    offset = None
+    while True:
+        records, offset = client.scroll(
+            collection_name=COLLECTION,
+            limit=1000,
+            offset=offset,
+            with_payload=["filename"],
+            with_vectors=False,
+        )
+        all_ids.extend(r.id for r in records if r.payload.get("filename") == filename)
+        if offset is None:
+            break
+    if all_ids:
+        client.delete(collection_name=COLLECTION, points_selector=PointIdsList(points=all_ids))
+
+
 def ingest_pdf(pdf_bytes: bytes, filename: str) -> int:
     client = get_qdrant()
     ensure_collection(client)
+
+    # 同名ファイルの既存チャンクを先に削除（再登録時のチャンク不整合防止）
+    _delete_chunks_for_file(client, filename)
 
     with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as f:
         f.write(pdf_bytes)
@@ -810,14 +837,20 @@ def delete_document(filename: str) -> int:
     from qdrant_client.models import PointIdsList
     client = get_qdrant()
 
-    # サーバーサイドフィルターを使わず全件取得→Python側でファイル名絞り込み
-    records, _ = client.scroll(
-        collection_name=COLLECTION,
-        limit=10000,
-        with_payload=["filename"],
-        with_vectors=False,
-    )
-    point_ids = [r.id for r in records if r.payload.get("filename") == filename]
+    # ページネーションで全チャンクを取得してから削除
+    point_ids = []
+    offset = None
+    while True:
+        records, offset = client.scroll(
+            collection_name=COLLECTION,
+            limit=1000,
+            offset=offset,
+            with_payload=["filename"],
+            with_vectors=False,
+        )
+        point_ids.extend(r.id for r in records if r.payload.get("filename") == filename)
+        if offset is None:
+            break
     if point_ids:
         client.delete(
             collection_name=COLLECTION,
@@ -1380,7 +1413,8 @@ if _is_search:
                     _linked_in_cards: set = set()
                     for i, c in enumerate(_disp_chunks, 1):
                         score_pct = int(c["score"] * 100)
-                        _safe_fname = c["filename"].replace('"', '&quot;')
+                        _safe_fname = _html.escape(c["filename"], quote=True)
+                        _safe_fname_disp = _html.escape(c["filename"])
                         _b64 = _pdf_cache.get(c["filename"], '')
                         # 同じPDFのbase64は1枚目だけ埋め込み、2枚目以降はテキストにして転送量を削減
                         if _b64 and c["filename"] not in _linked_in_cards:
@@ -1389,14 +1423,15 @@ if _is_search:
                                 f'<a href="data:application/pdf;base64,{_b64}" download="{_safe_fname}" '
                                 f'style="font-weight:700;color:#1a73e8;font-size:0.95rem;'
                                 f'text-decoration:underline;cursor:pointer;">'
-                                f'📄 {c["filename"]}</a>'
+                                f'📄 {_safe_fname_disp}</a>'
                             )
                         else:
                             _fname_html = (
                                 f'<span style="font-weight:700;color:#202124;font-size:0.95rem;">'
-                                f'📄 {c["filename"]}</span>'
+                                f'📄 {_safe_fname_disp}</span>'
                             )
-                        _excerpt = c['text'][:200] + '...' if len(c['text']) > 200 else c['text']
+                        _raw = c['text'][:200] + '...' if len(c['text']) > 200 else c['text']
+                        _excerpt = _html.escape(_raw)
                         _cards_html += f"""
 <div style="background:#fafafa;border-left:4px solid #1a73e8;border-radius:12px;
             padding:0.8rem 1rem;margin-bottom:0.6rem;border:1px solid #e0eaf8;">
@@ -1495,12 +1530,19 @@ if _is_manage:
             if login_btn:
                 if not ADMIN_PASSWORD:
                     st.error("⚠️ 管理者パスワードが設定されていません。Streamlit Cloud の Secrets に ADMIN_PASSWORD を設定してください。")
-                elif pwd == ADMIN_PASSWORD:
-                    st.session_state["admin_authenticated"] = True
-                    touch_admin_session()
-                    st.rerun()
                 else:
-                    st.error("パスワードが違います")
+                    _attempts = st.session_state.get("_login_attempts", 0)
+                    if _attempts >= 5:
+                        st.error("⛔ ログイン試行回数が上限（5回）に達しました。ページを再読み込みしてください。")
+                    elif pwd == ADMIN_PASSWORD:
+                        st.session_state["_login_attempts"] = 0
+                        st.session_state["admin_authenticated"] = True
+                        touch_admin_session()
+                        st.rerun()
+                    else:
+                        st.session_state["_login_attempts"] = _attempts + 1
+                        _remain = 5 - (_attempts + 1)
+                        st.error(f"パスワードが違います（残り {_remain} 回）")
     else:
         touch_admin_session()
 
@@ -1569,8 +1611,11 @@ if _is_manage:
                                     st.error(err)
                                 else:
                                     with st.spinner(f"処理中: {uf.name}"):
-                                        ingest_pdf(data, uf.name)
-                                    success_names.append(uf.name)
+                                        _n = ingest_pdf(data, uf.name)
+                                    if _n == 0:
+                                        st.warning(f"⚠️ {uf.name}：テキストを抽出できませんでした（スキャンPDF・画像PDFは非対応）")
+                                    else:
+                                        success_names.append(uf.name)
                             if success_names:
                                 st.session_state["_upload_success"] = f"✅ {len(success_names)}件を登録しました: {', '.join(success_names)}"
                                 st.session_state["uploader_key"] += 1
