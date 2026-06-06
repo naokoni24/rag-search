@@ -822,8 +822,19 @@ def get_top_queries(n: int = 3):
     return result
 
 def get_cached_result(query: str):
-    """機密情報保護のためキャッシュ回答は保存しない。常に新規検索を実行する。"""
-    return None
+    """セッション内メモリキャッシュから回答を返す。
+    Qdrant には保存しないためセッションをまたぐと消える（機密情報残存なし）。"""
+    cache = st.session_state.get("_answer_cache", {})
+    key = normalize_query(query)
+    return cache.get(key)  # (answer, chunks) or None
+
+
+def set_cached_result(query: str, answer: str, chunks):
+    """セッション内メモリキャッシュに回答を保存する。"""
+    if "_answer_cache" not in st.session_state:
+        st.session_state["_answer_cache"] = {}
+    key = normalize_query(query)
+    st.session_state["_answer_cache"][key] = (answer, chunks)
 
 
 def delete_document(filename: str) -> int:
@@ -1323,15 +1334,21 @@ if _is_search:
             answer = None
             chunks_result = None
 
-            try:
-                with st.spinner("回答を生成中..."):
-                    chunks_result = search(safe_query)
-                    if chunks_result:
-                        answer = generate_answer(safe_query, chunks_result)
-                        record_search(safe_query, answer, chunks_result)
-            except Exception as e:
-                st.error(_gemini_error_message(e))
-                chunks_result = None
+            # セッション内キャッシュを参照（Qdrantには保存しないため機密情報残存なし）
+            cached = get_cached_result(safe_query)
+            if cached:
+                answer, chunks_result = cached
+            else:
+                try:
+                    with st.spinner("回答を生成中..."):
+                        chunks_result = search(safe_query)
+                        if chunks_result:
+                            answer = generate_answer(safe_query, chunks_result)
+                            record_search(safe_query, answer, chunks_result)
+                            set_cached_result(safe_query, answer, chunks_result)
+                except Exception as e:
+                    st.error(_gemini_error_message(e))
+                    chunks_result = None
 
             if not chunks_result:
                 st.warning("関連するドキュメントが見つかりませんでした。別のキーワードで試してください。")
