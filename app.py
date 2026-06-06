@@ -746,10 +746,37 @@ def load_search_log() -> dict:
             st.session_state["_search_log"] = {}
     return st.session_state["_search_log"]
 
+_LOG_MAX_ENTRIES = 200  # ログエントリ上限（超えたら低頻度順に削除）
+
 def save_search_log(log: dict):
+    # 上限を超えたら件数の少ないエントリから削除
+    if len(log) > _LOG_MAX_ENTRIES:
+        sorted_keys = sorted(log, key=lambda k: log[k].get("count", 0))
+        for k in sorted_keys[:len(log) - _LOG_MAX_ENTRIES]:
+            del log[k]
+
     st.session_state["_search_log"] = log   # session_state を即時更新
+
+    # 競合緩和：書き込み直前に最新値を再取得してマージ
     client = get_qdrant()
     _ensure_log_collection(client)
+    try:
+        results = client.retrieve(
+            collection_name=LOG_COLLECTION,
+            ids=[LOG_POINT_ID],
+            with_payload=True,
+        )
+        if results:
+            latest = results[0].payload.get("log", {})
+            # 他セッションの更新分をマージ（自セッションのカウントを優先）
+            for k, v in latest.items():
+                if k not in log:
+                    log[k] = v
+                elif v.get("count", 0) > log[k].get("count", 0):
+                    log[k]["count"] = v["count"]
+    except Exception:
+        pass
+
     client.upsert(
         collection_name=LOG_COLLECTION,
         points=[PointStruct(id=LOG_POINT_ID, vector=[0.0], payload={"log": log})],
@@ -767,7 +794,6 @@ def normalize_query(query: str) -> str:
     return q.strip()
 
 def _generate_label(query: str) -> str:
-    client = get_genai_client()
     prompt = (
         f"次の検索キーワードを、社内システムのボタンラベルとして表示するための"
         f"簡潔で丁寧な日本語（15文字以内）に変換してください。"
@@ -995,7 +1021,7 @@ def _gemini_error_message(e: Exception) -> str:
         return "APIの利用上限に達しました。しばらく待ってから再試行してください。"
     if "503" in err or "UNAVAILABLE" in err or "high demand" in err.lower():
         return "Gemini APIが混雑しています。しばらく待ってから再検索してください。"
-    return f"Gemini APIエラー: {err[:200]}"
+    return "検索処理中にエラーが発生しました。しばらく待ってから再試行してください。"
 
 
 def _call_gemini_with_retry(fn, max_retries: int = 3):
@@ -1100,7 +1126,7 @@ def generate_answer(query: str, chunks) -> str:
         raise RuntimeError(_gemini_error_message(e))
 
 
-_CITATION_RE = re.compile(r'【参照】([^\s\n【】]+\.pdf)\s+p\.(\d+)')
+_CITATION_RE = re.compile(r'【参照】([^\n【】]+?\.pdf)\s+p\.(\d+)')
 _LOOSE_CITATION_RE = re.compile(r'【参照】[^\n]*')
 
 def strip_citations(answer: str) -> str:
@@ -1108,7 +1134,7 @@ def strip_citations(answer: str) -> str:
     return _LOOSE_CITATION_RE.sub('', answer).strip()
 
 _PLAIN_EXTRA_CITATION_RE = re.compile(
-    r'[,、]\s*([^\s\n【】,、]+\.pdf)\s+p\.\d+'
+    r'[,、]\s*([^\n【】,、]+?\.pdf)\s+p\.\d+'
 )
 
 def linkify_answer(answer: str, pdf_cache=None, allow_download: bool = False) -> str:
@@ -1488,6 +1514,10 @@ if _is_manage:
 
         col_left, col_right = st.columns(2, gap="large")
 
+        # カラム分岐前に最新 docs を取得（左右カラムで同一データを参照）
+        docs_with_dates = get_registered_docs_with_dates()
+        docs = [fname for fname, _ in docs_with_dates]
+
         with col_left:
             st.markdown('<div class="section-title">PDFをアップロード</div>', unsafe_allow_html=True)
             st.markdown('<p style="font-size:0.875rem;color:#86868b;margin:-0.25rem 0 0.75rem 0 !important;">ナレッジベースに新しい文書を追加します</p>', unsafe_allow_html=True)
@@ -1562,8 +1592,6 @@ if _is_manage:
                             st.rerun()
 
         with col_right:
-            docs_with_dates = get_registered_docs_with_dates()
-            docs = [fname for fname, _ in docs_with_dates]
             if "selected_docs" not in st.session_state:
                 st.session_state["selected_docs"] = []
             st.session_state["selected_docs"] = [
