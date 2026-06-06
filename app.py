@@ -788,32 +788,32 @@ def _has_citation(answer: str) -> bool:
     return bool(_CITATION_RE.search(answer))
 
 def record_search(query: str, answer: str, chunks):
-    """引用付きの有効な回答のみ記録する（「該当なし」回答は除外）"""
+    """引用付きの有効な回答のみ記録する（「該当なし」回答は除外）。
+    機密情報保護のため answer/chunks 本文は保存せず、件数とラベルのみ記録する。"""
     if not (answer and chunks and _has_citation(answer)):
         return
     log = load_search_log()
     key = normalize_query(query)
     if not key:
         return
-    entry = log.get(key, {"count": 0, "label": None, "answer": None, "chunks": None})
+    entry = log.get(key, {"count": 0, "label": None})
     entry["count"] += 1
-    entry["answer"] = answer
-    entry["chunks"] = chunks
+    # answer/chunks は文書削除後も残り続けるため保存しない
+    entry.pop("answer", None)
+    entry.pop("chunks", None)
     if not entry.get("label"):
         entry["label"] = _generate_label(key)
     log[key] = entry
     save_search_log(log)
 
 def get_top_queries(n: int = 3):
-    """引用付きの有効な回答があるエントリのみ (normalized_query, label) で返す"""
+    """検索回数上位 n 件を (normalized_query, label) で返す"""
     log = load_search_log()
-    sorted_keys = sorted(log, key=lambda k: log[k]["count"], reverse=True)
+    sorted_keys = sorted(log, key=lambda k: log[k].get("count", 0), reverse=True)
     result = []
     for k in sorted_keys:
         entry = log[k]
-        answer = entry.get("answer") or ""
-        chunks = entry.get("chunks") or []
-        if not (answer and chunks and _has_citation(answer)):
+        if entry.get("count", 0) <= 0:
             continue
         label = entry.get("label") or k
         result.append((k, label))
@@ -822,14 +822,7 @@ def get_top_queries(n: int = 3):
     return result
 
 def get_cached_result(query: str):
-    """Top3クリック時にキャッシュ済みの回答を返す。なければ None"""
-    log = load_search_log()
-    key = normalize_query(query)
-    entry = log.get(key)
-    answer = (entry or {}).get("answer") or ""
-    chunks = (entry or {}).get("chunks") or []
-    if answer and chunks and _has_citation(answer):
-        return answer, chunks
+    """機密情報保護のためキャッシュ回答は保存しない。常に新規検索を実行する。"""
     return None
 
 
@@ -1107,8 +1100,9 @@ _PLAIN_EXTRA_CITATION_RE = re.compile(
     r'[,、]\s*([^\s\n【】,、]+\.pdf)\s+p\.\d+'
 )
 
-def linkify_answer(answer: str, pdf_cache=None) -> str:
-    """回答内の【参照】ファイル名 p.N をダウンロードリンクに変換。
+def linkify_answer(answer: str, pdf_cache=None, allow_download: bool = False) -> str:
+    """回答内の【参照】ファイル名 p.N をリンクまたはテキストに変換。
+    allow_download=True のときのみ base64 ダウンロードリンクを生成する。
     同じファイル名が複数ある場合は最後の 1 件だけリンク表示し、それ以前は削除する。
     「【参照】file.pdf p.2, file.pdf p.1」のようにカンマ続きで書かれた plain text
     部分も、対象ファイル名なら除去する。"""
@@ -1127,17 +1121,18 @@ def linkify_answer(answer: str, pdf_cache=None) -> str:
         # 最後の出現でなければ削除
         if idx != last_idx[fname]:
             return ''
-        safe = fname.replace('"', '&quot;')
-        b64 = (pdf_cache or {}).get(fname, '')
+        safe = _html.escape(fname, quote=True)
+        safe_disp = _html.escape(fname)
+        b64 = (pdf_cache or {}).get(fname, '') if allow_download else ''
         if b64:
             href = f'data:application/pdf;base64,{b64}'
             link = (
                 f'<a href="{href}" download="{safe}" '
                 f'style="color:#1a73e8;font-weight:600;text-decoration:underline;cursor:pointer;">'
-                f'📄 {fname}</a>'
+                f'📄 {safe_disp}</a>'
             )
         else:
-            link = f'<span style="color:#1a73e8;font-weight:600;">📄 {fname}</span>'
+            link = f'<span style="color:#1a73e8;font-weight:600;">📄 {safe_disp}</span>'
         return (
             f'<br>{link}'
             f'<span style="color:#86868b;font-weight:400;"> p.{page}</span>'
@@ -1309,13 +1304,6 @@ if _is_search:
         st.session_state["search_submitted"] = True
         st.session_state["_search_result"] = None
         st.session_state["_was_form_submit"] = True   # フォーム経由フラグ
-        # フォーム直接送信時はキャッシュをスキップして必ず新規検索
-        st.session_state["_skip_log_cache"] = True
-        # PDFキャッシュは PDF欠損再検索時のみクリア（毎回クリアすると Top3 が遅くなる）
-        if st.session_state.pop("_clear_pdf_cache_next", False):
-            get_pdf_b64.clear()
-            get_pdf_b64_batch.clear()
-            get_pdf_bytes.clear()
 
     run_query = st.session_state["search_submitted"]
     current_query = st.session_state["search_query"]
@@ -1335,24 +1323,18 @@ if _is_search:
             answer = None
             chunks_result = None
 
-            _skip_log = st.session_state.pop("_skip_log_cache", False)
-            cached = None if _skip_log else get_cached_result(safe_query)
-            if cached:
-                answer, chunks_result = cached
-            else:
-                try:
-                    with st.spinner("回答を生成中..."):
-                        chunks_result = search(safe_query)
-                        if chunks_result:
-                            answer = generate_answer(safe_query, chunks_result)
-                            record_search(safe_query, answer, chunks_result)
-                except Exception as e:
-                    st.error(_gemini_error_message(e))
-                    chunks_result = None
+            try:
+                with st.spinner("回答を生成中..."):
+                    chunks_result = search(safe_query)
+                    if chunks_result:
+                        answer = generate_answer(safe_query, chunks_result)
+                        record_search(safe_query, answer, chunks_result)
+            except Exception as e:
+                st.error(_gemini_error_message(e))
+                chunks_result = None
 
             if not chunks_result:
-                if not cached:
-                    st.warning("関連するドキュメントが見つかりませんでした。別のキーワードで試してください。")
+                st.warning("関連するドキュメントが見つかりませんでした。別のキーワードで試してください。")
             elif answer:
                 _disp_query, _disp_answer, _disp_chunks = safe_query, answer, chunks_result
                 _just_searched = True
@@ -1361,48 +1343,14 @@ if _is_search:
         _disp_query, _disp_answer, _disp_chunks = st.session_state["_search_result"]
 
     # ---- 回答描画（検索直後 / フォームクリア後の保持結果 共通） ----
-    _missing = []  # _just_searched ブロックで参照するため先に初期化
+    _missing = []  # 後続ブロックとの互換性のため保持
     if _disp_answer and _disp_chunks:
-        # PDF の base64 を一括取得（1 回の Qdrant retrieve で完了）
-        _unique_fnames = tuple(sorted({
-            *[m.group(1) for m in _CITATION_RE.finditer(_disp_answer)],
-            *[c["filename"] for c in _disp_chunks],
-        }))
-        _pdf_cache = get_pdf_b64_batch(_unique_fnames)
-
-        # PDF欠損チェック（_just_searched ブロックでも使用）
-        _missing = [c["filename"] for c in _disp_chunks if not _pdf_cache.get(c["filename"])]
-
-        # PDF欠損がある場合は Top3・通常検索問わず回答を非表示にして再検索を促す
-        if _missing:
-            def _retry_missing(q=_disp_query):
-                st.session_state["search_query"] = q
-                st.session_state["search_submitted"] = True
-                st.session_state["_search_result"] = None
-                st.session_state["_skip_log_cache"] = True
-                get_pdf_b64.clear()
-                get_pdf_b64_batch.clear()
-                get_pdf_bytes.clear()
-            st.markdown(
-                '<div style="margin-top:0.4rem;padding:0.8rem 1rem;background:#fff8e1;'
-                'border-left:4px solid #f9a825;border-radius:12px;font-size:0.9rem;color:#86868b;">'
-                '⚠️ この検索結果で参照しているPDFのダウンロードリンクが利用できません。'
-                '以下のボタンで再検索してください。'
-                '</div><div style="height:0.5rem;"></div>',
-                unsafe_allow_html=True,
-            )
-            st.button(
-                f"🔄 「{_disp_query}」で再検索する",
-                on_click=_retry_missing,
-                key="missing_retry_btn",
-                type="primary",
-            )
-        else:
-            with st.chat_message("user", avatar="🧑"):
-                st.write(_disp_query)
-            with st.chat_message("assistant", avatar="🤖"):
-                _show_ans = _disp_answer if _has_citation(_disp_answer) else strip_citations(_disp_answer)
-                st.markdown(linkify_answer(_show_ans, _pdf_cache), unsafe_allow_html=True)
+        with st.chat_message("user", avatar="🧑"):
+            st.write(_disp_query)
+        with st.chat_message("assistant", avatar="🤖"):
+            _show_ans = _disp_answer if _has_citation(_disp_answer) else strip_citations(_disp_answer)
+            # allow_download=False：検索タブは認証なしのためPDFダウンロードリンクを生成しない
+            st.markdown(linkify_answer(_show_ans, allow_download=False), unsafe_allow_html=True)
 
             if _has_citation(_disp_answer):
                 with st.expander(
@@ -1410,26 +1358,14 @@ if _is_search:
                     expanded=False,
                 ):
                     _cards_html = ""
-                    _linked_in_cards: set = set()
                     for i, c in enumerate(_disp_chunks, 1):
                         score_pct = int(c["score"] * 100)
-                        _safe_fname = _html.escape(c["filename"], quote=True)
                         _safe_fname_disp = _html.escape(c["filename"])
-                        _b64 = _pdf_cache.get(c["filename"], '')
-                        # 同じPDFのbase64は1枚目だけ埋め込み、2枚目以降はテキストにして転送量を削減
-                        if _b64 and c["filename"] not in _linked_in_cards:
-                            _linked_in_cards.add(c["filename"])
-                            _fname_html = (
-                                f'<a href="data:application/pdf;base64,{_b64}" download="{_safe_fname}" '
-                                f'style="font-weight:700;color:#1a73e8;font-size:0.95rem;'
-                                f'text-decoration:underline;cursor:pointer;">'
-                                f'📄 {_safe_fname_disp}</a>'
-                            )
-                        else:
-                            _fname_html = (
-                                f'<span style="font-weight:700;color:#202124;font-size:0.95rem;">'
-                                f'📄 {_safe_fname_disp}</span>'
-                            )
+                        # PDFダウンロードリンクは管理者のみ（検索タブは非認証のため非表示）
+                        _fname_html = (
+                            f'<span style="font-weight:700;color:#202124;font-size:0.95rem;">'
+                            f'📄 {_safe_fname_disp}</span>'
+                        )
                         _raw = c['text'][:200] + '...' if len(c['text']) > 200 else c['text']
                         _excerpt = _html.escape(_raw)
                         _cards_html += f"""
@@ -1476,19 +1412,6 @@ if _is_search:
     display_pills = top_queries if top_queries else [(q, q) for q in _STATIC_SUGGESTIONS]
 
     if display_pills:
-        # Top3（動的）の場合のみ PDFキャッシュをプリウォーム
-        if top_queries and "_top3_pdf_prewarmed" not in st.session_state:
-            for _tq, _ in top_queries:
-                _tc = get_cached_result(_tq)
-                if _tc:
-                    _t_ans, _t_chks = _tc
-                    _t_fnames = tuple(sorted({
-                        *[m.group(1) for m in _CITATION_RE.finditer(_t_ans)],
-                        *[c["filename"] for c in _t_chks],
-                    }))
-                    if _t_fnames:
-                        get_pdf_b64_batch(_t_fnames)
-            st.session_state["_top3_pdf_prewarmed"] = True
 
         st.markdown('<p style="font-size:0.875rem;color:#5f6368;text-align:center;margin:2rem 0 1rem 0;">よく検索されています</p>', unsafe_allow_html=True)
         st.markdown('<span class="pills-container-marker" style="display:none;"></span>', unsafe_allow_html=True)
