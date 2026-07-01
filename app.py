@@ -1196,6 +1196,32 @@ st.set_page_config(
     layout="centered",
 )
 
+# iPhoneの「ホーム画面に追加」で使われるアイコンを設定
+# (StreamlitはAPIを提供していないため、親ドキュメントのheadにJSで注入する)
+st.components.v1.html(
+    """
+    <script>
+    (function() {
+        const doc = window.parent.document;
+        const icons = {
+            "apple-touch-icon": "app/static/apple-touch-icon.png",
+            "icon": "app/static/favicon-32.png",
+        };
+        Object.entries(icons).forEach(([rel, href]) => {
+            let link = doc.querySelector(`link[rel="${rel}"]`);
+            if (!link) {
+                link = doc.createElement("link");
+                link.rel = rel;
+                doc.head.appendChild(link);
+            }
+            link.href = href;
+        });
+    })();
+    </script>
+    """,
+    height=0,
+)
+
 # ログアウト処理（URLパラメータ経由）
 if st.query_params.get("logout") == "1":
     st.session_state["admin_authenticated"] = False

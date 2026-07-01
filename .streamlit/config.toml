@@ -1,5 +1,9 @@
+[client]
+toolbarMode = "minimal"
+
 [server]
 maxUploadSize = 10
+enableStaticServing = true
 
 [theme]
 base = "light"
