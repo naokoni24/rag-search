@@ -1197,29 +1197,15 @@ st.set_page_config(
 )
 
 # iPhoneの「ホーム画面に追加」で使われるアイコンを設定
-# (StreamlitはAPIを提供していないため、親ドキュメントのheadにJSで注入する)
-st.components.v1.html(
+# (StreamlitはAPIを提供していないため、markdown経由でlinkタグを直接埋め込む。
+#  components.v1.htmlのiframe経由だとStreamlit Cloud上でheadへの書き込みが
+#  ブロックされることがあるため、同一ドキュメント内に置けるこの方式にしている)
+st.markdown(
     """
-    <script>
-    (function() {
-        const doc = window.parent.document;
-        const icons = {
-            "apple-touch-icon": "app/static/apple-touch-icon.png",
-            "icon": "app/static/favicon-32.png",
-        };
-        Object.entries(icons).forEach(([rel, href]) => {
-            let link = doc.querySelector(`link[rel="${rel}"]`);
-            if (!link) {
-                link = doc.createElement("link");
-                link.rel = rel;
-                doc.head.appendChild(link);
-            }
-            link.href = href;
-        });
-    })();
-    </script>
+    <link rel="apple-touch-icon" href="app/static/apple-touch-icon.png">
+    <link rel="icon" href="app/static/favicon-32.png">
     """,
-    height=0,
+    unsafe_allow_html=True,
 )
 
 # ログアウト処理（URLパラメータ経由）
