@@ -75,18 +75,35 @@
           zone.dataset.bound = "true";
           const input = zone.querySelector('input[type="file"]');
           const meta = zone.querySelector(".drop-zone-meta");
+          const fileList = zone.querySelector(".drop-zone-file-list");
           if (!input) return;
 
           const updateMeta = () => {
             if (!meta) return;
             const files = input.files ? Array.from(input.files) : [];
+            zone.classList.toggle("has-files", files.length > 0);
+            if (fileList) {
+              fileList.hidden = files.length === 0;
+              fileList.replaceChildren();
+            }
             if (files.length === 0) {
               meta.textContent = "またはクリックして選択";
-            } else if (files.length <= 3) {
-              meta.textContent = files.map((f) => f.name).join("、");
             } else {
-              const names = files.slice(0, 2).map((f) => f.name).join("、");
-              meta.textContent = `${names} ほか${files.length - 2}件`;
+              meta.textContent = `${files.length}件のファイルを選択中`;
+              if (fileList) {
+                files.slice(0, 6).forEach((file) => {
+                  const chip = document.createElement("span");
+                  chip.className = "drop-zone-file-chip";
+                  chip.textContent = file.name;
+                  fileList.appendChild(chip);
+                });
+                if (files.length > 6) {
+                  const more = document.createElement("span");
+                  more.className = "drop-zone-file-chip drop-zone-file-more";
+                  more.textContent = `ほか${files.length - 6}件`;
+                  fileList.appendChild(more);
+                }
+              }
             }
           };
 

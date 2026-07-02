@@ -825,6 +825,11 @@ a {
   box-shadow: var(--shadow-sm);
 }
 
+.drop-zone.has-files {
+  border-color: var(--color-accent);
+  background: var(--color-accent-soft);
+}
+
 .file-input {
   position: absolute;
   inset: 0;
@@ -858,6 +863,41 @@ a {
   color: var(--color-text-secondary);
   font-size: var(--text-sm);
   font-weight: 600;
+}
+
+.drop-zone.has-files .drop-zone-meta {
+  color: var(--color-accent);
+  font-weight: 700;
+}
+
+.drop-zone-file-list {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.drop-zone-file-chip {
+  max-width: 100%;
+  padding: 5px 10px;
+  border: 1px solid var(--color-selected);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  box-shadow: var(--shadow-sm);
+}
+
+.drop-zone-file-more {
+  color: var(--color-accent);
+  background: #FFFFFF;
 }
 
 .upload-info {
