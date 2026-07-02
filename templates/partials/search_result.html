@@ -2,11 +2,11 @@
 <div class="msg msg-{{ level }}">{{ text }}</div>
 {% elif kind == "result" %}
 <div class="chat-message chat-user">
-  <span class="avatar avatar-user">Q</span>
+  <span class="avatar avatar-user">🧑</span>
   <div class="bubble">{{ query }}</div>
 </div>
 <div class="chat-message chat-assistant">
-  <span class="avatar avatar-assistant">AI</span>
+  <span class="avatar avatar-assistant">🤖</span>
   <div class="bubble">{{ answer_html|safe }}</div>
 </div>
 {% if chunks %}
