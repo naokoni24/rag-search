@@ -8,6 +8,7 @@
 
 import secrets
 import time
+from pathlib import Path
 
 from flask import Flask, render_template, request, redirect, url_for, session
 
@@ -30,6 +31,19 @@ _STATIC_SUGGESTIONS = [
     "経費申請の手続き",
     "有給休暇の申請方法",
 ]
+
+
+def _static_version(filename: str) -> int:
+    path = Path(app.static_folder or "static") / filename
+    try:
+        return int(path.stat().st_mtime)
+    except OSError:
+        return int(time.time())
+
+
+@app.context_processor
+def inject_static_versions():
+    return {"style_version": _static_version("style.css")}
 
 
 def _get_pills():
