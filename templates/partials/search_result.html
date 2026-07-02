@@ -1,0 +1,34 @@
+{% if kind == "message" %}
+<div class="msg msg-{{ level }}">{{ text }}</div>
+{% elif kind == "result" %}
+<div class="chat-message chat-user">
+  <span class="avatar">🧑</span>
+  <div class="bubble">{{ query }}</div>
+</div>
+<div class="chat-message chat-assistant">
+  <span class="avatar">🤖</span>
+  <div class="bubble">{{ answer_html|safe }}</div>
+</div>
+{% if chunks %}
+<details class="refs">
+  <summary>参照元ドキュメント（{{ chunks|length }} 件）</summary>
+  {% for c in chunks %}
+  <div class="ref-card">
+    <div class="ref-card-top">
+      <span class="ref-index">{{ loop.index }}</span>
+      <span class="ref-filename">📄 {{ c.filename }}</span>
+      <span class="ref-page">p.{{ c.page }}</span>
+      <span class="ref-score">関連度 {{ c.score_pct }}%</span>
+    </div>
+    <div class="ref-excerpt">{{ c.excerpt }}</div>
+  </div>
+  {% endfor %}
+</details>
+{% endif %}
+{% endif %}
+
+{% if top3_oob %}
+<div id="top3-pills" hx-swap-oob="true">
+  {% include "partials/top3_pills.html" %}
+</div>
+{% endif %}

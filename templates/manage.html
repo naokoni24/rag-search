@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+{% if not is_admin %}
+  {% if flash_message %}<div class="msg msg-{{ flash_level }}">{{ flash_message }}</div>{% endif %}
+  <div class="login-card">
+    <div class="login-icon">🔐</div>
+    <div class="login-title">管理者ログイン</div>
+    <div class="login-sub">文書管理には管理者権限が必要です</div>
+    <form method="post" action="{{ url_for('manage_login') }}" class="login-form">
+      <input type="password" name="password" placeholder="パスワードを入力してください" required>
+      <button type="submit" class="btn-primary">ログイン</button>
+    </form>
+    {% if login_error %}<div class="msg msg-error">{{ login_error }}</div>{% endif %}
+  </div>
+{% else %}
+  <div id="admin-panel">
+    {% include "partials/admin_panel.html" %}
+  </div>
+{% endif %}
+{% endblock %}

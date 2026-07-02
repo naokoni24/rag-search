@@ -1,0 +1,10 @@
+{% if pills %}
+<p class="pills-label">よく検索されています</p>
+<div class="pills-row">
+  {% for value, label in pills %}
+  <button type="button" class="pill" hx-post="{{ url_for('do_search') }}"
+          hx-vals='{"query": {{ value|tojson }} }' hx-target="#search-results"
+          hx-indicator="#search-spinner">🔍 {{ label }}</button>
+  {% endfor %}
+</div>
+{% endif %}

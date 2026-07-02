@@ -1,0 +1,49 @@
+<div class="admin-grid">
+  <section class="upload-section">
+    <div class="section-title">PDFをアップロード</div>
+    <p class="section-sub">ナレッジベースに新しい文書を追加します</p>
+
+    {% for level, text in messages %}
+    <div class="msg msg-{{ level }}">{{ text }}</div>
+    {% endfor %}
+
+    <form hx-post="{{ url_for('manage_upload') }}" hx-target="#admin-panel" hx-encoding="multipart/form-data"
+          hx-indicator="#upload-spinner" hx-on::after-request="this.reset()">
+      <input type="file" name="files" accept="application/pdf" multiple class="file-input">
+      <div class="upload-info">
+        <span>10MB per file • PDF形式のみ</span>
+        <span>登録済み: <strong>{{ doc_count }}</strong> / {{ max_docs }} 件</span>
+      </div>
+      <button type="submit" class="btn-primary">アップロードして登録する</button>
+    </form>
+    <div id="upload-spinner" class="htmx-indicator spinner-row">処理中...</div>
+  </section>
+
+  <section class="doclist-section">
+    <div class="section-title">登録済みドキュメント</div>
+    <p class="section-sub">ナレッジベースに登録されている文書一覧</p>
+
+    {% if docs %}
+    <form hx-post="{{ url_for('manage_delete') }}" hx-target="#admin-panel"
+          hx-confirm="選択したドキュメントを削除しますか？">
+      <label class="select-all-row">
+        <input type="checkbox" onclick="this.closest('form').querySelectorAll('input[name=filenames]').forEach(c => c.checked = this.checked)">
+        すべて選択
+      </label>
+      <div class="doc-list">
+        {% for name, date_str in docs %}
+        <label class="doc-card">
+          <input type="checkbox" name="filenames" value="{{ name }}">
+          <span class="doc-icon">📄</span>
+          <span class="doc-name">{{ name }}</span>
+          <span class="doc-date">{{ date_str }}</span>
+        </label>
+        {% endfor %}
+      </div>
+      <button type="submit" class="btn-danger">🗑 選択したドキュメントを削除</button>
+    </form>
+    {% else %}
+    <div class="empty-state">まだドキュメントが登録されていません。</div>
+    {% endif %}
+  </section>
+</div>
