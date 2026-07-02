@@ -11,7 +11,7 @@
 </div>
 {% if chunks %}
 <details class="refs">
-  <summary>参照元ドキュメント（{{ chunks|length }} 件）</summary>
+  <summary><span class="refs-marker" aria-hidden="true"></span><span>参照元ドキュメント（{{ chunks|length }} 件）</span></summary>
   {% for c in chunks %}
   <div class="ref-card">
     <div class="ref-card-top">

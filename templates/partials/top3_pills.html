@@ -4,7 +4,7 @@
   {% for value, label in pills %}
   <button type="button" class="pill search-control" hx-post="{{ url_for('do_search') }}"
           hx-vals='{"query": {{ value|tojson }} }' hx-target="#search-results"
-          hx-indicator="#search-spinner"
+          hx-indicator="#search-spinner" hx-swap="innerHTML settle:150ms" hx-disabled-elt=".search-control"
           hx-on:click='document.getElementById("search-input").value = {{ value|tojson }}'
           hx-on::before-request="document.querySelectorAll('.search-control').forEach(el => el.disabled = true); document.getElementById('search-submit-btn').classList.add('is-loading')">{{ label }}</button>
   {% endfor %}

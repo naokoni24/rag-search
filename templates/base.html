@@ -47,5 +47,89 @@
 
     {% block content %}{% endblock %}
   </div>
+  <div id="toast-region" class="toast-region" role="status" aria-live="polite" aria-atomic="true"></div>
+  <script>
+    (() => {
+      const toastRegion = document.getElementById("toast-region");
+
+      function showToast(message, level = "success") {
+        if (!message || !toastRegion) return;
+        const toast = document.createElement("div");
+        toast.className = `toast toast-${level}`;
+        toast.textContent = message;
+        toastRegion.appendChild(toast);
+        window.setTimeout(() => toast.classList.add("is-leaving"), 2600);
+        window.setTimeout(() => toast.remove(), 3000);
+      }
+
+      function hydrateSuccessMessages(root = document) {
+        root.querySelectorAll(".msg-success").forEach((message) => {
+          showToast(message.textContent.trim(), "success");
+          message.remove();
+        });
+      }
+
+      function hydrateDropZones(root = document) {
+        root.querySelectorAll(".drop-zone").forEach((zone) => {
+          if (zone.dataset.bound === "true") return;
+          zone.dataset.bound = "true";
+          const input = zone.querySelector('input[type="file"]');
+          const meta = zone.querySelector(".drop-zone-meta");
+          if (!input) return;
+
+          const updateMeta = () => {
+            if (!meta) return;
+            const count = input.files ? input.files.length : 0;
+            meta.textContent = count > 0 ? `${count}件のファイルを選択中` : "PDFファイルを選択またはドロップ";
+          };
+
+          ["dragenter", "dragover"].forEach((eventName) => {
+            zone.addEventListener(eventName, (event) => {
+              event.preventDefault();
+              zone.classList.add("is-dragover");
+            });
+          });
+
+          ["dragleave", "drop"].forEach((eventName) => {
+            zone.addEventListener(eventName, () => zone.classList.remove("is-dragover"));
+          });
+
+          zone.addEventListener("drop", (event) => {
+            event.preventDefault();
+            if (event.dataTransfer?.files?.length) {
+              input.files = event.dataTransfer.files;
+              input.dispatchEvent(new Event("change", { bubbles: true }));
+              updateMeta();
+            }
+          });
+
+          input.addEventListener("change", updateMeta);
+          updateMeta();
+        });
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        hydrateSuccessMessages();
+        hydrateDropZones();
+      });
+
+      document.body.addEventListener("htmx:afterSwap", (event) => {
+        hydrateSuccessMessages(event.detail.target);
+        hydrateDropZones(event.detail.target);
+      });
+
+      document.body.addEventListener("htmx:beforeRequest", (event) => {
+        if (event.target.matches?.(".upload-form")) {
+          event.target.classList.add("is-uploading");
+        }
+      });
+
+      document.body.addEventListener("htmx:afterRequest", (event) => {
+        if (event.target.matches?.(".upload-form")) {
+          event.target.classList.remove("is-uploading");
+        }
+      });
+    })();
+  </script>
 </body>
 </html>

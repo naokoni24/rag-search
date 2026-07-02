@@ -3,20 +3,27 @@
     <div class="section-title">PDFをアップロード</div>
     <p class="section-sub">ナレッジベースに新しい文書を追加します</p>
 
+    <div class="admin-panel-messages">
     {% for level, text in messages %}
     <div class="msg msg-{{ level }}">{{ text }}</div>
     {% endfor %}
+    </div>
 
-    <form hx-post="{{ url_for('manage_upload') }}" hx-target="#admin-panel" hx-encoding="multipart/form-data"
-          hx-indicator="#upload-spinner" hx-on::after-request="this.reset()">
-      <input type="file" name="files" accept="application/pdf" multiple class="file-input">
+    <form class="upload-form" hx-post="{{ url_for('manage_upload') }}" hx-target="#admin-panel" hx-encoding="multipart/form-data"
+          hx-indicator="#upload-progress" hx-on::after-request="this.reset()">
+      <label class="drop-zone">
+        <input type="file" name="files" accept="application/pdf" multiple class="file-input">
+        <span class="drop-zone-icon" aria-hidden="true">PDF</span>
+        <span class="drop-zone-text">PDFをアップロード</span>
+        <span class="drop-zone-meta">PDFファイルを選択またはドロップ</span>
+      </label>
       <div class="upload-info">
         <span>10MB per file • PDF形式のみ</span>
         <span>登録済み: <strong>{{ doc_count }}</strong> / {{ max_docs }} 件</span>
       </div>
+      <div id="upload-progress" class="htmx-indicator upload-progress" aria-hidden="true"><span></span></div>
       <button type="submit" class="btn-primary">アップロードして登録する</button>
     </form>
-    <div id="upload-spinner" class="htmx-indicator spinner-row">処理中...</div>
   </section>
 
   <section class="doclist-section">
@@ -31,6 +38,12 @@
         <input type="checkbox" onclick="this.closest('form').querySelectorAll('input[name=filenames]').forEach(c => c.checked = this.checked)">
         すべて選択
       </label>
+      <div class="doc-list-header" aria-hidden="true">
+        <span></span>
+        <span></span>
+        <span>ファイル名</span>
+        <span>登録日時</span>
+      </div>
       <div class="doc-list">
         {% for name, date_str in docs %}
         <label class="doc-card">
@@ -41,7 +54,7 @@
         </label>
         {% endfor %}
       </div>
-      <button type="submit" id="delete-btn" class="btn-danger" hidden>🗑 選択したドキュメントを削除</button>
+      <button type="submit" id="delete-btn" class="btn-danger" hidden>選択したドキュメントを削除</button>
     </form>
     {% else %}
     <div class="empty-state">まだドキュメントが登録されていません。</div>
