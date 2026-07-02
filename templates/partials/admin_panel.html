@@ -79,7 +79,8 @@
         <label class="doc-card" data-filename="{{ name }}" data-date="{{ date_str }}">
           <input type="checkbox" name="filenames" value="{{ name }}">
           <span class="doc-icon">📄</span>
-          <span class="doc-name">{{ name }}</span>
+          <a class="doc-name" href="{{ url_for('manage_download', filename=name) }}"
+             onclick="event.stopPropagation()" title="ダウンロード: {{ name }}">{{ name }}</a>
           <span class="doc-date">{{ date_str }}</span>
         </label>
         {% endfor %}

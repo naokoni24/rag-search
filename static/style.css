@@ -1085,6 +1085,12 @@ a {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  text-decoration: none;
+}
+
+.doc-name:hover {
+  color: var(--color-accent);
+  text-decoration: underline;
 }
 
 .doc-date {

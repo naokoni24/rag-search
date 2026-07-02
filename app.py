@@ -9,6 +9,7 @@
 import secrets
 import time
 from pathlib import Path
+from urllib.parse import quote
 
 from flask import Flask, render_template, request, redirect, url_for, session, Response
 
@@ -313,6 +314,29 @@ def manage_delete():
         messages.append(("success", f"{len(filenames)} 件削除しました"))
 
     return _render_admin_panel(messages)
+
+
+@app.route("/manage/download/<path:filename>")
+def manage_download(filename):
+    """文書管理画面からの直接ダウンロード。管理者ログイン必須。
+    一覧HTMLに全件のPDFをbase64で埋め込むと登録数が増えた時にページが
+    肥大化するため、検索結果の引用リンクとは別に専用ルートを設けている。"""
+    if not _is_admin():
+        return redirect(url_for("manage"))
+    data = core.get_pdf_bytes(filename)
+    if data is None:
+        return redirect(url_for("manage"))
+    # Content-Dispositionヘッダーは非ASCII文字を直接含められないため、
+    # ASCIIのフォールバック名とRFC 5987形式のUTF-8エンコード名を併記する
+    ascii_fallback = filename.encode("ascii", "ignore").decode("ascii") or "document.pdf"
+    encoded = quote(filename)
+    return Response(
+        data,
+        mimetype="application/pdf",
+        headers={
+            "Content-Disposition": f'attachment; filename="{ascii_fallback}"; filename*=UTF-8\'\'{encoded}'
+        },
+    )
 
 
 if __name__ == "__main__":
