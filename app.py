@@ -108,7 +108,7 @@ def do_search():
     if not chunks:
         return _search_message("warning", "関連するドキュメントが見つかりませんでした。別のキーワードで試してください。")
 
-    answer_html = core.render_answer_html(answer, allow_download=False)
+    answer_html = core.render_answer_html(answer, allow_download=True)
 
     display_chunks = []
     if core._has_citation(answer):

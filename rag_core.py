@@ -735,7 +735,11 @@ def render_answer_html(answer: str, allow_download: bool = False) -> str:
     Flask版でも同等の見た目にするためmarkdownライブラリを併用する。"""
     show = answer if _has_citation(answer) else strip_citations(answer)
     normalized = _normalize_markdown(show)
-    linked = linkify_answer(normalized, allow_download=allow_download)
+    pdf_cache = None
+    if allow_download:
+        cited = {m.group(1) for m in _CITATION_RE.finditer(normalized)}
+        pdf_cache = get_pdf_b64_batch(tuple(sorted(cited))) if cited else {}
+    linked = linkify_answer(normalized, pdf_cache=pdf_cache, allow_download=allow_download)
     return _markdown_lib.markdown(linked, extensions=["nl2br"])
 
 
