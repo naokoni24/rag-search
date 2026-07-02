@@ -4,7 +4,8 @@
   {% for value, label in pills %}
   <button type="button" class="pill" hx-post="{{ url_for('do_search') }}"
           hx-vals='{"query": {{ value|tojson }} }' hx-target="#search-results"
-          hx-indicator="#search-spinner">🔍 {{ label }}</button>
+          hx-indicator="#search-spinner"
+          hx-on:click='document.getElementById("search-input").value = {{ value|tojson }}'>🔍 {{ label }}</button>
   {% endfor %}
 </div>
 {% endif %}
