@@ -13,9 +13,13 @@
           hx-indicator="#upload-progress" hx-on::after-request="this.reset()">
       <label class="drop-zone">
         <input type="file" name="files" accept="application/pdf" multiple class="file-input">
-        <span class="drop-zone-icon" aria-hidden="true">PDF</span>
-        <span class="drop-zone-text">PDFをアップロード</span>
-        <span class="drop-zone-meta">PDFファイルを選択またはドロップ</span>
+        <span class="drop-zone-icon" aria-hidden="true">
+          <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 16V4m0 0L7 9m5-5l5 5M5 20h14"/>
+          </svg>
+        </span>
+        <span class="drop-zone-text">ここにドラッグ&ドロップ</span>
+        <span class="drop-zone-meta">またはクリックして選択</span>
       </label>
       <div class="upload-info">
         <span>10MB per file • PDF形式のみ</span>
