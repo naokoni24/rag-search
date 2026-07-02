@@ -32,7 +32,12 @@ BASIC_AUTH_PASS = core.get_secret("BASIC_AUTH_PASS")
 @app.before_request
 def require_basic_auth():
     """Spaceをpublic公開しているため、アプリ全体をHTTP Basic認証で保護する。
-    BASIC_AUTH_USER/BASIC_AUTH_PASSが未設定ならローカル開発用にスキップする。"""
+    BASIC_AUTH_USER/BASIC_AUTH_PASSが未設定ならローカル開発用にスキップする。
+    静的ファイル（apple-touch-iconなど）は除外する。iOSの「ホーム画面に追加」の
+    アイコン取得処理はBasic認証の資格情報を送らないため、保護すると
+    アイコンが取得できずデフォルトの画像にフォールバックしてしまう。"""
+    if request.path.startswith("/static/"):
+        return
     if not (BASIC_AUTH_USER and BASIC_AUTH_PASS):
         return
     auth = request.authorization
