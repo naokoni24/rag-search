@@ -534,10 +534,6 @@ a {
   font-weight: 700;
 }
 
-.bubble-answer p,
-.bubble-answer li {
-  max-width: 72ch;
-}
 
 .bubble-answer a {
   font-weight: 700;
