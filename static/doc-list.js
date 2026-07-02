@@ -98,9 +98,7 @@
       deleteButton.hidden = checked.length === 0;
     }
     if (selectionText) {
-      selectionText.textContent = checked.length > 0
-        ? `${checked.length}件選択中。削除時は選択済み全件が対象です。`
-        : "削除時は選択済み全件が対象です。";
+      selectionText.textContent = checked.length > 0 ? `${checked.length}件選択中` : "";
     }
     if (selectAll) {
       selectAll.checked = checkboxes.length > 0 && checked.length === checkboxes.length;
