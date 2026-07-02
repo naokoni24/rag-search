@@ -16,6 +16,11 @@ import rag_core as core
 app = Flask(__name__)
 app.secret_key = core.get_secret("FLASK_SECRET_KEY") or secrets.token_hex(32)
 app.config["MAX_CONTENT_LENGTH"] = 100 * 1024 * 1024  # 複数PDF一括アップロードを許容(単体上限は別途10MBを検証)
+# Hugging Face SpacesはアプリをiframeでHTTPS配信するため、既定のSameSite=Laxだと
+# セッションCookieがサードパーティ扱いでブロックされログインが保持されない。
+# SameSite=None(+Secure必須)にしてiframe内でもCookieが送信されるようにする。
+app.config["SESSION_COOKIE_SAMESITE"] = "None"
+app.config["SESSION_COOKIE_SECURE"] = True
 
 MAX_LOGIN_ATTEMPTS = 5
 
