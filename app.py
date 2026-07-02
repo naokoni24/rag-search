@@ -102,6 +102,7 @@ def do_search():
                 core.record_search(safe_query, answer, chunks)
                 core.set_cached_result(safe_query, answer, chunks)
         except Exception as e:
+            app.logger.exception("search failed for query=%r", safe_query)
             return _search_message("error", core._gemini_error_message(e))
 
     if not chunks:
@@ -248,6 +249,7 @@ def manage_upload():
                     try:
                         n = core.ingest_pdf(data, uf.filename)
                     except Exception as e:
+                        app.logger.exception("ingest_pdf failed for %r", uf.filename)
                         messages.append(("error", f"{uf.filename}：登録中にエラーが発生しました（{core._gemini_error_message(e)}）"))
                         continue
                     if n == 0:
