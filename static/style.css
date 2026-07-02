@@ -173,6 +173,7 @@ body {
   font-family: inherit;
 }
 .pill:hover { background: #1765c1; }
+.pill:disabled { opacity: 0.6; cursor: default; }
 
 /* ---- login ---- */
 .login-card {

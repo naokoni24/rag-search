@@ -10,8 +10,7 @@
 {% else %}
   <form class="search-form" hx-post="{{ url_for('do_search') }}" hx-target="#search-results"
         hx-indicator="#search-spinner"
-        hx-on::before-request="this.querySelectorAll('.search-control').forEach(el => el.disabled = true); document.getElementById('search-submit-btn').classList.add('is-loading')"
-        hx-on::after-request="this.querySelectorAll('.search-control').forEach(el => el.disabled = false); document.getElementById('search-submit-btn').classList.remove('is-loading')">
+        hx-on::before-request="this.querySelectorAll('.search-control').forEach(el => el.disabled = true); document.getElementById('search-submit-btn').classList.add('is-loading')">
     <span class="search-icon">
       <svg width="20" height="20" fill="none" stroke="#86868b" stroke-width="1.5" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
@@ -25,7 +24,7 @@
   </form>
 
   <div id="search-spinner" class="htmx-indicator spinner-row">回答を生成中...</div>
-  <div id="search-results" hx-on::after-settle="document.querySelector('.search-form').reset()"></div>
+  <div id="search-results" hx-on::after-settle="document.querySelector('.search-form').reset(); document.querySelectorAll('.search-control').forEach(el => el.disabled = false); document.getElementById('search-submit-btn').classList.remove('is-loading')"></div>
   <div id="top3-pills">
     {% include "partials/top3_pills.html" %}
   </div>
