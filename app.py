@@ -10,7 +10,7 @@ import secrets
 import time
 from pathlib import Path
 
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, Response
 
 import rag_core as core
 
@@ -24,6 +24,24 @@ app.config["SESSION_COOKIE_SAMESITE"] = "None"
 app.config["SESSION_COOKIE_SECURE"] = True
 
 MAX_LOGIN_ATTEMPTS = 5
+
+BASIC_AUTH_USER = core.get_secret("BASIC_AUTH_USER")
+BASIC_AUTH_PASS = core.get_secret("BASIC_AUTH_PASS")
+
+
+@app.before_request
+def require_basic_auth():
+    """Spaceをpublic公開しているため、アプリ全体をHTTP Basic認証で保護する。
+    BASIC_AUTH_USER/BASIC_AUTH_PASSが未設定ならローカル開発用にスキップする。"""
+    if not (BASIC_AUTH_USER and BASIC_AUTH_PASS):
+        return
+    auth = request.authorization
+    if not auth or auth.username != BASIC_AUTH_USER or auth.password != BASIC_AUTH_PASS:
+        return Response(
+            "認証が必要です",
+            401,
+            {"WWW-Authenticate": 'Basic realm="社内ナレッジ検索"'},
+        )
 
 _STATIC_SUGGESTIONS = [
     "勤務体系について",
