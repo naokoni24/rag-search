@@ -9,14 +9,16 @@
   <div class="msg msg-info">「文書を管理」タブからPDFを登録してください。</div>
 {% else %}
   <form class="search-form" hx-post="{{ url_for('do_search') }}" hx-target="#search-results"
-        hx-indicator="#search-spinner" hx-on::after-request="this.reset()">
+        hx-indicator="#search-spinner"
+        hx-on::before-request="this.querySelectorAll('.search-control').forEach(el => el.disabled = true)"
+        hx-on::after-request="this.querySelectorAll('.search-control').forEach(el => el.disabled = false); this.reset()">
     <span class="search-icon">
       <svg width="20" height="20" fill="none" stroke="#86868b" stroke-width="1.5" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
       </svg>
     </span>
-    <input type="text" id="search-input" name="query" placeholder="例：有給休暇の申請手続きを教えてください" maxlength="500" required>
-    <button type="submit" class="btn-primary">検索</button>
+    <input type="text" id="search-input" class="search-control" name="query" placeholder="例：有給休暇の申請手続きを教えてください" maxlength="500" required>
+    <button type="submit" class="search-control btn-primary">検索</button>
   </form>
 
   <div id="search-spinner" class="htmx-indicator spinner-row">回答を生成中...</div>

@@ -25,7 +25,8 @@
 
     {% if docs %}
     <form hx-post="{{ url_for('manage_delete') }}" hx-target="#admin-panel"
-          hx-confirm="選択したドキュメントを削除しますか？">
+          hx-confirm="選択したドキュメントを削除しますか？"
+          hx-on:change="document.getElementById('delete-btn').hidden = !this.querySelector('input[name=filenames]:checked')">
       <label class="select-all-row">
         <input type="checkbox" onclick="this.closest('form').querySelectorAll('input[name=filenames]').forEach(c => c.checked = this.checked)">
         すべて選択
@@ -40,7 +41,7 @@
         </label>
         {% endfor %}
       </div>
-      <button type="submit" class="btn-danger">🗑 選択したドキュメントを削除</button>
+      <button type="submit" id="delete-btn" class="btn-danger" hidden>🗑 選択したドキュメントを削除</button>
     </form>
     {% else %}
     <div class="empty-state">まだドキュメントが登録されていません。</div>
