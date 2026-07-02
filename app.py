@@ -245,7 +245,11 @@ def manage_upload():
                     if err:
                         messages.append(("error", err))
                         continue
-                    n = core.ingest_pdf(data, uf.filename)
+                    try:
+                        n = core.ingest_pdf(data, uf.filename)
+                    except Exception as e:
+                        messages.append(("error", f"{uf.filename}：登録中にエラーが発生しました（{core._gemini_error_message(e)}）"))
+                        continue
                     if n == 0:
                         messages.append(("warning", f"⚠️ {uf.filename}：テキストを抽出できませんでした（スキャンPDF・画像PDFは非対応）"))
                     else:
