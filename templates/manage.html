@@ -3,7 +3,7 @@
 {% if not is_admin %}
   {% if flash_message %}<div class="msg msg-{{ flash_level }}">{{ flash_message }}</div>{% endif %}
   <div class="login-card">
-    <div class="login-icon">🔐</div>
+    <div class="login-icon">Admin</div>
     <div class="login-title">管理者ログイン</div>
     <div class="login-sub">文書管理には管理者権限が必要です</div>
     <form method="post" action="{{ url_for('manage_login') }}" class="login-form">

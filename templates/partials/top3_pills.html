@@ -6,7 +6,7 @@
           hx-vals='{"query": {{ value|tojson }} }' hx-target="#search-results"
           hx-indicator="#search-spinner"
           hx-on:click='document.getElementById("search-input").value = {{ value|tojson }}'
-          hx-on::before-request="document.querySelectorAll('.search-control').forEach(el => el.disabled = true); document.getElementById('search-submit-btn').classList.add('is-loading')">🔍 {{ label }}</button>
+          hx-on::before-request="document.querySelectorAll('.search-control').forEach(el => el.disabled = true); document.getElementById('search-submit-btn').classList.add('is-loading')">{{ label }}</button>
   {% endfor %}
 </div>
 {% endif %}

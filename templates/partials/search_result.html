@@ -2,11 +2,11 @@
 <div class="msg msg-{{ level }}">{{ text }}</div>
 {% elif kind == "result" %}
 <div class="chat-message chat-user">
-  <span class="avatar">🧑</span>
+  <span class="avatar avatar-user">Q</span>
   <div class="bubble">{{ query }}</div>
 </div>
 <div class="chat-message chat-assistant">
-  <span class="avatar">🤖</span>
+  <span class="avatar avatar-assistant">AI</span>
   <div class="bubble">{{ answer_html|safe }}</div>
 </div>
 {% if chunks %}
@@ -16,7 +16,7 @@
   <div class="ref-card">
     <div class="ref-card-top">
       <span class="ref-index">{{ loop.index }}</span>
-      <span class="ref-filename">📄 {{ c.filename }}</span>
+      <span class="ref-filename">{{ c.filename }}</span>
       <span class="ref-page">p.{{ c.page }}</span>
       <span class="ref-score">関連度 {{ c.score_pct }}%</span>
     </div>

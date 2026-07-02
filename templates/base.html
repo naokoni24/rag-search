@@ -10,6 +10,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/htmx/1.9.12/htmx.min.js"></script>
 </head>
 <body>
+  <div class="shell-bg"></div>
   <div class="header">
     <div class="header-inner">
       <div class="header-logo">
@@ -31,7 +32,7 @@
       <div class="header-right">
         {% if is_admin_header %}
         <form method="post" action="{{ url_for('manage_logout') }}" class="logout-form">
-          <button type="submit" class="logout-link">👤 ログアウト</button>
+          <button type="submit" class="logout-link">ログアウト</button>
         </form>
         {% endif %}
       </div>
