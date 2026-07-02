@@ -903,15 +903,87 @@ a {
   width: 100%;
 }
 
+.doc-list-tools {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.doc-filter {
+  min-width: min(100%, 320px);
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  box-shadow: var(--shadow-sm);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.doc-filter:focus-within {
+  border-color: var(--color-accent);
+  box-shadow: var(--shadow-md);
+}
+
+.doc-filter-icon {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+}
+
+.doc-filter input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--color-text-primary);
+  font-size: var(--text-sm);
+  font-weight: 500;
+}
+
+.doc-filter input::placeholder {
+  color: var(--color-text-secondary);
+  font-weight: 400;
+}
+
+.doc-list-count {
+  flex: 0 0 auto;
+  color: var(--color-text-secondary);
+  font-size: var(--text-xs);
+  font-weight: 600;
+}
+
+.doc-list-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
 .select-all-row {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 12px;
+  margin-bottom: 0;
   color: var(--color-text-secondary);
   font-size: var(--text-sm);
   font-weight: 700;
   cursor: pointer;
+}
+
+.selection-summary {
+  color: var(--color-text-secondary);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  text-align: right;
 }
 
 .doc-list-header {
@@ -924,6 +996,42 @@ a {
   font-weight: 700;
 }
 
+.doc-sort-button {
+  width: fit-content;
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font-size: inherit;
+  font-weight: inherit;
+  text-align: left;
+  transition: color 0.15s ease;
+}
+
+.doc-sort-button:hover,
+.doc-sort-button.is-active {
+  color: var(--color-accent);
+}
+
+.sort-icon {
+  opacity: 0.42;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.doc-sort-button:hover .sort-icon,
+.doc-sort-button.is-active .sort-icon {
+  opacity: 1;
+}
+
+.doc-sort-button:not(.is-desc) .sort-icon {
+  transform: rotate(180deg);
+}
+
 .doc-list {
   display: flex;
   flex-direction: column;
@@ -931,6 +1039,10 @@ a {
   max-height: 500px;
   overflow-y: auto;
   padding-right: 2px;
+}
+
+.doc-card[hidden] {
+  display: none;
 }
 
 .doc-card {
@@ -980,6 +1092,52 @@ a {
   font-size: var(--text-sm);
   font-weight: 600;
   white-space: nowrap;
+}
+
+.empty-filter-state {
+  margin-top: 8px;
+  padding: 32px 16px;
+}
+
+.doc-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+
+.doc-page-btn {
+  min-width: 34px;
+  min-height: 34px;
+  padding: 6px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
+}
+
+.doc-page-btn:hover:not(:disabled) {
+  border-color: var(--color-accent);
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+  transform: translateY(-1px);
+}
+
+.doc-page-btn.is-current {
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+  color: #FFFFFF;
+}
+
+.doc-page-btn:disabled {
+  opacity: 0.48;
+  cursor: default;
 }
 
 .empty-state {
@@ -1097,8 +1255,33 @@ a {
     flex-direction: column;
   }
 
+  .doc-list-tools,
+  .doc-list-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .doc-list-count,
+  .selection-summary {
+    text-align: left;
+  }
+
   .doc-list-header {
+    grid-template-columns: 1fr 1fr;
+    padding: 0 0 10px;
+  }
+
+  .doc-list-header > span {
     display: none;
+  }
+
+  .doc-sort-button {
+    width: 100%;
+    justify-content: center;
+    padding: 8px 10px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-pill);
+    background: var(--color-surface);
   }
 
   .doc-card {

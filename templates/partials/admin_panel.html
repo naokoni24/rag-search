@@ -31,22 +31,48 @@
     <p class="section-sub">ナレッジベースに登録されている文書一覧</p>
 
     {% if docs %}
-    <form hx-post="{{ url_for('manage_delete') }}" hx-target="#admin-panel"
+    <form class="doc-list-form" data-doc-list-panel hx-post="{{ url_for('manage_delete') }}" hx-target="#admin-panel"
           hx-confirm="選択したドキュメントを削除しますか？"
           hx-on:change="document.getElementById('delete-btn').hidden = !this.querySelector('input[name=filenames]:checked')">
-      <label class="select-all-row">
-        <input type="checkbox" onclick="this.closest('form').querySelectorAll('input[name=filenames]').forEach(c => c.checked = this.checked)">
-        すべて選択
-      </label>
-      <div class="doc-list-header" aria-hidden="true">
+      <div class="doc-list-tools">
+        <label class="doc-filter">
+          <span class="doc-filter-icon" aria-hidden="true">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.2-5.2m1.7-5.1a6.8 6.8 0 11-13.6 0 6.8 6.8 0 0113.6 0z"/>
+            </svg>
+          </span>
+          <input type="search" data-doc-filter placeholder="ファイル名で絞り込み" autocomplete="off">
+        </label>
+        <span class="doc-list-count" data-doc-count>全{{ doc_count }}件中 {{ doc_count }}件を表示</span>
+      </div>
+
+      <div class="doc-list-actions">
+        <label class="select-all-row">
+          <input type="checkbox" data-select-all onclick="this.closest('form').querySelectorAll('input[name=filenames]').forEach(c => c.checked = this.checked)">
+          すべて選択
+        </label>
+        <span class="selection-summary" data-selection-summary>削除時は選択済み全件が対象です。</span>
+      </div>
+
+      <div class="doc-list-header">
         <span></span>
         <span></span>
-        <span>ファイル名</span>
-        <span>登録日時</span>
+        <button type="button" class="doc-sort-button" data-sort-key="filename" data-sort-label="ファイル名">
+          <span>ファイル名</span>
+          <svg class="sort-icon" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M7 10l5 5 5-5"/>
+          </svg>
+        </button>
+        <button type="button" class="doc-sort-button" data-sort-key="date" data-sort-label="登録日時">
+          <span>登録日時</span>
+          <svg class="sort-icon" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M7 10l5 5 5-5"/>
+          </svg>
+        </button>
       </div>
       <div class="doc-list">
         {% for name, date_str in docs %}
-        <label class="doc-card">
+        <label class="doc-card" data-filename="{{ name }}" data-date="{{ date_str }}">
           <input type="checkbox" name="filenames" value="{{ name }}">
           <span class="doc-icon">📄</span>
           <span class="doc-name">{{ name }}</span>
@@ -54,6 +80,8 @@
         </label>
         {% endfor %}
       </div>
+      <div class="empty-state empty-filter-state" data-doc-empty-filter hidden>一致するドキュメントがありません。</div>
+      <div class="doc-pagination" data-doc-pager hidden></div>
       <button type="submit" id="delete-btn" class="btn-danger" hidden>選択したドキュメントを削除</button>
     </form>
     {% else %}
