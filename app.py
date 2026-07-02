@@ -40,7 +40,7 @@ def require_basic_auth():
         return Response(
             "認証が必要です",
             401,
-            {"WWW-Authenticate": 'Basic realm="社内ナレッジ検索"'},
+            {"WWW-Authenticate": 'Basic realm="Restricted"'},
         )
 
 _STATIC_SUGGESTIONS = [
