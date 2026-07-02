@@ -178,8 +178,18 @@ body {
   box-shadow: 0 8px 24px rgba(20, 31, 55, 0.05);
   min-width: 0;
 }
-.chat-user .bubble { background: rgba(255,255,255,0.76); color: var(--ink); font-weight: 600; }
-.chat-assistant .bubble { border-color: rgba(23,105,224,0.14); }
+.bubble-query { background: rgba(255,255,255,0.76); color: var(--ink); font-weight: 600; }
+.bubble-answer {
+  background: #fff;
+  border-color: #dfe7f3;
+  border-left: 3px solid rgba(23,105,224,0.32);
+  box-shadow: 0 10px 26px rgba(20, 31, 55, 0.055);
+  color: #2b3445;
+  font-size: 0.9rem;
+  font-weight: 400;
+  line-height: 1.85;
+  padding: 1rem 1.15rem;
+}
 .chat-message .bubble > :first-child { margin-top: 0; }
 .chat-message .bubble > :last-child { margin-bottom: 0; }
 .chat-message .bubble h1, .chat-message .bubble h2, .chat-message .bubble h3 {
@@ -189,6 +199,9 @@ body {
 .chat-message .bubble li { margin: 0.2rem 0; }
 .chat-message .bubble strong { font-weight: 700; }
 .chat-message .bubble p { margin: 0.6rem 0; }
+.bubble-answer p { margin: 0.5rem 0 0.8rem; }
+.bubble-answer p, .bubble-answer li { max-width: 68ch; }
+.bubble-answer a { font-weight: 700; }
 
 .refs { margin: 0.5rem auto 1.5rem; max-width: 720px; }
 .refs summary {
