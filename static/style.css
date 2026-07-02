@@ -92,6 +92,16 @@ body {
   font-family: inherit;
 }
 .btn-primary:hover { background: #1765c1; }
+.btn-primary:disabled { opacity: 0.7; cursor: default; }
+.btn-loading { display: none; align-items: center; gap: 0.45rem; }
+#search-submit-btn.is-loading .btn-label { display: none; }
+#search-submit-btn.is-loading .btn-loading { display: inline-flex; }
+.spinner {
+  width: 13px; height: 13px; border: 2px solid rgba(255,255,255,0.4);
+  border-top-color: #fff; border-radius: 50%; display: inline-block;
+  animation: spin 0.6s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
 .btn-danger {
   background: rgba(220,53,69,0.1); color: #dc3545; border: none; border-radius: 0.75rem;
   padding: 0.6rem 1.2rem; font-size: 0.875rem; font-weight: 600; cursor: pointer;
