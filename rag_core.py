@@ -84,8 +84,10 @@ _pdf_b64_batch_cache = _TTLCache(ttl=3600)
 # 検索頻度ログは全ユーザー共有のグローバルデータなので、短TTLでQdrantから読み直す
 _search_log_cache = _TTLCache(ttl=30)
 # 回答キャッシュはサーバー全体で共有(Streamlit版はブラウザセッション単位だったが、
-# Flaskでは単一プロセスで動くため全ユーザー共有にして無駄なGemini呼び出しを減らす)
-_answer_cache = _TTLCache(ttl=3600)
+# Flaskでは単一プロセスで動くため全ユーザー共有にして無駄なGemini呼び出しを減らす)。
+# TTLを長めに取る代わりに、PDFの登録・削除時に明示的にクリアして
+# 古いドキュメント内容に基づく回答が残り続けないようにする(ingest_pdf/delete_document参照)。
+_answer_cache = _TTLCache(ttl=24 * 3600)
 
 
 _genai_client = None
@@ -213,6 +215,7 @@ def ingest_pdf(pdf_bytes: bytes, filename: str) -> int:
     client.upsert(collection_name=COLLECTION, points=points)
     _store_pdf_bytes(client, filename, pdf_bytes)
     _registered_docs_cache.clear()
+    _answer_cache.clear()
     return len(points)
 
 
@@ -471,6 +474,7 @@ def delete_document(filename: str) -> int:
         pass
 
     _registered_docs_cache.clear()
+    _answer_cache.clear()
     return len(point_ids)
 
 
