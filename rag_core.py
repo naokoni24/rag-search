@@ -27,7 +27,10 @@ load_dotenv()
 
 
 def get_secret(key: str, default: str = "") -> str:
-    return os.getenv(key, default)
+    """環境変数を取得する。コピペ時に混入しがちな前後の空白・改行を取り除く
+    (改行入りの値をHTTPヘッダーに使うと qdrant-client が
+    'Illegal header value' で例外を投げるため)。"""
+    return os.getenv(key, default).strip()
 
 
 COLLECTION = "documents"
