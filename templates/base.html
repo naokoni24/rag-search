@@ -79,8 +79,15 @@
 
           const updateMeta = () => {
             if (!meta) return;
-            const count = input.files ? input.files.length : 0;
-            meta.textContent = count > 0 ? `${count}件のファイルを選択中` : "PDFファイルを選択またはドロップ";
+            const files = input.files ? Array.from(input.files) : [];
+            if (files.length === 0) {
+              meta.textContent = "またはクリックして選択";
+            } else if (files.length <= 3) {
+              meta.textContent = files.map((f) => f.name).join("、");
+            } else {
+              const names = files.slice(0, 2).map((f) => f.name).join("、");
+              meta.textContent = `${names} ほか${files.length - 2}件`;
+            }
           };
 
           ["dragenter", "dragover"].forEach((eventName) => {
