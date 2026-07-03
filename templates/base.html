@@ -77,10 +77,33 @@
           const meta = zone.querySelector(".drop-zone-meta");
           const fileList = zone.querySelector(".drop-zone-file-list");
           if (!input) return;
+          let selectedFiles = [];
+
+          const fileKey = (file) => `${file.name}::${file.size}::${file.lastModified}`;
+
+          const syncInputFiles = () => {
+            const transfer = new DataTransfer();
+            selectedFiles.forEach((file) => transfer.items.add(file));
+            input.files = transfer.files;
+          };
+
+          const addFiles = (files) => {
+            const byKey = new Map(selectedFiles.map((file) => [fileKey(file), file]));
+            Array.from(files || []).forEach((file) => byKey.set(fileKey(file), file));
+            selectedFiles = Array.from(byKey.values());
+            syncInputFiles();
+            updateMeta();
+          };
+
+          const removeFile = (key) => {
+            selectedFiles = selectedFiles.filter((file) => fileKey(file) !== key);
+            syncInputFiles();
+            updateMeta();
+          };
 
           const updateMeta = () => {
             if (!meta) return;
-            const files = input.files ? Array.from(input.files) : [];
+            const files = selectedFiles;
             zone.classList.toggle("has-files", files.length > 0);
             if (fileList) {
               fileList.hidden = files.length === 0;
@@ -89,20 +112,27 @@
             if (files.length === 0) {
               meta.textContent = "またはクリックして選択";
             } else {
-              meta.textContent = `${files.length}件のファイルを選択中`;
+              meta.textContent = `${files.length}件のファイルを選択中。クリックで追加選択できます。`;
               if (fileList) {
-                files.slice(0, 6).forEach((file) => {
+                files.forEach((file) => {
                   const chip = document.createElement("span");
                   chip.className = "drop-zone-file-chip";
-                  chip.textContent = file.name;
+                  const name = document.createElement("span");
+                  name.className = "drop-zone-file-name";
+                  name.textContent = file.name;
+                  const remove = document.createElement("button");
+                  remove.type = "button";
+                  remove.className = "drop-zone-file-remove";
+                  remove.textContent = "×";
+                  remove.setAttribute("aria-label", `${file.name}を選択から外す`);
+                  remove.addEventListener("click", (event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    removeFile(fileKey(file));
+                  });
+                  chip.append(name, remove);
                   fileList.appendChild(chip);
                 });
-                if (files.length > 6) {
-                  const more = document.createElement("span");
-                  more.className = "drop-zone-file-chip drop-zone-file-more";
-                  more.textContent = `ほか${files.length - 6}件`;
-                  fileList.appendChild(more);
-                }
               }
             }
           };
@@ -121,13 +151,11 @@
           zone.addEventListener("drop", (event) => {
             event.preventDefault();
             if (event.dataTransfer?.files?.length) {
-              input.files = event.dataTransfer.files;
-              input.dispatchEvent(new Event("change", { bubbles: true }));
-              updateMeta();
+              addFiles(event.dataTransfer.files);
             }
           });
 
-          input.addEventListener("change", updateMeta);
+          input.addEventListener("change", () => addFiles(input.files));
           updateMeta();
         });
       }

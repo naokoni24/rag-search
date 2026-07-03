@@ -880,24 +880,49 @@ a {
 }
 
 .drop-zone-file-chip {
-  max-width: 100%;
+  max-width: min(100%, 280px);
   padding: 5px 10px;
   border: 1px solid var(--color-selected);
   border-radius: var(--radius-pill);
   background: var(--color-surface);
   color: var(--color-text-primary);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   font-size: var(--text-xs);
   font-weight: 700;
   line-height: 1.4;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
   box-shadow: var(--shadow-sm);
 }
 
-.drop-zone-file-more {
+.drop-zone-file-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.drop-zone-file-remove {
+  width: 18px;
+  height: 18px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--color-accent-soft);
   color: var(--color-accent);
-  background: #FFFFFF;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 700;
+  line-height: 1;
+  padding: 0;
+}
+
+.drop-zone-file-remove:hover {
+  background: var(--color-selected);
+  color: var(--color-accent-hover);
 }
 
 .upload-info {
