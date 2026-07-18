@@ -4,6 +4,7 @@
 Gemini/Qdrantの呼び出し、チャンク分割、検索、キャッシュ、検索ログなど
 UIフレームワークに依存しないビジネスロジックをまとめたモジュール。
 """
+from __future__ import annotations
 
 import os
 import re
@@ -41,6 +42,8 @@ def get_secret(key: str, default: str = "") -> str:
 COLLECTION = "documents"
 LOG_COLLECTION = "search_logs"
 LOG_POINT_ID = "00000000-0000-0000-0000-000000000001"
+# ヒットしなかったクエリの集計ログ(成功ログとは別ポイントに保存)
+NO_HIT_LOG_POINT_ID = "00000000-0000-0000-0000-000000000002"
 PDF_COLLECTION = "pdf_files"
 MAX_UPLOAD_MB = 10
 MAX_DOCS = 50
@@ -114,6 +117,7 @@ _pdf_bytes_cache = _TTLCache(ttl=3600)
 _pdf_b64_batch_cache = _TTLCache(ttl=3600)
 # 検索頻度ログは全ユーザー共有のグローバルデータなので、短TTLでQdrantから読み直す
 _search_log_cache = _TTLCache(ttl=30)
+_no_hit_log_cache = _TTLCache(ttl=30)
 # 回答キャッシュはサーバー全体で共有(Streamlit版はブラウザセッション単位だったが、
 # Flaskでは単一プロセスで動くため全ユーザー共有にして無駄なGemini呼び出しを減らす)。
 # TTLを長めに取る代わりに、PDFの登録・削除時に明示的にクリアして
@@ -151,7 +155,10 @@ def get_qdrant() -> QdrantClient:
                 if url:
                     _qdrant_client = QdrantClient(url=url, api_key=api_key)
                 else:
-                    _qdrant_client = QdrantClient(path=QDRANT_PATH)
+                    # ファイルベースQdrantはSQLite接続に作成スレッド限定のチェックが入るが、
+                    # 検索ログ記録をバックグラウンドスレッドで行うため無効化しておく必要がある
+                    # (macOS/WindowsのSQLiteビルドはCHECK_SAME_THREADが既定で有効になるため)。
+                    _qdrant_client = QdrantClient(path=QDRANT_PATH, force_disable_check_same_thread=True)
     return _qdrant_client
 
 
@@ -180,14 +187,42 @@ def _collection_supports_hybrid(client: QdrantClient) -> bool:
     return _schema_cache.get_or_set("hybrid_supported", _compute)
 
 
+def _ocr_page_with_gemini(png_bytes: bytes) -> str:
+    """テキスト層のないページ(スキャンPDF・画像PDF)をGeminiに転写させる。
+    埋め込み用のテキストが得られればよいので、レイアウト再現は求めず
+    プレーンテキストのみを出力させる。失敗時は空文字を返し、そのページは
+    従来通りスキップされる(呼び出し元でtextが空ならページごと除外される)。"""
+    prompt = (
+        "この画像は社内文書PDFの1ページです。含まれている文章をそのまま書き起こしてください。"
+        "説明や前置きは不要で、書き起こしたプレーンテキストのみを出力してください。"
+        "文字が写っていない場合は何も出力しないでください。"
+    )
+    try:
+        response = _call_gemini_with_retry(
+            lambda: get_genai_client().models.generate_content(
+                model=GEN_MODEL,
+                contents=[types.Part.from_bytes(data=png_bytes, mime_type="image/png"), prompt],
+            )
+        )
+        return response.text.strip()
+    except Exception:
+        return ""
+
+
 def extract_pages(pdf_path: str):
     doc = fitz.open(pdf_path)
     try:
-        return [
-            {"page": i + 1, "text": page.get_text().strip()}
-            for i, page in enumerate(doc)
-            if page.get_text().strip()
-        ]
+        pages = []
+        for i, page in enumerate(doc):
+            text = page.get_text().strip()
+            if not text:
+                # テキスト層がないページはスキャン画像の可能性があるため、
+                # ページを画像化してGeminiにOCR(書き起こし)させる。
+                png_bytes = page.get_pixmap(dpi=150).tobytes("png")
+                text = _ocr_page_with_gemini(png_bytes)
+            if text:
+                pages.append({"page": i + 1, "text": text})
+        return pages
     finally:
         doc.close()
 
@@ -466,26 +501,26 @@ def _ensure_log_collection(client: QdrantClient):
         )
 
 
-def load_search_log() -> dict:
+def _load_log(point_id: str, cache: _TTLCache) -> dict:
     def _compute():
         client = get_qdrant()
         try:
             _ensure_log_collection(client)
             results = client.retrieve(
                 collection_name=LOG_COLLECTION,
-                ids=[LOG_POINT_ID],
+                ids=[point_id],
                 with_payload=True,
             )
             return results[0].payload.get("log", {}) if results else {}
         except Exception:
             return {}
-    return _search_log_cache.get_or_set("log", _compute)
+    return cache.get_or_set("log", _compute)
 
 
-def save_search_log(log: dict):
-    if len(log) > _LOG_MAX_ENTRIES:
+def _save_log(point_id: str, log: dict, cache: _TTLCache, max_entries: int = _LOG_MAX_ENTRIES):
+    if len(log) > max_entries:
         sorted_keys = sorted(log, key=lambda k: log[k].get("count", 0))
-        for k in sorted_keys[: len(log) - _LOG_MAX_ENTRIES]:
+        for k in sorted_keys[: len(log) - max_entries]:
             del log[k]
 
     client = get_qdrant()
@@ -493,7 +528,7 @@ def save_search_log(log: dict):
     try:
         results = client.retrieve(
             collection_name=LOG_COLLECTION,
-            ids=[LOG_POINT_ID],
+            ids=[point_id],
             with_payload=True,
         )
         if results:
@@ -508,9 +543,25 @@ def save_search_log(log: dict):
 
     client.upsert(
         collection_name=LOG_COLLECTION,
-        points=[PointStruct(id=LOG_POINT_ID, vector=[0.0], payload={"log": log})],
+        points=[PointStruct(id=point_id, vector=[0.0], payload={"log": log})],
     )
-    _search_log_cache.clear()
+    cache.clear()
+
+
+def load_search_log() -> dict:
+    return _load_log(LOG_POINT_ID, _search_log_cache)
+
+
+def save_search_log(log: dict):
+    _save_log(LOG_POINT_ID, log, _search_log_cache)
+
+
+def load_no_hit_log() -> dict:
+    return _load_log(NO_HIT_LOG_POINT_ID, _no_hit_log_cache)
+
+
+def save_no_hit_log(log: dict):
+    _save_log(NO_HIT_LOG_POINT_ID, log, _no_hit_log_cache, max_entries=100)
 
 
 def normalize_query(query: str) -> str:
@@ -581,6 +632,26 @@ def get_top_queries(n: int = 3):
         if len(result) >= n:
             break
     return result
+
+
+def record_no_hit_search(query: str):
+    """検索してもチャンクが1件もヒットしなかったクエリを記録する。
+    「よく検索されています」ピル(record_search)とは別集計にし、成功ログの
+    質を落とさずに、どの文書・情報が不足しているかを管理者が把握できるようにする。"""
+    key = normalize_query(query)
+    if not key:
+        return
+    log = load_no_hit_log()
+    entry = log.get(key, {"count": 0})
+    entry["count"] = entry.get("count", 0) + 1
+    log[key] = entry
+    save_no_hit_log(log)
+
+
+def get_top_no_hit_queries(n: int = 10):
+    log = load_no_hit_log()
+    sorted_keys = sorted(log, key=lambda k: log[k].get("count", 0), reverse=True)
+    return [(k, log[k].get("count", 0)) for k in sorted_keys[:n] if log[k].get("count", 0) > 0]
 
 
 def get_cached_result(query: str):

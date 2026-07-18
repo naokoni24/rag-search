@@ -95,3 +95,18 @@
     {% endif %}
   </section>
 </div>
+
+{% if no_hit_queries %}
+<section class="no-hit-section">
+  <div class="section-title">ヒットしなかった質問</div>
+  <p class="section-sub">検索してもチャンクが見つからなかった質問です。関連文書の登録漏れの参考にしてください。</p>
+  <ul class="no-hit-list">
+    {% for query, count in no_hit_queries %}
+    <li class="no-hit-item">
+      <span class="no-hit-query">{{ query }}</span>
+      <span class="no-hit-count">{{ count }}回</span>
+    </li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}

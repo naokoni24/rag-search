@@ -43,7 +43,10 @@ def require_basic_auth():
     if not (BASIC_AUTH_USER and BASIC_AUTH_PASS):
         return
     auth = request.authorization
-    if not auth or auth.username != BASIC_AUTH_USER or auth.password != BASIC_AUTH_PASS:
+    if not auth or not (
+        secrets.compare_digest(auth.username or "", BASIC_AUTH_USER)
+        and secrets.compare_digest(auth.password or "", BASIC_AUTH_PASS)
+    ):
         return Response(
             "認証が必要です",
             401,
@@ -123,6 +126,13 @@ def _record_search_async(query: str, answer: str, chunks):
         app.logger.exception("record_search failed for query=%r", query)
 
 
+def _record_no_hit_async(query: str):
+    try:
+        core.record_no_hit_search(query)
+    except Exception:
+        app.logger.exception("record_no_hit_search failed for query=%r", query)
+
+
 @app.route("/search", methods=["POST"])
 def do_search():
     query = request.form.get("query", "")
@@ -148,8 +158,18 @@ def do_search():
             if chunks:
                 answer = core.generate_answer(safe_query, chunks)
                 core.set_cached_result(safe_query, answer, chunks)
+                if core._has_citation(answer):
+                    threading.Thread(
+                        target=_record_search_async, args=(safe_query, answer, chunks), daemon=True
+                    ).start()
+                else:
+                    # チャンクは取得できたが出典付きで回答できなかった = 実質ヒットなし
+                    threading.Thread(
+                        target=_record_no_hit_async, args=(safe_query,), daemon=True
+                    ).start()
+            else:
                 threading.Thread(
-                    target=_record_search_async, args=(safe_query, answer, chunks), daemon=True
+                    target=_record_no_hit_async, args=(safe_query,), daemon=True
                 ).start()
         except Exception as e:
             app.logger.exception("search failed for query=%r", safe_query)
@@ -212,6 +232,7 @@ def manage():
         doc_count=len(docs_with_dates),
         max_docs=core.MAX_DOCS,
         messages=[],
+        no_hit_queries=core.get_top_no_hit_queries(),
     )
 
 
@@ -226,7 +247,7 @@ def manage_login():
         login_error = "⚠️ 管理者パスワードが設定されていません。ADMIN_PASSWORDを設定してください。"
     elif attempts >= MAX_LOGIN_ATTEMPTS:
         login_error = "⛔ ログイン試行回数が上限（5回）に達しました。ページを再読み込みしてください。"
-    elif password == admin_password:
+    elif secrets.compare_digest(password, admin_password):
         session["_login_attempts"] = 0
         session["admin_authenticated"] = True
         _touch_admin_session()
@@ -261,6 +282,7 @@ def _render_admin_panel(messages):
         doc_count=len(docs_with_dates),
         max_docs=core.MAX_DOCS,
         messages=messages,
+        no_hit_queries=core.get_top_no_hit_queries(),
     )
 
 

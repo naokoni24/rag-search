@@ -1,0 +1,102 @@
+[
+  {
+    "query": "有給休暇はいつから取得できますか",
+    "expected_filename": "社員就業規則.pdf",
+    "expected_keywords": ["6ヶ月", "10日"]
+  },
+  {
+    "query": "結婚休暇は何日もらえますか",
+    "expected_filename": "社員就業規則.pdf",
+    "expected_keywords": ["5日"]
+  },
+  {
+    "query": "忌引休暇の日数を教えてください",
+    "expected_filename": "社員就業規則.pdf",
+    "expected_keywords": ["8日"]
+  },
+  {
+    "query": "懲戒処分にはどんな種類がありますか",
+    "expected_filename": "社員就業規則.pdf",
+    "expected_keywords": ["訓戒", "懲戒解雇"]
+  },
+  {
+    "query": "定年は何歳ですか",
+    "expected_filename": "社員就業規則.pdf",
+    "expected_keywords": ["65歳"]
+  },
+  {
+    "query": "給与の支払日はいつですか",
+    "expected_filename": "社員就業規則.pdf",
+    "expected_keywords": ["25日"]
+  },
+  {
+    "query": "賞与は年に何回支給されますか",
+    "expected_filename": "社員就業規則.pdf",
+    "expected_keywords": ["2回"]
+  },
+  {
+    "query": "試用期間はどのくらいですか",
+    "expected_filename": "社員就業規則.pdf",
+    "expected_keywords": ["3ヶ月"]
+  },
+  {
+    "query": "所定労働時間は何時間ですか",
+    "expected_filename": "社員就業規則.pdf",
+    "expected_keywords": ["8時間"]
+  },
+  {
+    "query": "フレックスタイム制のコアタイムは何時から何時までですか",
+    "expected_filename": "社員就業規則.pdf",
+    "expected_keywords": ["10時", "3時"]
+  },
+  {
+    "query": "時間外労働の上限は月何時間ですか",
+    "expected_filename": "社員就業規則.pdf",
+    "expected_keywords": ["45時間"]
+  },
+  {
+    "query": "自己都合退職の場合、退職届はいつまでに提出しますか",
+    "expected_filename": "社員就業規則.pdf",
+    "expected_keywords": ["30日"]
+  },
+  {
+    "query": "退職金がもらえるのは勤続何年以上の社員ですか",
+    "expected_filename": "社員就業規則.pdf",
+    "expected_keywords": ["3年"]
+  },
+  {
+    "query": "テレワークは月に何日まで利用できますか",
+    "expected_filename": "社員就業規則.pdf",
+    "expected_keywords": ["12日"]
+  },
+  {
+    "query": "テレワーク時の通信費補助はいくらですか",
+    "expected_filename": "社員就業規則.pdf",
+    "expected_keywords": ["3,000円"]
+  },
+  {
+    "query": "家族手当はいくらですか",
+    "expected_filename": "社員就業規則.pdf",
+    "expected_keywords": ["15,000円"]
+  },
+  {
+    "query": "通勤手当の上限額はいくらですか",
+    "expected_filename": "社員就業規則.pdf",
+    "expected_keywords": ["100,000円"]
+  },
+  {
+    "query": "人事評価は年に何回行われますか",
+    "expected_filename": "社員就業規則.pdf",
+    "expected_keywords": ["4月", "10月"]
+  },
+  {
+    "query": "昇給は年に何回ありますか",
+    "expected_filename": "社員就業規則.pdf",
+    "expected_keywords": ["年1回"]
+  },
+  {
+    "query": "ハラスメントの相談窓口はどこですか",
+    "expected_filename": "社員就業規則.pdf",
+    "expected_keywords": ["人事部"]
+  }
+]
