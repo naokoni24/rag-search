@@ -31,6 +31,26 @@ push先は必ず `https://github.com/naokoni24/rag-search.git` です（旧 `rag
 確実に設定できなかったため。あわせてホスティングもStreamlit Community Cloudから
 Hugging Face Spaces（Docker）へ移行しました。
 
+## Geminiコスト削減(2026-07-19 続きその2)
+
+1検索あたりのGemini API概算コストを試算した上で、以下を実施。
+
+### 実施したこと
+
+- `generate_answer`に`thinking_config=ThinkingConfig(thinking_budget=0)`を追加。他の3呼び出し(`expand_query`/`rerank_chunks`/`_generate_label`)には既に付いていたが、最終回答生成だけ抜けており、gemini-2.5-flashのデフォルト思考トークンが出力扱いで課金されていた
+- クエリ拡張(`expand_query`)・リランク(`rerank_chunks`)・ラベル生成(`_generate_label`)を`gemini-2.5-flash`から`gemini-2.5-flash-lite`（`GEN_MODEL_LITE`定数、入力$0.10・出力$0.40 / 1Mトークン。通常のFlashは入力$0.30・出力$2.50）に変更。いずれも変換・分類程度の軽いタスクのため精度への影響は小さいと判断
+  - 回答生成(`generate_answer`)とOCR(`_ocr_page_with_gemini`)は精度優先で`GEN_MODEL`(gemini-2.5-flash)のまま維持
+  - `eval_search.py`（`eval_queries.json`の20問）で変更前後を比較し、検索ヒット率100%・回答忠実性95%とも変化なしを確認
+
+### 検討したが見送ったこと: クエリ拡張の廃止
+
+ハイブリッド検索(疎ベクトル検索)導入によりクエリ拡張の必要性が下がっている可能性を検証するため、`expand_query`を無効化した状態で`eval_search.py`を実行して比較した。
+
+- 検索ヒット率: 有効/無効とも20/20(100%)で差なし
+- 回答忠実性: 有効時19/20・無効時18/20と表面上は差が出たが、無効時に唯一増えた不一致（「昇給は年に1回」という質問に対し回答が「年に1回」と表記し、期待キーワード「年1回」との完全一致に失敗しただけ）は**内容は正しく、eval_search.pyの単純な部分文字列一致による偽陰性**と判明。実質的な精度差はなかった
+- ただし`eval_queries.json`の20問はいずれも文書中の正式な用語に近い直接的な言い回しで、クエリ拡張が本来効果を発揮する「口語的・曖昧な言い回し→正式用語への変換」というシナリオを検証できていない
+- 上記の理由により、**このテスト結果だけではクエリ拡張の廃止が安全とは判断できないため、見送った**。曖昧な言い回しの質問を`eval_queries.json`に追加した上で再検証すれば、より確度の高い判断ができる
+
 ## バグ修正・運用機能追加(2026-07-19 続き)
 
 ### バグ修正

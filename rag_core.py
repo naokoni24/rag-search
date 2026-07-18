@@ -51,6 +51,11 @@ ADMIN_TIMEOUT_SEC = 30 * 60
 EMBED_MODEL = "gemini-embedding-001"
 VECTOR_SIZE = 3072
 GEN_MODEL = "gemini-2.5-flash"
+# クエリ拡張・リランク・ラベル生成は変換/分類程度の軽いタスクのため、
+# 単価の安いLiteモデルを使う(入力$0.10・出力$0.40 / 1Mトークン。
+# 通常のFlashは入力$0.30・出力$2.50)。回答生成(generate_answer)と
+# OCR(_ocr_page_with_gemini)は精度を優先しGEN_MODELのまま。
+GEN_MODEL_LITE = "gemini-2.5-flash-lite"
 QDRANT_PATH = "./qdrant_data"
 CHUNK_SIZE = 400
 OVERLAP = 80
@@ -584,7 +589,7 @@ def _generate_label(query: str) -> str:
         f"キーワード: {query}"
     )
     response = get_genai_client().models.generate_content(
-        model=GEN_MODEL,
+        model=GEN_MODEL_LITE,
         contents=prompt,
         config=types.GenerateContentConfig(
             thinking_config=types.ThinkingConfig(thinking_budget=0)
@@ -820,7 +825,7 @@ def expand_query(query: str) -> str:
     try:
         response = _call_gemini_with_retry(
             lambda: client.models.generate_content(
-                model=GEN_MODEL,
+                model=GEN_MODEL_LITE,
                 contents=prompt,
                 config=types.GenerateContentConfig(
                     thinking_config=types.ThinkingConfig(thinking_budget=0)
@@ -882,7 +887,7 @@ def rerank_chunks(query: str, chunks: list, top_k: int = 5) -> list:
     try:
         response = _call_gemini_with_retry(
             lambda: get_genai_client().models.generate_content(
-                model=GEN_MODEL,
+                model=GEN_MODEL_LITE,
                 contents=prompt,
                 config=types.GenerateContentConfig(
                     thinking_config=types.ThinkingConfig(thinking_budget=0)
@@ -979,7 +984,13 @@ def generate_answer(query: str, chunks) -> str:
 
     try:
         response = _call_gemini_with_retry(
-            lambda: client.models.generate_content(model=GEN_MODEL, contents=prompt)
+            lambda: client.models.generate_content(
+                model=GEN_MODEL,
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    thinking_config=types.ThinkingConfig(thinking_budget=0)
+                ),
+            )
         )
         return response.text
     except Exception as e:
