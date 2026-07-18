@@ -10,6 +10,7 @@ import re
 import time
 import uuid
 import base64
+import hashlib
 import html as _html
 import tempfile
 import threading
@@ -20,8 +21,12 @@ import markdown as _markdown_lib
 from dotenv import load_dotenv
 from google import genai
 from google.genai import types
+from janome.tokenizer import Tokenizer as _JanomeTokenizer
 from qdrant_client import QdrantClient
-from qdrant_client.models import Distance, VectorParams, PointStruct, PointIdsList
+from qdrant_client.models import (
+    Distance, VectorParams, PointStruct, PointIdsList,
+    SparseVector, SparseVectorParams, Modifier,
+)
 
 load_dotenv()
 
@@ -46,8 +51,17 @@ GEN_MODEL = "gemini-2.5-flash"
 QDRANT_PATH = "./qdrant_data"
 CHUNK_SIZE = 400
 OVERLAP = 80
+# レガシー(スパースベクトル未対応)コレクション向けのコサイン類似度フィルタ。
+# ハイブリッド検索対応コレクションではrerank_chunksが関連性判定を担うため未使用。
 SCORE_THRESHOLD = 0.55
 _LOG_MAX_ENTRIES = 200
+
+# ハイブリッド検索(密ベクトル+疎ベクトル)用の名前付きベクトル名
+DENSE_VECTOR_NAME = "dense"
+SPARSE_VECTOR_NAME = "text_sparse"
+# クエリ1件あたりの候補取得件数(リランク前)。最終的にはtop_k件まで絞る。
+CANDIDATE_LIMIT = 20
+_RRF_K = 60
 
 
 # ---- 軽量TTLキャッシュ(st.cache_data / st.cache_resourceの代替) ----
@@ -72,6 +86,23 @@ class _TTLCache:
             self._store[key] = (value, expire_at)
         return value
 
+    def get(self, key):
+        now = time.time()
+        with self._lock:
+            hit = self._store.get(key)
+            if hit is None:
+                return None
+            value, expire_at = hit
+            if expire_at is not None and now >= expire_at:
+                del self._store[key]
+                return None
+            return value
+
+    def set(self, key, value):
+        with self._lock:
+            expire_at = time.time() + self._ttl if self._ttl else None
+            self._store[key] = (value, expire_at)
+
     def clear(self):
         with self._lock:
             self._store.clear()
@@ -88,6 +119,9 @@ _search_log_cache = _TTLCache(ttl=30)
 # TTLを長めに取る代わりに、PDFの登録・削除時に明示的にクリアして
 # 古いドキュメント内容に基づく回答が残り続けないようにする(ingest_pdf/delete_document参照)。
 _answer_cache = _TTLCache(ttl=24 * 3600)
+# documentsコレクションがハイブリッド検索スキーマ(名前付きdense+sparseベクトル)に
+# 対応済みかどうかのキャッシュ。移行スクリプト実行後に自動で反映されるよう短TTL。
+_schema_cache = _TTLCache(ttl=300)
 
 
 _genai_client = None
@@ -126,8 +160,24 @@ def ensure_collection(client: QdrantClient):
     if COLLECTION not in names:
         client.create_collection(
             collection_name=COLLECTION,
-            vectors_config=VectorParams(size=VECTOR_SIZE, distance=Distance.COSINE),
+            vectors_config={DENSE_VECTOR_NAME: VectorParams(size=VECTOR_SIZE, distance=Distance.COSINE)},
+            sparse_vectors_config={SPARSE_VECTOR_NAME: SparseVectorParams(modifier=Modifier.IDF)},
         )
+
+
+def _collection_supports_hybrid(client: QdrantClient) -> bool:
+    """documentsコレクションが名前付きdense/sparseベクトル(ハイブリッド検索)に
+    対応済みかどうかを判定する。旧スキーマ(無名ベクトルのみ)の場合はFalseを返し、
+    search()はレガシーな密ベクトルのみの検索にフォールバックする
+    (migrate_hybrid_search.pyでの移行前でも検索自体は壊れないようにするため)。"""
+    def _compute():
+        try:
+            info = client.get_collection(COLLECTION)
+            vectors = info.config.params.vectors
+            return isinstance(vectors, dict) and DENSE_VECTOR_NAME in vectors
+        except Exception:
+            return False
+    return _schema_cache.get_or_set("hybrid_supported", _compute)
 
 
 def extract_pages(pdf_path: str):
@@ -142,12 +192,106 @@ def extract_pages(pdf_path: str):
         doc.close()
 
 
+def _build_document_text(pages):
+    """全ページのテキストを1本の文字列に連結し、各開始オフセットがどのページに
+    属するかを引けるリストも返す。ページをまたぐチャンクでも正しいページ番号を
+    引けるようにするため、ページ単位ではなく文書全体でチャンク分割を行う。"""
+    parts, offsets, pos = [], [], 0
+    for p in pages:
+        offsets.append((pos, p["page"]))
+        parts.append(p["text"])
+        pos += len(p["text"])
+        parts.append("\n")
+        pos += 1
+    return "".join(parts), offsets
+
+
+def _page_for_offset(offsets, char_pos: int) -> int:
+    page = offsets[0][1] if offsets else 1
+    for start, pg in offsets:
+        if start > char_pos:
+            break
+        page = pg
+    return page
+
+
+_SENTENCE_BOUNDARY_RE = re.compile(r'(?<=[。!?！？])')
+_ARTICLE_HEADING_RE = re.compile(r'^第[0-90-9]+条')
+
+
+def _split_sentences(text: str):
+    """句点(。!?！？)の直後で文を分割する(ゼロ幅一致なので文字は失われない)。"""
+    return [s for s in _SENTENCE_BOUNDARY_RE.split(text) if s]
+
+
 def split_chunks(text: str):
-    chunks, start = [], 0
-    while start < len(text):
-        chunks.append(text[start: start + CHUNK_SIZE])
-        start += CHUNK_SIZE - OVERLAP
-    return [c for c in chunks if len(c.strip()) >= 20]
+    """文単位でチャンクを詰める。文の途中で切ってしまう旧実装(固定文字数分割)と
+    異なり、意味のまとまりを保ったままCHUNK_SIZE前後・OVERLAP文字重複でチャンク化する。
+    「第◯条」のような条文見出しが現れた場合は、直前の内容と混ざらないよう
+    そこでチャンクを区切る。戻り値は (チャンク本文, 文書全体における開始オフセット) のリスト。"""
+    sentences = _split_sentences(text)
+    chunks, current, current_start, pos = [], "", 0, 0
+    for sent in sentences:
+        starts_new_article = bool(_ARTICLE_HEADING_RE.match(sent.strip()))
+        if current and (len(current) + len(sent) > CHUNK_SIZE or (starts_new_article and len(current.strip()) >= 20)):
+            chunks.append((current, current_start))
+            overlap = current[-OVERLAP:] if len(current) > OVERLAP else current
+            current = overlap + sent
+            current_start = pos - len(overlap)
+        else:
+            if not current:
+                current_start = pos
+            current += sent
+        pos += len(sent)
+    if current.strip():
+        chunks.append((current, current_start))
+    return [(c, s) for c, s in chunks if len(c.strip()) >= 20]
+
+
+_janome_tokenizer = None
+_janome_lock = threading.Lock()
+
+
+def _get_janome_tokenizer() -> _JanomeTokenizer:
+    global _janome_tokenizer
+    if _janome_tokenizer is None:
+        with _janome_lock:
+            if _janome_tokenizer is None:
+                _janome_tokenizer = _JanomeTokenizer()
+    return _janome_tokenizer
+
+
+_SPARSE_CONTENT_POS = ("名詞", "動詞", "形容詞", "副詞")
+_SPARSE_DIM = 1 << 20  # feature hashingの空間サイズ
+
+
+def _tokenize_for_sparse(text: str):
+    """内容語(名詞・動詞・形容詞・副詞)の基本形のみを抽出する。
+    助詞・助動詞などの機能語を除くことでBM25風のキーワード一致精度を上げる。"""
+    tokenizer = _get_janome_tokenizer()
+    tokens = []
+    for tok in tokenizer.tokenize(text):
+        pos = tok.part_of_speech.split(",")[0]
+        if pos not in _SPARSE_CONTENT_POS:
+            continue
+        base = tok.base_form if tok.base_form != "*" else tok.surface
+        tokens.append(base)
+    return tokens
+
+
+def _sparse_vector_from_text(text: str) -> SparseVector:
+    """テキストをJanomeでトークン化し、feature hashingで疎ベクトル化する。
+    語彙辞書を別途管理・同期する必要がないよう、トークンのハッシュ値を
+    そのままインデックスとして使う(値は出現頻度)。IDF重み付けはQdrant側
+    (Modifier.IDF)に任せる。"""
+    counts: dict = {}
+    for tok in _tokenize_for_sparse(text):
+        idx = int(hashlib.blake2b(tok.encode("utf-8"), digest_size=4).hexdigest(), 16) % _SPARSE_DIM
+        counts[idx] = counts.get(idx, 0.0) + 1.0
+    if not counts:
+        return SparseVector(indices=[], values=[])
+    indices = list(counts.keys())
+    return SparseVector(indices=indices, values=[counts[i] for i in indices])
 
 
 def embed_texts(texts, task_type: str):
@@ -193,11 +337,14 @@ def ingest_pdf(pdf_bytes: bytes, filename: str) -> int:
     finally:
         Path(tmp_path).unlink(missing_ok=True)
 
+    full_text, page_offsets = _build_document_text(pages)
+    chunk_list = split_chunks(full_text)
+
     all_chunks, chunk_meta = [], []
-    for page in pages:
-        for chunk in split_chunks(page["text"]):
-            all_chunks.append(chunk)
-            chunk_meta.append({"filename": filename, "page": page["page"], "text": chunk})
+    for chunk_text, start in chunk_list:
+        page = _page_for_offset(page_offsets, start)
+        all_chunks.append(chunk_text)
+        chunk_meta.append({"filename": filename, "page": page, "text": chunk_text})
 
     if not all_chunks:
         return 0
@@ -208,10 +355,17 @@ def ingest_pdf(pdf_bytes: bytes, filename: str) -> int:
         vecs = embed_texts(batch, task_type="RETRIEVAL_DOCUMENT")
         vectors.extend(vecs)
 
-    points = [
-        PointStruct(id=str(uuid.uuid4()), vector=vec, payload=meta)
-        for vec, meta in zip(vectors, chunk_meta)
-    ]
+    hybrid = _collection_supports_hybrid(client)
+    points = []
+    for vec, meta in zip(vectors, chunk_meta):
+        if hybrid:
+            vector = {
+                DENSE_VECTOR_NAME: vec,
+                SPARSE_VECTOR_NAME: _sparse_vector_from_text(meta["text"]),
+            }
+        else:
+            vector = vec
+        points.append(PointStruct(id=str(uuid.uuid4()), vector=vector, payload=meta))
     client.upsert(collection_name=COLLECTION, points=points)
     _store_pdf_bytes(client, filename, pdf_bytes)
     _registered_docs_cache.clear()
@@ -431,12 +585,12 @@ def get_top_queries(n: int = 3):
 
 def get_cached_result(query: str):
     key = normalize_query(query)
-    return _answer_cache._store.get(key, (None, None))[0]
+    return _answer_cache.get(key)
 
 
 def set_cached_result(query: str, answer: str, chunks):
     key = normalize_query(query)
-    _answer_cache._store[key] = ((answer, chunks), time.time() + _answer_cache._ttl)
+    _answer_cache.set(key, (answer, chunks))
 
 
 def delete_document(filename: str) -> int:
@@ -594,44 +748,139 @@ def expand_query(query: str) -> str:
     )
     try:
         response = _call_gemini_with_retry(
-            lambda: client.models.generate_content(model=GEN_MODEL, contents=prompt)
+            lambda: client.models.generate_content(
+                model=GEN_MODEL,
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    thinking_config=types.ThinkingConfig(thinking_budget=0)
+                ),
+            )
         )
         return response.text.strip()
     except Exception:
         return query
 
 
+def _get_dense_hits(client: QdrantClient, dense_vec, hybrid: bool, limit: int):
+    kwargs = {"limit": limit}
+    if hybrid:
+        kwargs["using"] = DENSE_VECTOR_NAME
+    return client.query_points(collection_name=COLLECTION, query=dense_vec, **kwargs).points
+
+
+def _get_sparse_hits(client: QdrantClient, query_text: str, limit: int):
+    sparse_vec = _sparse_vector_from_text(query_text)
+    if not sparse_vec.indices:
+        return []
+    return client.query_points(
+        collection_name=COLLECTION, query=sparse_vec, using=SPARSE_VECTOR_NAME, limit=limit,
+    ).points
+
+
+def _rrf_merge(rank_lists, k: int = _RRF_K):
+    """複数の検索結果リスト(スコア降順)をReciprocal Rank Fusionで統合する。
+    密ベクトルのコサイン類似度と疎ベクトルのBM25風スコアはスケールが異なり
+    単純比較できないため、順位ベースのRRFでマージする。"""
+    fused: dict = {}
+    for ranked in rank_lists:
+        for rank, item in enumerate(ranked):
+            fused[item.id] = fused.get(item.id, 0.0) + 1.0 / (k + rank + 1)
+    return fused
+
+
+def rerank_chunks(query: str, chunks: list, top_k: int = 5) -> list:
+    """検索候補チャンクをGeminiに関連度順で並べ替えさせ、無関係な候補を除いてtop_k件に絞る。
+    ハイブリッド検索のRRFスコアは順位ベースで意味的な関連性を保証しないため、
+    LLMによる最終判定を挟む。API呼び出しに失敗した場合は取得時のスコア順にフォールバックする。"""
+    if not chunks:
+        return []
+    if len(chunks) == 1:
+        return chunks
+
+    listing = "\n\n".join(
+        f"[{i}] {c['filename']} p.{c['page']}\n{c['text'][:300]}"
+        for i, c in enumerate(chunks)
+    )
+    prompt = (
+        "以下は検索候補の文書チャンクです。ユーザーの質問に答える上で関連性が高い順に、"
+        "番号だけをカンマ区切りで並べてください。質問と無関係なものは含めないでください。\n"
+        f"関連するものが{top_k}件未満であれば、その件数だけ出力してください。\n"
+        "説明は不要です。番号のみを出力してください(出力例: 2,0,4)。\n\n"
+        f"質問: {query}\n\n候補:\n{listing}"
+    )
+    try:
+        response = _call_gemini_with_retry(
+            lambda: get_genai_client().models.generate_content(
+                model=GEN_MODEL,
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    thinking_config=types.ThinkingConfig(thinking_budget=0)
+                ),
+            )
+        )
+        order = [int(n) for n in re.findall(r'\d+', response.text)]
+        used, picked = set(), []
+        for idx in order:
+            if 0 <= idx < len(chunks) and idx not in used:
+                used.add(idx)
+                picked.append(chunks[idx])
+            if len(picked) >= top_k:
+                break
+        if picked:
+            return picked
+    except Exception:
+        pass
+    return sorted(chunks, key=lambda c: c.get("score", 0), reverse=True)[:top_k]
+
+
 def search(query: str, top_k: int = 5):
     client = get_qdrant()
+    ensure_collection(client)
+    hybrid = _collection_supports_hybrid(client)
 
     expanded = expand_query(query)
-    queries = list({query, expanded})
+    queries = list(dict.fromkeys([query, expanded]))
+    dense_vecs = embed_texts(queries, task_type="RETRIEVAL_QUERY")
 
-    seen, results_merged = set(), []
-    for q in queries:
-        vecs = embed_texts([q], task_type="RETRIEVAL_QUERY")
-        hits = client.query_points(
-            collection_name=COLLECTION,
-            query=vecs[0],
-            limit=top_k,
-        ).points
-        for h in hits:
-            if h.id not in seen:
-                seen.add(h.id)
-                results_merged.append(h)
+    rank_lists, dense_scores, all_hits = [], {}, {}
+    for q, dense_vec in zip(queries, dense_vecs):
+        dense_hits = _get_dense_hits(client, dense_vec, hybrid, CANDIDATE_LIMIT)
+        rank_lists.append(dense_hits)
+        for h in dense_hits:
+            all_hits[h.id] = h
+            if h.id not in dense_scores or h.score > dense_scores[h.id]:
+                dense_scores[h.id] = h.score
 
-    results_merged.sort(key=lambda r: r.score, reverse=True)
-    results_merged = [r for r in results_merged if r.score >= SCORE_THRESHOLD][:top_k]
+        if hybrid:
+            sparse_hits = _get_sparse_hits(client, q, CANDIDATE_LIMIT)
+            rank_lists.append(sparse_hits)
+            for h in sparse_hits:
+                all_hits.setdefault(h.id, h)
 
-    return [
+    if not all_hits:
+        return []
+
+    if hybrid:
+        fused = _rrf_merge(rank_lists)
+        ranked_ids = sorted(fused, key=lambda i: fused[i], reverse=True)[:CANDIDATE_LIMIT]
+    else:
+        # レガシー(スパース未対応)コレクション: 従来通りコサイン類似度の閾値でフィルタ
+        ranked_ids = [
+            i for i, h in sorted(all_hits.items(), key=lambda kv: kv[1].score, reverse=True)
+            if h.score >= SCORE_THRESHOLD
+        ][:CANDIDATE_LIMIT]
+
+    candidates = [
         {
-            "filename": r.payload["filename"],
-            "page": r.payload["page"],
-            "text": r.payload["text"],
-            "score": r.score,
+            "filename": all_hits[i].payload["filename"],
+            "page": all_hits[i].payload["page"],
+            "text": all_hits[i].payload["text"],
+            "score": dense_scores.get(i, all_hits[i].score),
         }
-        for r in results_merged
+        for i in ranked_ids
     ]
+
+    return rerank_chunks(query, candidates, top_k=top_k)
 
 
 def generate_answer(query: str, chunks) -> str:

@@ -7,6 +7,7 @@
 """
 
 import secrets
+import threading
 import time
 from pathlib import Path
 from urllib.parse import quote
@@ -113,6 +114,15 @@ def _search_message(level: str, text: str):
     return render_template("partials/search_result.html", kind="message", level=level, text=text)
 
 
+def _record_search_async(query: str, answer: str, chunks):
+    """検索ログ記録(Qdrant書き込み+初回のみラベル生成LLM呼び出し)を
+    レスポンス返却後にバックグラウンドで行い、検索の体感速度を落とさないようにする。"""
+    try:
+        core.record_search(query, answer, chunks)
+    except Exception:
+        app.logger.exception("record_search failed for query=%r", query)
+
+
 @app.route("/search", methods=["POST"])
 def do_search():
     query = request.form.get("query", "")
@@ -137,8 +147,10 @@ def do_search():
             answer = None
             if chunks:
                 answer = core.generate_answer(safe_query, chunks)
-                core.record_search(safe_query, answer, chunks)
                 core.set_cached_result(safe_query, answer, chunks)
+                threading.Thread(
+                    target=_record_search_async, args=(safe_query, answer, chunks), daemon=True
+                ).start()
         except Exception as e:
             app.logger.exception("search failed for query=%r", safe_query)
             return _search_message("error", core._gemini_error_message(e))
