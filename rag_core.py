@@ -50,11 +50,13 @@ MAX_DOCS = 50
 ADMIN_TIMEOUT_SEC = 30 * 60
 EMBED_MODEL = "gemini-embedding-001"
 VECTOR_SIZE = 3072
-GEN_MODEL = "gemini-2.5-flash"
-# クエリ拡張・リランク・ラベル生成は変換/分類程度の軽いタスクのため、
-# 単価の安いLiteモデルを使う(入力$0.10・出力$0.40 / 1Mトークン。
-# 通常のFlashは入力$0.30・出力$2.50)。回答生成(generate_answer)と
-# OCR(_ocr_page_with_gemini)は精度を優先しGEN_MODELのまま。
+# OCR(_ocr_page_with_gemini)専用。スキャンPDFの画像認識精度を優先し、
+# 通常のFlashを維持する(Liteでの精度はeval_search.py等で未検証のため)。
+GEN_MODEL_OCR = "gemini-2.5-flash"
+# 回答生成・クエリ拡張・リランク・ラベル生成はLiteモデルを使う
+# (入力$0.10・出力$0.40 / 1Mトークン。通常のFlashは入力$0.30・出力$2.50)。
+# eval_search.py(20問)でgenerate_answerをLiteにしても検索ヒット率100%・
+# 回答忠実性95%とflashと同等であることを確認済み(2026-07-19)。
 GEN_MODEL_LITE = "gemini-2.5-flash-lite"
 QDRANT_PATH = "./qdrant_data"
 CHUNK_SIZE = 400
@@ -205,7 +207,7 @@ def _ocr_page_with_gemini(png_bytes: bytes) -> str:
     try:
         response = _call_gemini_with_retry(
             lambda: get_genai_client().models.generate_content(
-                model=GEN_MODEL,
+                model=GEN_MODEL_OCR,
                 contents=[types.Part.from_bytes(data=png_bytes, mime_type="image/png"), prompt],
             )
         )
@@ -791,7 +793,7 @@ def _gemini_error_message(e: Exception) -> str:
     if "401" in err or "403" in err or "API_KEY" in err.upper():
         return "APIキーが無効です。管理者にGEMINI_API_KEYの設定を確認してください。"
     if "404" in err or "not found" in err.lower():
-        return f"モデル '{GEN_MODEL}' が見つかりません。"
+        return "指定されたGeminiモデルが見つかりません。APIキーで利用可能なモデルか管理者に確認してください。"
     if "429" in err or "quota" in err.lower():
         return "APIの利用上限に達しました。しばらく待ってから再試行してください。"
     if "503" in err or "UNAVAILABLE" in err or "high demand" in err.lower():
@@ -985,7 +987,7 @@ def generate_answer(query: str, chunks) -> str:
     try:
         response = _call_gemini_with_retry(
             lambda: client.models.generate_content(
-                model=GEN_MODEL,
+                model=GEN_MODEL_LITE,
                 contents=prompt,
                 config=types.GenerateContentConfig(
                     thinking_config=types.ThinkingConfig(thinking_budget=0)
