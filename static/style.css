@@ -290,7 +290,8 @@ a {
   outline: 0;
   background: transparent;
   color: var(--color-text-primary);
-  font-size: var(--text-md);
+  /* 16px未満だとiOS Safariがフォーカス時にページ全体を自動ズームしてしまうため固定値にする */
+  font-size: 16px;
   font-weight: 500;
   padding: 12px 2px;
 }
